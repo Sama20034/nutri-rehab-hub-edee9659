@@ -192,6 +192,53 @@ export type Database = {
           },
         ]
       }
+      client_recipes: {
+        Row: {
+          assigned_by: string | null
+          client_id: string
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string
+          day_of_week: number | null
+          id: string
+          meal_type: string | null
+          notes: string | null
+          recipe_id: string
+        }
+        Insert: {
+          assigned_by?: string | null
+          client_id: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          day_of_week?: number | null
+          id?: string
+          meal_type?: string | null
+          notes?: string | null
+          recipe_id: string
+        }
+        Update: {
+          assigned_by?: string | null
+          client_id?: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          day_of_week?: number | null
+          id?: string
+          meal_type?: string | null
+          notes?: string | null
+          recipe_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_recipes_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_videos: {
         Row: {
           assigned_by: string | null
@@ -362,6 +409,51 @@ export type Database = {
         }
         Relationships: []
       }
+      meal_plans: {
+        Row: {
+          breakfast: Json | null
+          created_at: string
+          created_by: string | null
+          day_number: number | null
+          description: string | null
+          dinner: Json | null
+          id: string
+          lunch: Json | null
+          name: string
+          package_type: string | null
+          snacks: Json[] | null
+          total_calories: number | null
+        }
+        Insert: {
+          breakfast?: Json | null
+          created_at?: string
+          created_by?: string | null
+          day_number?: number | null
+          description?: string | null
+          dinner?: Json | null
+          id?: string
+          lunch?: Json | null
+          name: string
+          package_type?: string | null
+          snacks?: Json[] | null
+          total_calories?: number | null
+        }
+        Update: {
+          breakfast?: Json | null
+          created_at?: string
+          created_by?: string | null
+          day_number?: number | null
+          description?: string | null
+          dinner?: Json | null
+          id?: string
+          lunch?: Json | null
+          name?: string
+          package_type?: string | null
+          snacks?: Json[] | null
+          total_calories?: number | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -523,6 +615,78 @@ export type Database = {
           status?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      recipes: {
+        Row: {
+          calories: number | null
+          carbs_g: number | null
+          category: string | null
+          cook_time_minutes: number | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          difficulty: string | null
+          fat_g: number | null
+          id: string
+          image_url: string | null
+          ingredients: Json | null
+          instructions: Json | null
+          meal_type: string | null
+          name: string
+          package_type: string | null
+          prep_time_minutes: number | null
+          protein_g: number | null
+          tags: string[] | null
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          calories?: number | null
+          carbs_g?: number | null
+          category?: string | null
+          cook_time_minutes?: number | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          difficulty?: string | null
+          fat_g?: number | null
+          id?: string
+          image_url?: string | null
+          ingredients?: Json | null
+          instructions?: Json | null
+          meal_type?: string | null
+          name: string
+          package_type?: string | null
+          prep_time_minutes?: number | null
+          protein_g?: number | null
+          tags?: string[] | null
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          calories?: number | null
+          carbs_g?: number | null
+          category?: string | null
+          cook_time_minutes?: number | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          difficulty?: string | null
+          fat_g?: number | null
+          id?: string
+          image_url?: string | null
+          ingredients?: Json | null
+          instructions?: Json | null
+          meal_type?: string | null
+          name?: string
+          package_type?: string | null
+          prep_time_minutes?: number | null
+          protein_g?: number | null
+          tags?: string[] | null
+          updated_at?: string
+          video_url?: string | null
         }
         Relationships: []
       }
