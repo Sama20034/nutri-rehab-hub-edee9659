@@ -4,69 +4,74 @@
 @tailwind components;
 @tailwind utilities;
 
-/* NutriRehab Design System - Dark Medical Theme */
+/* Alligator Fit Design System - Athletic Power Theme */
+/* Colors: Strength (Orange), Confidence (Blue), Professionalism (Dark), Health (Green) */
 
 @layer base {
   :root {
-    /* Dark medical theme inspired by the logo */
-    --background: 220 20% 8%;
-    --foreground: 210 40% 98%;
+    /* Dark athletic background - deep black with slight blue */
+    --background: 220 25% 6%;
+    --foreground: 0 0% 98%;
 
-    --card: 220 18% 12%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 20% 10%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 220 18% 12%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 20% 10%;
+    --popover-foreground: 0 0% 98%;
 
-    /* Primary - Teal/Turquoise from logo */
-    --primary: 174 72% 45%;
-    --primary-foreground: 220 20% 8%;
+    /* Primary - Vibrant Green (Health & Growth) */
+    --primary: 142 70% 45%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Deep Blue */
-    --secondary: 220 60% 25%;
-    --secondary-foreground: 210 40% 98%;
+    /* Secondary - Power Orange (Strength & Energy) */
+    --secondary: 24 95% 53%;
+    --secondary-foreground: 0 0% 100%;
 
-    /* Muted */
-    --muted: 220 15% 18%;
-    --muted-foreground: 215 20% 65%;
+    /* Muted - Dark slate */
+    --muted: 220 20% 14%;
+    --muted-foreground: 220 15% 60%;
 
-    /* Accent - Warm green for health */
-    --accent: 158 64% 40%;
-    --accent-foreground: 210 40% 98%;
+    /* Accent - Electric Blue (Trust & Confidence) */
+    --accent: 210 100% 50%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 20%;
-    --input: 220 15% 18%;
-    --ring: 174 72% 45%;
+    --border: 220 20% 18%;
+    --input: 220 20% 14%;
+    --ring: 142 70% 45%;
 
     --radius: 0.75rem;
 
-    /* Custom tokens */
-    --gradient-primary: linear-gradient(135deg, hsl(174 72% 45%) 0%, hsl(158 64% 40%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(220 20% 8%) 0%, hsl(220 25% 12%) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(220 18% 14%) 0%, hsl(220 18% 10%) 100%);
-    --gradient-glow: radial-gradient(ellipse at center, hsl(174 72% 45% / 0.15) 0%, transparent 70%);
+    /* Custom gradient tokens - Athletic theme */
+    --gradient-primary: linear-gradient(135deg, hsl(142 70% 45%) 0%, hsl(142 80% 35%) 100%);
+    --gradient-energy: linear-gradient(135deg, hsl(24 95% 53%) 0%, hsl(35 100% 50%) 100%);
+    --gradient-power: linear-gradient(135deg, hsl(24 95% 53%) 0%, hsl(142 70% 45%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(220 25% 6%) 0%, hsl(220 25% 10%) 50%, hsl(142 70% 15% / 0.3) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(220 20% 12%) 0%, hsl(220 20% 8%) 100%);
+    --gradient-glow: radial-gradient(ellipse at center, hsl(142 70% 45% / 0.2) 0%, transparent 70%);
+    --gradient-confidence: linear-gradient(135deg, hsl(210 100% 50%) 0%, hsl(210 90% 40%) 100%);
     
-    --shadow-glow: 0 0 40px hsl(174 72% 45% / 0.2);
-    --shadow-card: 0 10px 40px hsl(220 20% 4% / 0.5);
-    --shadow-elevated: 0 20px 60px hsl(220 20% 4% / 0.7);
+    --shadow-glow: 0 0 40px hsl(142 70% 45% / 0.3);
+    --shadow-energy: 0 0 40px hsl(24 95% 53% / 0.3);
+    --shadow-card: 0 10px 40px hsl(220 25% 4% / 0.6);
+    --shadow-elevated: 0 20px 60px hsl(220 25% 4% / 0.8);
 
-    /* Sidebar */
-    --sidebar-background: 220 18% 10%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 174 72% 45%;
-    --sidebar-primary-foreground: 220 20% 8%;
-    --sidebar-accent: 220 15% 18%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 220 15% 20%;
-    --sidebar-ring: 174 72% 45%;
+    /* Sidebar - Athletic dark theme */
+    --sidebar-background: 220 20% 8%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 142 70% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 20% 14%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 220 20% 16%;
+    --sidebar-ring: 142 70% 45%;
   }
 
   .dark {
-    --background: 220 20% 8%;
-    --foreground: 210 40% 98%;
+    --background: 220 25% 6%;
+    --foreground: 0 0% 98%;
   }
 }
 
@@ -146,12 +151,17 @@
   }
 
   @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 20px hsl(174 72% 45% / 0.3); }
-    50% { box-shadow: 0 0 40px hsl(174 72% 45% / 0.5); }
+    0%, 100% { box-shadow: 0 0 20px hsl(142 70% 45% / 0.3); }
+    50% { box-shadow: 0 0 40px hsl(142 70% 45% / 0.5); }
   }
 
   @keyframes slide-up {
     from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes energy-pulse {
+    0%, 100% { box-shadow: 0 0 20px hsl(24 95% 53% / 0.3); }
+    50% { box-shadow: 0 0 40px hsl(24 95% 53% / 0.5); }
   }
 }
