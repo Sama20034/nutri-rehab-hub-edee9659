@@ -53,8 +53,20 @@ const Auth = () => {
     }
   }, [user, role, status, loading, navigate]);
 
+  // Redirect to Register page for client registration
+  const handleClientRegister = () => {
+    navigate('/register');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // If client wants to register, redirect to multi-step registration
+    if (!isLogin && selectedRole === 'client') {
+      handleClientRegister();
+      return;
+    }
+    
     setIsLoading(true);
 
     try {
@@ -70,7 +82,7 @@ const Auth = () => {
           toast.success(isRTL ? 'تم تسجيل الدخول بنجاح' : 'Login successful');
         }
       } else {
-        // Validation
+        // Validation for doctor/admin registration
         if (password !== confirmPassword) {
           toast.error(isRTL ? 'كلمات المرور غير متطابقة' : 'Passwords do not match');
           setIsLoading(false);
@@ -165,7 +177,13 @@ const Auth = () => {
                       <button
                         key={r.value}
                         type="button"
-                        onClick={() => setSelectedRole(r.value)}
+                        onClick={() => {
+                          setSelectedRole(r.value);
+                          // If client is selected, redirect to multi-step registration
+                          if (r.value === 'client') {
+                            navigate('/register');
+                          }
+                        }}
                         className={`p-3 rounded-lg border transition-all flex flex-col items-center gap-2 ${
                           selectedRole === r.value
                             ? 'border-primary bg-primary/10 text-primary'
@@ -179,71 +197,76 @@ const Auth = () => {
                   </div>
                 </div>
 
-                {/* Full Name */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{t('auth.name')}</label>
-                  <div className="relative">
-                    <User className={`absolute top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground ${isRTL ? 'right-3' : 'left-3'}`} />
-                    <Input
-                      type="text"
-                      required
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      placeholder={isRTL ? 'أدخل اسمك الكامل' : 'Enter your full name'}
-                      className={`bg-background ${isRTL ? 'pr-10' : 'pl-10'}`}
-                    />
-                  </div>
-                </div>
-
-                {/* Phone */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">{isRTL ? 'رقم الهاتف' : 'Phone Number'}</label>
-                  <div className="relative">
-                    <Phone className={`absolute top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground ${isRTL ? 'right-3' : 'left-3'}`} />
-                    <Input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder={isRTL ? 'أدخل رقم هاتفك' : 'Enter your phone number'}
-                      className={`bg-background ${isRTL ? 'pr-10' : 'pl-10'}`}
-                      dir="ltr"
-                    />
-                  </div>
-                </div>
-
-                {/* Doctor-specific fields */}
-                {selectedRole === 'doctor' && (
+                {/* Show fields only for doctor/admin */}
+                {selectedRole !== 'client' && (
                   <>
+                    {/* Full Name */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">{isRTL ? 'التخصص' : 'Specialization'}</label>
+                      <label className="text-sm font-medium">{t('auth.name')}</label>
                       <div className="relative">
-                        <Stethoscope className={`absolute top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground ${isRTL ? 'right-3' : 'left-3'}`} />
+                        <User className={`absolute top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground ${isRTL ? 'right-3' : 'left-3'}`} />
                         <Input
                           type="text"
                           required
-                          value={specialization}
-                          onChange={(e) => setSpecialization(e.target.value)}
-                          placeholder={isRTL ? 'مثال: أخصائي تغذية علاجية' : 'e.g., Clinical Nutritionist'}
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          placeholder={isRTL ? 'أدخل اسمك الكامل' : 'Enter your full name'}
                           className={`bg-background ${isRTL ? 'pr-10' : 'pl-10'}`}
                         />
                       </div>
                     </div>
 
+                    {/* Phone */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">{isRTL ? 'رقم الترخيص' : 'License Number'}</label>
+                      <label className="text-sm font-medium">{isRTL ? 'رقم الهاتف' : 'Phone Number'}</label>
                       <div className="relative">
-                        <FileText className={`absolute top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground ${isRTL ? 'right-3' : 'left-3'}`} />
+                        <Phone className={`absolute top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground ${isRTL ? 'right-3' : 'left-3'}`} />
                         <Input
-                          type="text"
-                          required
-                          value={licenseNumber}
-                          onChange={(e) => setLicenseNumber(e.target.value)}
-                          placeholder={isRTL ? 'أدخل رقم ترخيصك المهني' : 'Enter your license number'}
+                          type="tel"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          placeholder={isRTL ? 'أدخل رقم هاتفك' : 'Enter your phone number'}
                           className={`bg-background ${isRTL ? 'pr-10' : 'pl-10'}`}
                           dir="ltr"
                         />
                       </div>
                     </div>
+
+                    {/* Doctor-specific fields */}
+                    {selectedRole === 'doctor' && (
+                      <>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">{isRTL ? 'التخصص' : 'Specialization'}</label>
+                          <div className="relative">
+                            <Stethoscope className={`absolute top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground ${isRTL ? 'right-3' : 'left-3'}`} />
+                            <Input
+                              type="text"
+                              required
+                              value={specialization}
+                              onChange={(e) => setSpecialization(e.target.value)}
+                              placeholder={isRTL ? 'مثال: أخصائي تغذية علاجية' : 'e.g., Clinical Nutritionist'}
+                              className={`bg-background ${isRTL ? 'pr-10' : 'pl-10'}`}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">{isRTL ? 'رقم الترخيص' : 'License Number'}</label>
+                          <div className="relative">
+                            <FileText className={`absolute top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground ${isRTL ? 'right-3' : 'left-3'}`} />
+                            <Input
+                              type="text"
+                              required
+                              value={licenseNumber}
+                              onChange={(e) => setLicenseNumber(e.target.value)}
+                              placeholder={isRTL ? 'أدخل رقم ترخيصك المهني' : 'Enter your license number'}
+                              className={`bg-background ${isRTL ? 'pr-10' : 'pl-10'}`}
+                              dir="ltr"
+                            />
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </>
                 )}
               </>
