@@ -12,7 +12,7 @@ import { HealthProfileSection } from '@/components/dashboard/sections/HealthProf
 import { AppointmentsSection } from '@/components/dashboard/sections/AppointmentsSection';
 import { PlaceholderSection } from '@/components/dashboard/sections/PlaceholderSection';
 import { ExercisesSection } from '@/components/dashboard/sections/ExercisesSection';
-import { DietPlansSection } from '@/components/dashboard/sections/DietPlansSection';
+import { NutritionSection } from '@/components/dashboard/sections/NutritionSection';
 import { ChatSection } from '@/components/dashboard/sections/ChatSection';
 import { VideosSection } from '@/components/dashboard/sections/VideosSection';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
@@ -111,9 +111,10 @@ const ClientDashboard = () => {
         );
       case 'diet':
         return (
-          <DietPlansSection 
+          <NutritionSection 
             isRTL={isRTL}
             clientId={user?.id || ''}
+            packageType={profile?.selected_package || 'basic'}
           />
         );
       case 'progress':
