@@ -13,6 +13,7 @@ import SuccessStories from "./pages/SuccessStories";
 import Contact from "./pages/Contact";
 import Auth from "./pages/Auth";
 import Register from "./pages/Register";
+import Payment from "./pages/Payment";
 import Policies from "./pages/Policies";
 import NotFound from "./pages/NotFound";
 import PendingApproval from "./pages/PendingApproval";
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/service-policy" element={<ServicePolicy />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/payment" element={<Payment />} />
               <Route path="/pending-approval" element={<PendingApproval />} />
               <Route path="/privacy" element={<Policies />} />
               <Route path="/terms" element={<Policies />} />

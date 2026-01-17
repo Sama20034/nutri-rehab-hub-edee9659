@@ -427,6 +427,63 @@ export type Database = {
         }
         Relationships: []
       }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string | null
+          id: string
+          notes: string | null
+          package_id: string | null
+          payment_method: string
+          payment_type: string
+          receipt_url: string | null
+          sender_name: string | null
+          sender_phone: string | null
+          status: string | null
+          updated_at: string
+          user_id: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          notes?: string | null
+          package_id?: string | null
+          payment_method: string
+          payment_type: string
+          receipt_url?: string | null
+          sender_name?: string | null
+          sender_phone?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          notes?: string | null
+          package_id?: string | null
+          payment_method?: string
+          payment_type?: string
+          receipt_url?: string | null
+          sender_name?: string | null
+          sender_phone?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
