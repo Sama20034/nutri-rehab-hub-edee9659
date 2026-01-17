@@ -141,13 +141,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (error) throw error;
       if (!data.user) throw new Error('No user returned');
 
-      // The handle_new_user trigger will create profile and role automatically
-      // But we need to update role if it's not 'client'
+      // The handle_new_user trigger creates profile and role as 'client'
+      // Use the security definer function to update role if not 'client'
       if (role !== 'client') {
         const { error: roleError } = await supabase
-          .from('user_roles')
-          .update({ role: role })
-          .eq('user_id', data.user.id);
+          .rpc('update_user_role_on_signup', { 
+            p_user_id: data.user.id, 
+            p_role: role 
+          });
 
         if (roleError) throw roleError;
       }
