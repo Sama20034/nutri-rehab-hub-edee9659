@@ -24,6 +24,10 @@ interface Profile {
   full_name: string | null;
   phone: string | null;
   avatar_url: string | null;
+  status: UserStatus | null;
+  selected_package: string | null;
+  payment_method: string | null;
+  medical_followup: boolean | null;
   created_at: string;
   updated_at: string;
 }
@@ -33,6 +37,9 @@ interface ProfileData {
   phone?: string;
   specialization?: string;
   license_number?: string;
+  selected_package?: string;
+  payment_method?: string;
+  medical_followup?: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,7 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [role, setRole] = useState<AppRole | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [status, setStatus] = useState<UserStatus | null>('approved'); // Default to approved since we don't have status column
+  const [status, setStatus] = useState<UserStatus | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchUserData = async (userId: string) => {
@@ -58,7 +65,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setRole(roleData.role as AppRole);
       }
 
-      // Fetch profile
+      // Fetch profile with status
       const { data: profileData } = await supabase
         .from('profiles')
         .select('*')
@@ -67,8 +74,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (profileData) {
         setProfile(profileData as Profile);
-        // Since profiles table doesn't have status column, default to approved
-        setStatus('approved');
+        // Get status from profile, default to pending for new users
+        const userStatus = (profileData.status as UserStatus) || 'pending';
+        setStatus(userStatus);
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -144,15 +152,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (roleError) throw roleError;
       }
 
-      // Update profile with additional data
+      // Update profile with additional data including status as pending
+      const profileUpdate: Record<string, unknown> = {
+        status: 'pending',
+      };
+      
       if (profileData.phone) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({ phone: profileData.phone })
-          .eq('user_id', data.user.id);
-
-        if (profileError) throw profileError;
+        profileUpdate.phone = profileData.phone;
       }
+      if (profileData.selected_package) {
+        profileUpdate.selected_package = profileData.selected_package;
+      }
+      if (profileData.payment_method) {
+        profileUpdate.payment_method = profileData.payment_method;
+      }
+      if (profileData.medical_followup !== undefined) {
+        profileUpdate.medical_followup = profileData.medical_followup;
+      }
+
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update(profileUpdate)
+        .eq('user_id', data.user.id);
+
+      if (profileError) throw profileError;
 
       return { error: null };
     } catch (error) {

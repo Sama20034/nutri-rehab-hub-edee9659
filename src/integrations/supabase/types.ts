@@ -433,7 +433,11 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          medical_followup: boolean | null
+          payment_method: string | null
           phone: string | null
+          selected_package: string | null
+          status: string | null
           updated_at: string
           user_id: string
         }
@@ -442,7 +446,11 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          medical_followup?: boolean | null
+          payment_method?: string | null
           phone?: string | null
+          selected_package?: string | null
+          status?: string | null
           updated_at?: string
           user_id: string
         }
@@ -451,7 +459,11 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          medical_followup?: boolean | null
+          payment_method?: string | null
           phone?: string | null
+          selected_package?: string | null
+          status?: string | null
           updated_at?: string
           user_id?: string
         }

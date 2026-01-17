@@ -117,7 +117,7 @@ const HeroSection = () => {
             transition={{ delay: 0.5 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <Link to="/auth?mode=register">
+            <Link to="/register">
               <Button size="lg" className="gap-2 text-lg px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/25">
                 {isRTL ? 'اشترك الآن' : 'Subscribe Now'}
                 <ArrowRight className={`h-5 w-5 ${isRTL ? 'rotate-180' : ''}`} />
@@ -598,7 +598,7 @@ const SubscriptionPlans = () => {
                     ))}
                   </ul>
 
-                  <Link to="/auth?mode=register">
+                  <Link to="/register">
                     <Button 
                       className={`w-full ${plan.popular ? 'bg-primary' : ''}`}
                       variant={plan.popular ? 'default' : 'outline'}
@@ -827,7 +827,7 @@ const FinalCTA = () => {
                 {isRTL ? 'تواصل عبر واتساب' : 'Contact via WhatsApp'}
               </Button>
             </a>
-            <Link to="/auth?mode=register">
+            <Link to="/register">
               <Button size="lg" variant="outline" className="gap-2 text-lg px-8 py-6 border-primary/50">
                 {isRTL ? 'اشترك الآن' : 'Subscribe Now'}
                 <ArrowRight className={`h-5 w-5 ${isRTL ? 'rotate-180' : ''}`} />
