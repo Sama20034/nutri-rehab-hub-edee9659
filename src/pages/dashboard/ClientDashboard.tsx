@@ -15,6 +15,7 @@ import { ExercisesSection } from '@/components/dashboard/sections/ExercisesSecti
 import { NutritionSection } from '@/components/dashboard/sections/NutritionSection';
 import { ChatSection } from '@/components/dashboard/sections/ChatSection';
 import { VideosSection } from '@/components/dashboard/sections/VideosSection';
+import { MedicalFollowupSection } from '@/components/dashboard/sections/MedicalFollowupSection';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { cn } from '@/lib/utils';
 
@@ -132,12 +133,12 @@ const ClientDashboard = () => {
             clientId={user?.id || ''}
           />
         );
-      case 'doctor-notes':
+      case 'medical-followup':
         return (
-          <PlaceholderSection 
+          <MedicalFollowupSection 
             isRTL={isRTL}
-            title={isRTL ? 'ملاحظات الدكتور' : 'Doctor Notes'}
-            description={isRTL ? 'اطلع على ملاحظات وتوصيات الطبيب' : 'View your doctor\'s notes and recommendations'}
+            clientId={user?.id || ''}
+            hasMedicalFollowup={profile?.medical_followup || false}
           />
         );
       case 'chat':

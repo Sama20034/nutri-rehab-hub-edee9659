@@ -409,6 +409,42 @@ export type Database = {
         }
         Relationships: []
       }
+      health_measurements: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          measurement_type: string
+          notes: string | null
+          recorded_at: string
+          recorded_by: string | null
+          unit: string
+          value: number
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          measurement_type: string
+          notes?: string | null
+          recorded_at?: string
+          recorded_by?: string | null
+          unit: string
+          value: number
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          measurement_type?: string
+          notes?: string | null
+          recorded_at?: string
+          recorded_by?: string | null
+          unit?: string
+          value?: number
+        }
+        Relationships: []
+      }
       meal_plans: {
         Row: {
           breakfast: Json | null
@@ -451,6 +487,45 @@ export type Database = {
           package_type?: string | null
           snacks?: Json[] | null
           total_calories?: number | null
+        }
+        Relationships: []
+      }
+      medical_notes: {
+        Row: {
+          client_id: string
+          content: string | null
+          created_at: string
+          doctor_id: string
+          id: string
+          is_read: boolean | null
+          severity: string | null
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          content?: string | null
+          created_at?: string
+          doctor_id: string
+          id?: string
+          is_read?: boolean | null
+          severity?: string | null
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          content?: string | null
+          created_at?: string
+          doctor_id?: string
+          id?: string
+          is_read?: boolean | null
+          severity?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
         }
         Relationships: []
       }
