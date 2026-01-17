@@ -7,10 +7,18 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { DoctorNote } from '@/hooks/useDoctorData';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
+
+// Define local interface since DoctorNote doesn't exist in useDoctorData
+interface DoctorNote {
+  id: string;
+  doctor_id: string;
+  client_id: string;
+  content: string;
+  created_at: string;
+}
 
 interface ClientProfile {
   user_id: string;
@@ -26,7 +34,7 @@ interface NotesSectionProps {
   notes: DoctorNote[];
   clients: ClientAssignment[];
   doctorId: string;
-  onAdd: (note: Omit<DoctorNote, 'id' | 'created_at' | 'updated_at'>) => Promise<{ error: Error | null }>;
+  onAdd: (note: Omit<DoctorNote, 'id' | 'created_at'>) => Promise<{ error: Error | null }>;
   onUpdate: (id: string, updates: Partial<DoctorNote>) => Promise<{ error: Error | null }>;
   onDelete: (id: string) => Promise<{ error: Error | null }>;
 }

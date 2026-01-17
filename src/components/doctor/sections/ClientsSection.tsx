@@ -18,7 +18,6 @@ interface ClientProfile {
   full_name: string;
   phone: string | null;
   avatar_url: string | null;
-  status: string;
   created_at: string;
 }
 
@@ -28,7 +27,6 @@ interface ClientAssignment {
   doctor_id: string;
   assigned_at: string;
   status: string;
-  notes: string | null;
   client?: ClientProfile;
 }
 
@@ -38,7 +36,6 @@ interface ClientsSectionProps {
   videos: VideoType[];
   dietPlans: DietPlan[];
   doctorId: string;
-  onAddDietPlan?: (plan: any) => Promise<{ error: Error | null }>;
   onViewClient?: (clientId: string) => void;
 }
 
@@ -48,7 +45,6 @@ export const ClientsSection = ({
   videos, 
   dietPlans, 
   doctorId,
-  onAddDietPlan,
   onViewClient 
 }: ClientsSectionProps) => {
   const { isRTL } = useLanguage();
@@ -212,7 +208,6 @@ export const ClientsSection = ({
         client={selectedClient}
         dietPlans={dietPlans}
         doctorId={doctorId}
-        onAddDietPlan={onAddDietPlan}
       />
     </div>
   );

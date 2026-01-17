@@ -24,13 +24,13 @@ import { toast } from 'sonner';
 
 interface DietPlansSectionProps {
   dietPlans: DietPlan[];
-  onAdd: (plan: Omit<DietPlan, 'id' | 'created_at' | 'updated_at'>) => Promise<{ error: Error | null }>;
+  onAdd: (plan: Omit<DietPlan, 'id' | 'created_at'>) => Promise<{ error: Error | null }>;
   onUpdate: (id: string, updates: Partial<DietPlan>) => Promise<{ error: Error | null }>;
   onDelete: (id: string) => Promise<{ error: Error | null }>;
 }
 
 const goals = ['تخسيس', 'زيادة الوزن', 'بناء العضلات', 'صحة عامة'];
-const statuses = ['مجاني', 'مدفوع'];
+const statuses = ['active', 'inactive'];
 
 export const DietPlansSection = ({
   dietPlans,
@@ -48,8 +48,8 @@ export const DietPlansSection = ({
     goal: 'تخسيس',
     calories_min: '',
     calories_max: '',
-    duration_days: '',
-    status: 'مجاني',
+    duration_weeks: '',
+    status: 'active',
     description: ''
   });
 
@@ -59,8 +59,8 @@ export const DietPlansSection = ({
       goal: 'تخسيس',
       calories_min: '',
       calories_max: '',
-      duration_days: '',
-      status: 'مجاني',
+      duration_weeks: '',
+      status: 'active',
       description: ''
     });
     setEditingPlan(null);
@@ -73,12 +73,12 @@ export const DietPlansSection = ({
     }
 
     const planData = {
-      doctor_id: user?.id || '',
+      created_by: user?.id || null,
       name: formData.name,
       goal: formData.goal,
       calories_min: formData.calories_min ? parseInt(formData.calories_min) : null,
       calories_max: formData.calories_max ? parseInt(formData.calories_max) : null,
-      duration_days: formData.duration_days ? parseInt(formData.duration_days) : null,
+      duration_weeks: formData.duration_weeks ? parseInt(formData.duration_weeks) : null,
       status: formData.status,
       description: formData.description || null
     };
@@ -105,8 +105,8 @@ export const DietPlansSection = ({
       goal: plan.goal || 'تخسيس',
       calories_min: plan.calories_min?.toString() || '',
       calories_max: plan.calories_max?.toString() || '',
-      duration_days: plan.duration_days?.toString() || '',
-      status: plan.status || 'مجاني',
+      duration_weeks: plan.duration_weeks?.toString() || '',
+      status: plan.status || 'active',
       description: plan.description || ''
     });
     setEditingPlan(plan);
@@ -123,9 +123,9 @@ export const DietPlansSection = ({
   };
 
   const getStatusBadge = (status: string | null) => {
-    return status === 'مدفوع'
-      ? <Badge className="bg-purple-500">{status}</Badge>
-      : <Badge className="bg-blue-500">{status || 'مجاني'}</Badge>;
+    return status === 'active'
+      ? <Badge className="bg-green-500">{isRTL ? 'نشط' : 'Active'}</Badge>
+      : <Badge className="bg-gray-500">{isRTL ? 'غير نشط' : 'Inactive'}</Badge>;
   };
 
   return (
@@ -133,7 +133,7 @@ export const DietPlansSection = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{isRTL ? 'الأنظمة الغذائية' : 'Diet Plans'}</h1>
-        <Button variant="hero" onClick={() => { resetForm(); setIsDialogOpen(true); }}>
+        <Button variant="default" onClick={() => { resetForm(); setIsDialogOpen(true); }}>
           <Plus className="h-4 w-4" />
           {isRTL ? 'إضافة نظام جديد' : 'Add New Plan'}
         </Button>
@@ -177,7 +177,7 @@ export const DietPlansSection = ({
                   </TableCell>
                   <TableCell>{getStatusBadge(plan.status)}</TableCell>
                   <TableCell>
-                    {plan.duration_days ? `${plan.duration_days} ${isRTL ? 'يوم' : 'days'}` : '-'}
+                    {plan.duration_weeks ? `${plan.duration_weeks} ${isRTL ? 'أسبوع' : 'weeks'}` : '-'}
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-center gap-2">
@@ -247,12 +247,12 @@ export const DietPlansSection = ({
               </div>
             </div>
             <div>
-              <Label>{isRTL ? 'المدة (بالأيام)' : 'Duration (days)'}</Label>
+              <Label>{isRTL ? 'المدة (بالأسابيع)' : 'Duration (weeks)'}</Label>
               <Input
                 type="number"
-                value={formData.duration_days}
-                onChange={(e) => setFormData({ ...formData, duration_days: e.target.value })}
-                placeholder="7"
+                value={formData.duration_weeks}
+                onChange={(e) => setFormData({ ...formData, duration_weeks: e.target.value })}
+                placeholder="4"
               />
             </div>
             <div>
@@ -263,7 +263,7 @@ export const DietPlansSection = ({
                 </SelectTrigger>
                 <SelectContent>
                   {statuses.map(s => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                    <SelectItem key={s} value={s}>{s === 'active' ? (isRTL ? 'نشط' : 'Active') : (isRTL ? 'غير نشط' : 'Inactive')}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -281,7 +281,7 @@ export const DietPlansSection = ({
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               {isRTL ? 'إلغاء' : 'Cancel'}
             </Button>
-            <Button variant="hero" onClick={handleSubmit}>
+            <Button onClick={handleSubmit}>
               {isRTL ? 'إضافة' : 'Add'}
             </Button>
           </DialogFooter>

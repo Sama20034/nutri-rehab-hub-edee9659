@@ -9,10 +9,22 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { TreatmentProgram } from '@/hooks/useDoctorData';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
+
+// Define local interface since TreatmentProgram doesn't exist in useDoctorData
+interface TreatmentProgram {
+  id: string;
+  doctor_id: string;
+  client_id: string;
+  name: string;
+  description: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  status: string | null;
+  created_at: string;
+}
 
 interface ClientProfile {
   user_id: string;
@@ -28,7 +40,7 @@ interface ProgramsSectionProps {
   programs: TreatmentProgram[];
   clients: ClientAssignment[];
   doctorId: string;
-  onAdd: (program: Omit<TreatmentProgram, 'id' | 'created_at' | 'updated_at'>) => Promise<{ error: Error | null }>;
+  onAdd: (program: Omit<TreatmentProgram, 'id' | 'created_at'>) => Promise<{ error: Error | null }>;
   onUpdate: (id: string, updates: Partial<TreatmentProgram>) => Promise<{ error: Error | null }>;
   onDelete: (id: string) => Promise<{ error: Error | null }>;
 }

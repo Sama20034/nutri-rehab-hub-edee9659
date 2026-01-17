@@ -15,7 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface VideosSectionProps {
   videos: Video[];
   doctorId: string;
-  onAdd: (video: Omit<Video, 'id' | 'created_at' | 'updated_at'>) => Promise<{ error: Error | null }>;
+  onAdd: (video: Omit<Video, 'id' | 'created_at'>) => Promise<{ error: Error | null }>;
   onDelete: (id: string) => Promise<{ error: Error | null }>;
 }
 
@@ -50,7 +50,7 @@ export const VideosSection = ({
 
   const [formData, setFormData] = useState({
     title: '',
-    youtube_url: '',
+    url: '',
     category: '',
     description: ''
   });
@@ -60,7 +60,7 @@ export const VideosSection = ({
   const resetForm = () => {
     setFormData({
       title: '',
-      youtube_url: '',
+      url: '',
       category: '',
       description: ''
     });
@@ -68,18 +68,19 @@ export const VideosSection = ({
   };
 
   const handleSubmitYouTube = async () => {
-    if (!formData.title || !formData.youtube_url) {
+    if (!formData.title || !formData.url) {
       toast.error(isRTL ? 'يرجى إدخال العنوان والرابط' : 'Please enter title and URL');
       return;
     }
 
     const videoData = {
-      doctor_id: doctorId,
+      created_by: doctorId,
       title: formData.title,
-      youtube_url: formData.youtube_url,
+      url: formData.url,
       category: formData.category || null,
       description: formData.description || null,
-      thumbnail_url: getYouTubeThumbnail(formData.youtube_url)
+      thumbnail_url: getYouTubeThumbnail(formData.url),
+      duration_seconds: null
     };
 
     const result = await onAdd(videoData);
@@ -119,12 +120,13 @@ export const VideosSection = ({
         .getPublicUrl(fileName);
 
       const videoData = {
-        doctor_id: doctorId,
+        created_by: doctorId,
         title: formData.title,
-        youtube_url: publicUrl, // Store the video URL here
+        url: publicUrl,
         category: formData.category || null,
         description: formData.description || null,
-        thumbnail_url: null // No thumbnail for uploaded videos
+        thumbnail_url: null,
+        duration_seconds: null
       };
 
       const result = await onAdd(videoData);
@@ -216,8 +218,8 @@ export const VideosSection = ({
                   <div>
                     <Label>{isRTL ? 'رابط يوتيوب' : 'YouTube URL'}</Label>
                     <Input
-                      value={formData.youtube_url}
-                      onChange={(e) => setFormData({ ...formData, youtube_url: e.target.value })}
+                      value={formData.url}
+                      onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                       placeholder="https://youtube.com/watch?v=..."
                     />
                   </div>
@@ -277,8 +279,8 @@ export const VideosSection = ({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {videos.map((video, index) => {
-            const isYouTube = isYouTubeUrl(video.youtube_url);
-            const thumbnail = video.thumbnail_url || (isYouTube ? getYouTubeThumbnail(video.youtube_url) : null);
+            const isYouTube = isYouTubeUrl(video.url);
+            const thumbnail = video.thumbnail_url || (isYouTube ? getYouTubeThumbnail(video.url) : null);
             
             return (
               <motion.div
@@ -346,16 +348,16 @@ export const VideosSection = ({
             </Button>
             {selectedVideo && (
               <div className="aspect-video w-full">
-                {isYouTubeUrl(selectedVideo.youtube_url) ? (
+                {isYouTubeUrl(selectedVideo.url) ? (
                   <iframe
-                    src={getYouTubeEmbedUrl(selectedVideo.youtube_url) || ''}
+                    src={getYouTubeEmbedUrl(selectedVideo.url) || ''}
                     className="w-full h-full"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                   />
                 ) : (
                   <video
-                    src={selectedVideo.youtube_url}
+                    src={selectedVideo.url}
                     className="w-full h-full"
                     controls
                     autoPlay

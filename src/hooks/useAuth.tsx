@@ -21,22 +21,16 @@ interface AuthContextType {
 interface Profile {
   id: string;
   user_id: string;
-  full_name: string;
+  full_name: string | null;
   phone: string | null;
-  specialization: string | null;
-  license_number: string | null;
-  bio: string | null;
   avatar_url: string | null;
-  status: UserStatus;
-  approved_at: string | null;
-  approved_by: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 interface ProfileData {
   full_name: string;
   phone?: string;
-  specialization?: string;
-  license_number?: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -46,7 +40,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [role, setRole] = useState<AppRole | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [status, setStatus] = useState<UserStatus | null>(null);
+  const [status, setStatus] = useState<UserStatus | null>('approved'); // Default to approved since we don't have status column
   const [loading, setLoading] = useState(true);
 
   const fetchUserData = async (userId: string) => {
@@ -71,7 +65,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (profileData) {
         setProfile(profileData as Profile);
-        setStatus(profileData.status as UserStatus);
+        // Since profiles table doesn't have status column, default to approved
+        setStatus('approved');
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -126,36 +121,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         email,
         password,
         options: {
-          emailRedirectTo: redirectUrl
+          emailRedirectTo: redirectUrl,
+          data: {
+            full_name: profileData.full_name
+          }
         }
       });
 
       if (error) throw error;
       if (!data.user) throw new Error('No user returned');
 
-      // Insert role
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: data.user.id,
-          role: role
-        });
+      // The handle_new_user trigger will create profile and role automatically
+      // But we need to update role if it's not 'client'
+      if (role !== 'client') {
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .update({ role: role })
+          .eq('user_id', data.user.id);
 
-      if (roleError) throw roleError;
+        if (roleError) throw roleError;
+      }
 
-      // Insert profile with pending status (admin auto-approved)
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          user_id: data.user.id,
-          full_name: profileData.full_name,
-          phone: profileData.phone || null,
-          specialization: profileData.specialization || null,
-          license_number: profileData.license_number || null,
-          status: role === 'admin' ? 'approved' : 'pending'
-        });
+      // Update profile with additional data
+      if (profileData.phone) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({ phone: profileData.phone })
+          .eq('user_id', data.user.id);
 
-      if (profileError) throw profileError;
+        if (profileError) throw profileError;
+      }
 
       return { error: null };
     } catch (error) {
