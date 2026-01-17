@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminData } from '@/hooks/useAdminData';
 import { useAdminExercisesData } from '@/hooks/useAdminExercisesData';
+import { useAdminStats } from '@/hooks/useAdminStats';
 import { useAppointments } from '@/hooks/useAppointments';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { OverviewSection } from '@/components/admin/sections/OverviewSection';
@@ -18,6 +19,9 @@ import { SchedulesSection } from '@/components/admin/sections/SchedulesSection';
 import { ExercisesSection } from '@/components/admin/sections/ExercisesSection';
 import { DietPlansSection } from '@/components/admin/sections/DietPlansSection';
 import { ArticlesSection } from '@/components/admin/sections/ArticlesSection';
+import { StoreSection } from '@/components/admin/sections/StoreSection';
+import { PaymentsSection } from '@/components/admin/sections/PaymentsSection';
+import { DiscountsSection } from '@/components/admin/sections/DiscountsSection';
 
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import logo from '@/assets/logo.png';
@@ -46,6 +50,19 @@ const AdminDashboard = () => {
     completeAppointment
   } = useAppointments(user?.id, 'admin');
 
+  const {
+    stats: salesStats,
+    orders,
+    payments,
+    products,
+    loading: statsLoading,
+    updateOrderStatus,
+    updatePaymentStatus,
+    addProduct,
+    updateProduct,
+    deleteProduct
+  } = useAdminStats();
+
   const [activeSection, setActiveSection] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -73,7 +90,7 @@ const AdminDashboard = () => {
   };
 
 
-  if (loading || dataLoading || exercisesLoading) {
+  if (loading || dataLoading || exercisesLoading || statsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -96,8 +113,29 @@ const AdminDashboard = () => {
             activeClientsCount={activeClients.length}
             activeDoctorsCount={activeDoctors.length}
             onQuickAction={setActiveSection}
+            stats={salesStats}
           />
         );
+      case 'store':
+        return (
+          <StoreSection
+            orders={orders}
+            products={products}
+            onUpdateOrderStatus={updateOrderStatus}
+            onAddProduct={addProduct}
+            onUpdateProduct={updateProduct}
+            onDeleteProduct={deleteProduct}
+          />
+        );
+      case 'payments':
+        return (
+          <PaymentsSection
+            payments={payments}
+            onUpdateStatus={updatePaymentStatus}
+          />
+        );
+      case 'discounts':
+        return <DiscountsSection />;
       case 'pending':
         return (
           <PendingSection
