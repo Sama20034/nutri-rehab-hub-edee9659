@@ -96,10 +96,19 @@ export const useAdminData = () => {
   }, [refreshData]);
 
   const updateUserStatus = async (userId: string, status: string) => {
-    // Note: status column doesn't exist in profiles table based on the schema
-    // This would need a migration to add the status column
-    console.warn('updateUserStatus: status column may not exist in profiles table');
-    return { error: null };
+    try {
+      // userId here is the auth user id (profiles.user_id)
+      const { error } = await supabase
+        .from('profiles')
+        .update({ status })
+        .eq('user_id', userId);
+
+      if (error) throw error;
+      await fetchUsers();
+      return { error: null };
+    } catch (err) {
+      return { error: err as Error };
+    }
   };
 
   const assignClientToDoctor = async (clientId: string, doctorId: string, notes?: string) => {
