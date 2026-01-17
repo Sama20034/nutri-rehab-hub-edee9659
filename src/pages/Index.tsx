@@ -199,7 +199,7 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="flex flex-col sm:flex-row gap-3 md:gap-4 sm:justify-end"
+              className="flex flex-col sm:flex-row gap-3 md:gap-4 sm:justify-start"
             >
               <Link to="/store" className="w-full sm:w-auto order-2 sm:order-1">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2 text-base md:text-lg px-6 md:px-8 py-5 md:py-6 border-secondary/50 text-secondary hover:bg-secondary/10 font-bold">
