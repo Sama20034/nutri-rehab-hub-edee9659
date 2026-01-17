@@ -110,38 +110,38 @@ const HeroSection = () => {
               <motion.div
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 6, repeat: Infinity }}
-                className="relative z-10"
+                className="relative z-10 max-w-sm sm:max-w-md lg:max-w-lg mx-auto"
               >
                 <img
                   src={drMahmoud1}
                   alt="Dr. Mahmoud Regy - Alligator Fit"
-                  className="w-full max-w-sm sm:max-w-md lg:max-w-lg mx-auto rounded-2xl md:rounded-3xl shadow-2xl shadow-primary/20"
+                  className="w-full rounded-2xl md:rounded-3xl shadow-2xl shadow-primary/20"
                 />
-              </motion.div>
+                
+                {/* Floating Elements - Inside image container */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.8 }}
+                  className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-card/90 backdrop-blur-sm p-2 sm:p-3 rounded-lg sm:rounded-xl border border-border shadow-xl z-20"
+                >
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <Dumbbell className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
+                    <span className="font-bold text-xs sm:text-sm">{isRTL ? 'تدريب احترافي' : 'Pro Training'}</span>
+                  </div>
+                </motion.div>
 
-              {/* Floating Elements */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.8 }}
-                className="absolute top-4 right-4 sm:top-6 sm:right-6 bg-card/90 backdrop-blur-sm p-2 sm:p-3 rounded-lg sm:rounded-xl border border-border shadow-xl"
-              >
-                <div className="flex items-center gap-1 sm:gap-2">
-                  <Dumbbell className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
-                  <span className="font-bold text-xs sm:text-sm">{isRTL ? 'تدريب احترافي' : 'Pro Training'}</span>
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1 }}
-                className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 bg-card/90 backdrop-blur-sm p-2 sm:p-3 rounded-lg sm:rounded-xl border border-border shadow-xl"
-              >
-                <div className="flex items-center gap-1 sm:gap-2">
-                  <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                  <span className="font-bold text-xs sm:text-sm">{isRTL ? 'صحة مضمونة' : 'Guaranteed Health'}</span>
-                </div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1 }}
+                  className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-card/90 backdrop-blur-sm p-2 sm:p-3 rounded-lg sm:rounded-xl border border-border shadow-xl z-20"
+                >
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                    <span className="font-bold text-xs sm:text-sm">{isRTL ? 'صحة مضمونة' : 'Guaranteed Health'}</span>
+                  </div>
+                </motion.div>
               </motion.div>
             </div>
 
