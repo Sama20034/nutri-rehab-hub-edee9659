@@ -1,298 +1,392 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Target, Eye, Award, Users, Heart, Shield, ChevronDown } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import Layout from '@/components/layout/Layout';
-import drBassemImg from '@/assets/dr-bassem.png';
-import drMarwanImg from '@/assets/dr-marwan.png';
-import drAbdelrhmanImg from '@/assets/dr-abdelrhman.png';
-import drAbdulazizImg from '@/assets/dr-abdulaziz.png';
+import { motion } from "framer-motion";
+import { 
+  Target, 
+  Heart, 
+  Shield, 
+  Award,
+  Users,
+  Video,
+  Stethoscope,
+  Dumbbell,
+  CheckCircle,
+  ArrowLeft,
+  Sparkles,
+  TrendingUp,
+  Activity,
+  Zap
+} from "lucide-react";
+import Layout from "@/components/layout/Layout";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import drMahmoud1 from "@/assets/dr-mahmoud-1.png";
+import drMahmoud2 from "@/assets/dr-mahmoud-2.png";
+import alligatorFitLogo from "@/assets/alligator-fit-logo.png";
 
 const About = () => {
-  const { t, isRTL } = useLanguage();
-  const [expandedMember, setExpandedMember] = useState<number | null>(null);
-
   const fadeInUp = {
-    initial: { opacity: 0, y: 30 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6 }
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0 }
   };
 
-  const values = [
-    {
-      icon: Heart,
-      title: isRTL ? 'الرعاية الشاملة' : 'Holistic Care',
-      description: isRTL 
-        ? 'نؤمن بالعلاج الشامل للجسم والعقل معاً'
-        : 'We believe in treating the whole person - body and mind',
-    },
-    {
-      icon: Award,
-      title: isRTL ? 'التميز العلمي' : 'Scientific Excellence',
-      description: isRTL
-        ? 'نعتمد على أحدث الأبحاث والبروتوكولات العلمية'
-        : 'We rely on the latest research and scientific protocols',
-    },
+  const features = [
     {
       icon: Users,
-      title: isRTL ? 'التركيز على العميل' : 'Client Focus',
-      description: isRTL
-        ? 'كل برنامج مصمم خصيصاً لاحتياجاتك الفريدة'
-        : 'Every program is designed specifically for your unique needs',
+      title: "متابعة شخصية حقيقية",
+      description: "متابعة مباشرة مع د. محمود ريجي شخصياً"
+    },
+    {
+      icon: Stethoscope,
+      title: "فريق طبي ورياضي متخصص",
+      description: "أطباء ومدربين معتمدين لضمان سلامتك"
+    },
+    {
+      icon: Target,
+      title: "أنظمة مخصصة",
+      description: "برامج حسب هدفك وحالتك الصحية"
+    },
+    {
+      icon: Video,
+      title: "محتوى تدريبي بالفيديو",
+      description: "فيديوهات تعليمية للتمارين والتغذية"
+    },
+    {
+      icon: Heart,
+      title: "دمج التدريب مع التوعية الطبية",
+      description: "نهج شامل يجمع الرياضة والصحة"
     },
     {
       icon: Shield,
-      title: isRTL ? 'الخصوصية والأمان' : 'Privacy & Security',
-      description: isRTL
-        ? 'نحمي بياناتك الصحية بأعلى معايير الأمان'
-        : 'We protect your health data with the highest security standards',
-    },
+      title: "ضمان الوصول للنتائج",
+      description: "التزام كامل بتحقيق أهدافك"
+    }
   ];
 
-  const team = [
-    {
-      name: 'Dr. Bassem Khalifa',
-      nameAr: 'د. باسم خليفة',
-      role: isRTL ? 'أستاذ العلاج الطبيعي والتغذية العلاجية' : 'Assistant Professor of Physical Therapy & Clinical Nutrition',
-      image: drBassemImg,
-      description: isRTL 
-        ? `أستاذ مساعد العلاج الطبيعي لأمراض العظام والإصابات الرياضية وجراحاتها، والتغذية العلاجية
-مساعد مدير المعهد القومي للجهاز الحركي العصبي - مصر
-دكتوراه في العلاج الطبيعي لأمراض العظام والإصابات الرياضية وجراحاتها - جامعة القاهرة
-دبلوم في التأهيل - جامعة التأهيل، سلوفينيا
-دبلوم في التغذية العلاجية - الأكاديمية الأمريكية للتنمية والعلوم
-عضو الجمعية الدولية لدراسة السمنة
-عضو الجمعية المصرية لدراسة السمنة
-عضو جمعية الشرق الأوسط للطب البديل`
-        : `Assistant Professor of Physical Therapy for Orthopedic, Sports Injuries and its Surgeries, and Clinical Nutrition
-Assistant Director of the National Institute for Neuromotor System - Egypt
-PhD in Physical Therapy for Orthopedics, Sports Injuries, and its Surgeries - Cairo University
-Diploma in Rehabilitation - University of Rehabilitation, Slovenia
-Diploma in Clinical Nutrition - American Academy of Development and Sciences
-Member of the International Society for the Study of Obesity
-Member of the Egyptian Society for the Study of Obesity
-Member of the Middle East Society for Alternative Treatment`,
-    },
-    {
-      name: 'Dr. Marwan Oraby',
-      nameAr: 'د. مروان عربي',
-      role: isRTL ? 'أخصائي علاج طبيعي' : 'Physical Therapist (BSc.PT)',
-      image: drMarwanImg,
-      description: isRTL 
-        ? `أخصائي علاج طبيعي بخبرة أكثر من 3 سنوات في التأهيل الرياضي والعلاج الطبيعي`
-        : `Physical therapist with 3+ years of experience in sports rehabilitation and physiotherapy`,
-    },
-    {
-      name: 'Dr. Abdelrhman Hamdy',
-      nameAr: 'د. عبدالرحمن حمدي',
-      role: isRTL ? 'أخصائي علاج طبيعي ومدرب شخصي معتمد' : 'Physical Therapist & Certified Personal Trainer (BSc.PT)',
-      image: drAbdelrhmanImg,
-      description: isRTL 
-        ? `أخصائي علاج طبيعي ومدرب شخصي معتمد بخبرة أكثر من 5 سنوات
-أكملت العديد من الدورات المتخصصة في التمارين التصحيحية والوقاية من الإصابات والتدريب القائم على التأهيل
-تصميم برامج آمنة وموجهة نحو النتائج ومصممة خصيصاً لكل حالة`
-        : `Physiotherapist and certified Personal Trainer with 5+ years of experience
-Completed multiple specialized courses in corrective exercise, injury prevention, and rehabilitation-based training
-Designing safe, results-driven programs tailored to each individual`,
-    },
-    {
-      name: 'Dr. Abdulaziz Khalil',
-      nameAr: 'د. عبدالعزيز خليل',
-      role: isRTL ? 'أخصائي علاج طبيعي وعلاج يدوي' : 'Physical Therapist & Manual Therapist',
-      image: drAbdulazizImg,
-      description: isRTL 
-        ? `أخصائي علاج طبيعي بخبرة أكثر من 3 سنوات في تأهيل أمراض العظام ومشاكل المفصل الصدغي الفكي
-معالج يدوي معتمد
-ممارس معتمد للإبر الجافة
-معالج بيلاتس معتمد`
-        : `Physiotherapist with 3+ years of experience in rehabilitating orthopedic conditions and TMJ problems
-Certified manual therapist
-Certified dry needling practitioner
-Certified pilates therapist`,
-    },
+  const targetAudience = [
+    { icon: Sparkles, text: "المبتدئين الراغبين في بداية صحيحة" },
+    { icon: Dumbbell, text: "الرياضيين الباحثين عن أداء أفضل" },
+    { icon: Activity, text: "أصحاب الإصابات أو الأمراض المزمنة" },
+    { icon: TrendingUp, text: "كل من يبحث عن تغيير حقيقي وآمن" }
   ];
 
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="pt-32 pb-20 relative overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
+      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-background via-background to-card">
+        {/* Background Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-20 left-10 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        </div>
         
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 py-20 relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center max-w-3xl mx-auto"
+            initial="hidden"
+            animate="visible"
+            variants={fadeInUp}
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-4xl mx-auto"
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              <span className="text-gradient">{t('about.title')}</span>
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="mb-8"
+            >
+              <img 
+                src={alligatorFitLogo} 
+                alt="Alligator Fit Team" 
+                className="w-32 h-32 mx-auto object-contain"
+              />
+            </motion.div>
+            
+            <h1 className="text-4xl md:text-6xl font-bold mb-6">
+              <span className="text-gradient">من نحن</span>
             </h1>
-            <p className="text-xl text-muted-foreground leading-relaxed">
-              {t('about.subtitle')}
+            
+            <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed">
+              د. محمود ريجي وفريق <span className="text-primary font-bold">Alligator Fit Team</span>
+            </p>
+            
+            <p className="text-lg text-muted-foreground mt-6 max-w-3xl mx-auto leading-relaxed">
+              نقدم أنظمة تدريب وتغذية مبنية على العلم، ومتابعة شخصية تهدف إلى ضمان 
+              <span className="text-primary font-bold"> فورمة مدى الحياة</span>، 
+              وليس مجرد خسارة وزن مؤقتة.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Mission & Vision */}
-      <section className="py-20 bg-card">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-12">
+      {/* Philosophy Section */}
+      <section className="py-20 bg-card relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent" />
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div
-              initial="initial"
-              whileInView="animate"
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              variants={fadeInUp}
-              className="p-8 rounded-2xl bg-background border border-border"
+              transition={{ duration: 0.6 }}
+              className="relative"
             >
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
-                <Target className="h-8 w-8 text-primary" />
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur-2xl" />
+                <img 
+                  src={drMahmoud1} 
+                  alt="د. محمود ريجي" 
+                  className="relative rounded-3xl shadow-2xl w-full max-w-md mx-auto"
+                />
               </div>
-              <h2 className="text-2xl font-bold mb-4">{t('about.mission.title')}</h2>
-              <p className="text-muted-foreground text-lg leading-relaxed">
-                {t('about.mission.desc')}
-              </p>
             </motion.div>
-
+            
             <motion.div
-              initial="initial"
-              whileInView="animate"
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              variants={fadeInUp}
-              className="p-8 rounded-2xl bg-background border border-border"
+              transition={{ duration: 0.6 }}
+              className="space-y-6"
             >
-              <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center mb-6">
-                <Eye className="h-8 w-8 text-accent" />
+              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full">
+                <Heart className="w-5 h-5" />
+                <span className="font-semibold">فلسفتنا</span>
               </div>
-              <h2 className="text-2xl font-bold mb-4">{t('about.vision.title')}</h2>
-              <p className="text-muted-foreground text-lg leading-relaxed">
-                {t('about.vision.desc')}
+              
+              <h2 className="text-3xl md:text-4xl font-bold">
+                التغيير الحقيقي يبدأ من <span className="text-gradient">الفهم الصحيح</span>
+              </h2>
+              
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                نؤمن أن الجسم لا يتغير بالعشوائية أو الحرمان، بل بخطة ذكية تناسب نمط حياة العميل، 
+                وتعتمد على المتابعة والتقييم المستمر.
               </p>
+              
+              <div className="grid grid-cols-2 gap-4 pt-4">
+                <div className="bg-background/50 p-4 rounded-xl border border-primary/20">
+                  <Zap className="w-8 h-8 text-primary mb-2" />
+                  <h4 className="font-bold">خطة ذكية</h4>
+                  <p className="text-sm text-muted-foreground">مصممة لنمط حياتك</p>
+                </div>
+                <div className="bg-background/50 p-4 rounded-xl border border-secondary/20">
+                  <Activity className="w-8 h-8 text-secondary mb-2" />
+                  <h4 className="font-bold">متابعة مستمرة</h4>
+                  <p className="text-sm text-muted-foreground">تقييم وتحسين دائم</p>
+                </div>
+              </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Values */}
-      <section className="py-20">
+      {/* What Sets Us Apart */}
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl font-bold text-center mb-12"
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
           >
-            {isRTL ? 'قيمنا' : 'Our Values'}
-          </motion.h2>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {values.map((value, index) => (
+            <div className="inline-flex items-center gap-2 bg-secondary/10 text-secondary px-4 py-2 rounded-full mb-6">
+              <Award className="w-5 h-5" />
+              <span className="font-semibold">ماذا يميزنا؟</span>
+            </div>
+            
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              لماذا <span className="text-gradient">Alligator Fit</span>؟
+            </h2>
+            
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              نجمع بين العلم والخبرة العملية لتقديم تجربة فريدة تضمن لك النتائج
+            </p>
+          </motion.div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((feature, index) => (
               <motion.div
-                key={index}
+                key={feature.title}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="text-center p-6"
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="group"
               >
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <value.icon className="h-8 w-8 text-primary" />
+                <div className="h-full bg-card border border-border/50 rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
+                  <div className="w-14 h-14 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <feature.icon className="w-7 h-7 text-primary-foreground" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
+                  <p className="text-muted-foreground">{feature.description}</p>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{value.title}</h3>
-                <p className="text-muted-foreground text-sm">{value.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Team */}
-      <section className="py-20 bg-card">
+      {/* Vision & Mission */}
+      <section className="py-20 bg-card relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Vision */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-3xl p-8"
+            >
+              <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mb-6">
+                <Target className="w-8 h-8 text-primary-foreground" />
+              </div>
+              <h3 className="text-2xl font-bold mb-4">رؤيتنا</h3>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                أن نكون المنصة الرائدة في الوطن العربي في تقديم 
+                <span className="text-primary font-bold"> فورمة صحية مستدامة مدى الحياة</span>.
+              </p>
+            </motion.div>
+            
+            {/* Mission */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="bg-gradient-to-br from-secondary/10 to-secondary/5 border border-secondary/20 rounded-3xl p-8"
+            >
+              <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center mb-6">
+                <Heart className="w-8 h-8 text-secondary-foreground" />
+              </div>
+              <h3 className="text-2xl font-bold mb-4">رسالتنا</h3>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                تغيير مفهوم الدايت والتمرين من معاناة مؤقتة إلى 
+                <span className="text-secondary font-bold"> أسلوب حياة علمي سهل التطبيق</span>.
+              </p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Who Is This For */}
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="space-y-8"
+            >
+              <div>
+                <div className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-2 rounded-full mb-6">
+                  <Users className="w-5 h-5" />
+                  <span className="font-semibold">لمن هذه المنصة؟</span>
+                </div>
+                
+                <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                  منصة <span className="text-gradient">للجميع</span>
+                </h2>
+                
+                <p className="text-lg text-muted-foreground">
+                  سواء كنت مبتدئاً أو رياضياً محترفاً، نحن هنا لمساعدتك
+                </p>
+              </div>
+              
+              <div className="space-y-4">
+                {targetAudience.map((item, index) => (
+                  <motion.div
+                    key={item.text}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: index * 0.1 }}
+                    className="flex items-center gap-4 bg-card p-4 rounded-xl border border-border/50 hover:border-primary/50 transition-colors"
+                  >
+                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <item.icon className="w-6 h-6 text-primary" />
+                    </div>
+                    <span className="text-lg font-medium">{item.text}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="relative"
+            >
+              <div className="absolute -inset-4 bg-gradient-to-r from-secondary/20 to-primary/20 rounded-3xl blur-2xl" />
+              <img 
+                src={drMahmoud2} 
+                alt="Alligator Fit Team" 
+                className="relative rounded-3xl shadow-2xl w-full max-w-md mx-auto"
+              />
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-br from-primary/10 via-background to-secondary/10 relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-10 right-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-10 left-10 w-60 h-60 bg-secondary/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-3xl mx-auto"
           >
-            <h2 className="text-3xl font-bold mb-4">
-              {isRTL ? 'فريقنا المتخصص' : 'Our Expert Team'}
+            <div className="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-8">
+              <CheckCircle className="w-10 h-10 text-white" />
+            </div>
+            
+            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+              ابدأ رحلتك <span className="text-gradient">الآن</span>
             </h2>
-            <p className="text-muted-foreground text-lg">
-              {isRTL 
-                ? 'نخبة من أفضل المتخصصين في مجالاتهم'
-                : 'A selection of the best specialists in their fields'
-              }
+            
+            <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+              واحصل على متابعة حقيقية مبنية على العلم والخبرة
             </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {team.map((member, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="w-full"
-              >
-                <div 
-                  onClick={() => setExpandedMember(expandedMember === index ? null : index)}
-                  className="cursor-pointer hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 bg-background rounded-2xl border border-border overflow-hidden transition-all duration-300"
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/packages">
+                <Button 
+                  size="lg" 
+                  className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground px-8 py-6 text-lg gap-2 group"
                 >
-                  <div className="relative">
-                    <img
-                      src={member.image}
-                      alt={isRTL ? member.nameAr : member.name}
-                      className="w-full h-64 object-cover object-top"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <h3 className="text-lg font-bold mb-1">{isRTL ? member.nameAr : member.name}</h3>
-                      <p className="text-primary text-sm font-medium">{member.role}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="px-4 py-3 flex items-center justify-between border-t border-border">
-                    <span className="text-xs text-muted-foreground">
-                      {isRTL ? 'اضغط لعرض التفاصيل' : 'Click for details'}
-                    </span>
-                    <motion.div
-                      animate={{ rotate: expandedMember === index ? 180 : 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <ChevronDown className="h-4 w-4 text-primary" />
-                    </motion.div>
-                  </div>
-                  
-                  <AnimatePresence>
-                    {expandedMember === index && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="px-4 pb-4 pt-2 border-t border-border bg-muted/30">
-                          <div className="space-y-1.5">
-                            {member.description.split('\n').map((line, i) => (
-                              <p key={i} className="text-muted-foreground text-xs leading-relaxed flex items-start gap-1.5">
-                                <span className="text-primary mt-0.5">•</span>
-                                <span>{line}</span>
-                              </p>
-                            ))}
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                  <span>اختر باقتك الآن</span>
+                  <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+              
+              <a 
+                href="https://wa.me/201016111733?text=مرحباً، أريد استشارة مجانية"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button 
+                  size="lg" 
+                  variant="outline"
+                  className="border-2 border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground px-8 py-6 text-lg"
+                >
+                  استشارة مجانية
+                </Button>
+              </a>
+            </div>
+          </motion.div>
         </div>
       </section>
     </Layout>
