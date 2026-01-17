@@ -4,7 +4,7 @@ import {
   ArrowRight, MessageCircle, Phone, Star, Check, 
   ChevronLeft, ChevronRight, Play, ShoppingBag,
   Target, Users, Award, Zap, Clock, Shield,
-  Instagram, Facebook, Twitter, Youtube
+  Instagram, Facebook, Twitter, Youtube, Dumbbell, Heart
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Layout from '@/components/layout/Layout';
+import drMahmoud1 from '@/assets/dr-mahmoud-1.png';
+import drMahmoud2 from '@/assets/dr-mahmoud-2.png';
+import alligatorFitLogo from '@/assets/alligator-fit-logo.png';
 
 // Hero Section Component
 const HeroSection = () => {
@@ -19,26 +22,52 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/10" />
+      {/* Athletic Background with gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
+      
+      {/* Dynamic energy lines */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full">
+          {[...Array(8)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"
+              style={{
+                top: `${15 + i * 12}%`,
+                left: '-100%',
+                width: '300%',
+                transform: `rotate(${-5 + i * 2}deg)`,
+              }}
+              animate={{
+                x: ['0%', '33%'],
+              }}
+              transition={{
+                duration: 8 + i * 2,
+                repeat: Infinity,
+                ease: 'linear',
+              }}
+            />
+          ))}
+        </div>
+      </div>
       
       {/* Animated Particles */}
       <div className="absolute inset-0">
-        {[...Array(20)].map((_, i) => (
+        {[...Array(15)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-2 h-2 bg-primary/20 rounded-full"
+            className="absolute w-1 h-1 bg-secondary/40 rounded-full"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
             }}
             animate={{
-              y: [0, -30, 0],
-              opacity: [0.2, 0.8, 0.2],
-              scale: [1, 1.5, 1],
+              y: [0, -50, 0],
+              opacity: [0.2, 1, 0.2],
+              scale: [1, 2, 1],
             }}
             transition={{
-              duration: 3 + Math.random() * 2,
+              duration: 4 + Math.random() * 3,
               repeat: Infinity,
               delay: Math.random() * 2,
             }}
@@ -46,110 +75,170 @@ const HeroSection = () => {
         ))}
       </div>
 
-      {/* Gradient Orbs */}
+      {/* Green/Orange Gradient Orbs */}
       <motion.div 
-        className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/30 rounded-full blur-[120px]"
+        className="absolute top-1/4 left-0 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[150px]"
         animate={{ 
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.5, 0.3]
+          scale: [1, 1.3, 1],
+          opacity: [0.2, 0.4, 0.2]
         }}
-        transition={{ duration: 8, repeat: Infinity }}
+        transition={{ duration: 10, repeat: Infinity }}
       />
       <motion.div 
-        className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/30 rounded-full blur-[120px]"
+        className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-secondary/20 rounded-full blur-[120px]"
         animate={{ 
           scale: [1.2, 1, 1.2],
-          opacity: [0.3, 0.5, 0.3]
+          opacity: [0.2, 0.4, 0.2]
         }}
         transition={{ duration: 8, repeat: Infinity, delay: 4 }}
       />
 
       <div className="container mx-auto px-4 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center max-w-4xl mx-auto"
-        >
-          {/* Badge */}
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Content */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className={`${isRTL ? 'text-right lg:order-2' : 'text-left lg:order-1'}`}
           >
-            <Badge className="mb-6 px-4 py-2 text-sm bg-primary/20 text-primary border-primary/30">
-              {isRTL ? '🔥 انضم لأكثر من 10,000+ متدرب' : '🔥 Join 10,000+ members'}
-            </Badge>
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className={`mb-6 ${isRTL ? 'text-right' : 'text-left'}`}
+            >
+              <Badge className="px-4 py-2 text-sm bg-secondary/20 text-secondary border-secondary/30 font-bold">
+                {isRTL ? '🔥 Alligator Fit - القوة والصحة' : '🔥 Alligator Fit - Power & Health'}
+              </Badge>
+            </motion.div>
+
+            {/* Main Title */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight"
+            >
+              <span className="bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
+                {isRTL ? 'ضمان فورمة' : 'Lifetime Fitness'}
+              </span>
+              <br />
+              <span className="text-foreground">
+                {isRTL ? 'مدى الحياة' : 'Guarantee'}
+              </span>
+            </motion.h1>
+
+            {/* Description */}
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="text-lg md:text-xl text-muted-foreground mb-8 max-w-lg"
+            >
+              {isRTL 
+                ? 'مع د. محمود ريجي وفريق طبي متخصص - تغذية علاجية، تدريب رياضي، ومتابعة شخصية.'
+                : 'With Dr. Mahmoud Regy and specialized medical team - therapeutic nutrition, sports training, and personal follow-up.'}
+            </motion.p>
+
+            {/* CTA Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className={`flex flex-col sm:flex-row gap-4 ${isRTL ? 'sm:justify-end' : 'sm:justify-start'}`}
+            >
+              <Link to="/register">
+                <Button size="lg" className="gap-2 text-lg px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/30 font-bold">
+                  {isRTL ? 'اشترك الآن' : 'Subscribe Now'}
+                  <ArrowRight className={`h-5 w-5 ${isRTL ? 'rotate-180' : ''}`} />
+                </Button>
+              </Link>
+              <Link to="/store">
+                <Button size="lg" variant="outline" className="gap-2 text-lg px-8 py-6 border-secondary/50 text-secondary hover:bg-secondary/10 font-bold">
+                  <ShoppingBag className="h-5 w-5" />
+                  {isRTL ? 'المكملات الغذائية' : 'Supplements Store'}
+                </Button>
+              </Link>
+            </motion.div>
+
+            {/* Stats */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7 }}
+              className="mt-12 grid grid-cols-3 gap-6"
+            >
+              {[
+                { value: '10K+', label: isRTL ? 'متدرب' : 'Members', icon: Users },
+                { value: '98%', label: isRTL ? 'نجاح' : 'Success', icon: Award },
+                { value: '5+', label: isRTL ? 'سنوات' : 'Years', icon: Clock },
+              ].map((stat, index) => (
+                <div key={index} className={`flex items-center gap-3 p-3 rounded-xl bg-card/50 border border-border/50 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                    <stat.icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className={isRTL ? 'text-right' : 'text-left'}>
+                    <div className="text-xl font-bold text-primary">{stat.value}</div>
+                    <div className="text-xs text-muted-foreground">{stat.label}</div>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
           </motion.div>
 
-          {/* Main Title */}
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight"
-          >
-            <span className="text-gradient">
-              {isRTL ? 'ضمان فورمة مدى الحياة' : 'Lifetime Fitness Guarantee'}
-            </span>
-            <br />
-            <span className="text-foreground">
-              {isRTL ? '… مش مجرد نظام' : '…Not Just a Program'}
-            </span>
-          </motion.h1>
-
-          {/* Description */}
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto"
-          >
-            {isRTL 
-              ? 'متابعة شخصية مع دكتور محمود ريجي وفريق طبي ورياضي باستخدام أحدث أساليب التدريب والتغذية.'
-              : 'Personalized follow-up with Dr. Mahmoud Regy and a medical & sports team using the latest training and nutrition methods.'}
-          </motion.p>
-
-          {/* CTA Buttons */}
+          {/* Hero Image */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className={`relative ${isRTL ? 'lg:order-1' : 'lg:order-2'}`}
           >
-            <Link to="/register">
-              <Button size="lg" className="gap-2 text-lg px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/25">
-                {isRTL ? 'اشترك الآن' : 'Subscribe Now'}
-                <ArrowRight className={`h-5 w-5 ${isRTL ? 'rotate-180' : ''}`} />
-              </Button>
-            </Link>
-            <Link to="/contact">
-              <Button size="lg" variant="outline" className="gap-2 text-lg px-8 py-6 border-primary/50 hover:bg-primary/10">
-                <Phone className="h-5 w-5" />
-                {isRTL ? 'استشارة مجانية' : 'Free Consultation'}
-              </Button>
-            </Link>
-          </motion.div>
+            <div className="relative">
+              {/* Glow Effect */}
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/30 via-transparent to-secondary/20 rounded-3xl blur-3xl" />
+              
+              {/* Main Image */}
+              <motion.div
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 6, repeat: Infinity }}
+                className="relative z-10"
+              >
+                <img
+                  src={drMahmoud1}
+                  alt="Dr. Mahmoud Regy - Alligator Fit"
+                  className="w-full max-w-md mx-auto rounded-3xl shadow-2xl shadow-primary/20"
+                />
+              </motion.div>
 
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7 }}
-            className="mt-16 grid grid-cols-3 gap-8 max-w-2xl mx-auto"
-          >
-            {[
-              { value: '10K+', label: isRTL ? 'متدرب' : 'Members' },
-              { value: '98%', label: isRTL ? 'نسبة نجاح' : 'Success Rate' },
-              { value: '5+', label: isRTL ? 'سنوات خبرة' : 'Years Experience' },
-            ].map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-primary">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
-              </div>
-            ))}
+              {/* Floating Elements */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.8 }}
+                className="absolute -top-4 -right-4 md:right-0 bg-card p-3 rounded-xl border border-border shadow-xl"
+              >
+                <div className="flex items-center gap-2">
+                  <Dumbbell className="h-5 w-5 text-secondary" />
+                  <span className="font-bold text-sm">{isRTL ? 'تدريب احترافي' : 'Pro Training'}</span>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 1 }}
+                className="absolute -bottom-4 -left-4 md:left-0 bg-card p-3 rounded-xl border border-border shadow-xl"
+              >
+                <div className="flex items-center gap-2">
+                  <Heart className="h-5 w-5 text-primary" />
+                  <span className="font-bold text-sm">{isRTL ? 'صحة مضمونة' : 'Guaranteed Health'}</span>
+                </div>
+              </motion.div>
+            </div>
           </motion.div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Scroll Indicator */}
@@ -456,8 +545,8 @@ const MissionSection = () => {
           >
             <div className="relative rounded-2xl overflow-hidden">
               <img
-                src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600"
-                alt="Gym"
+                src={drMahmoud2}
+                alt="Dr. Mahmoud Regy - Alligator Fit"
                 className="w-full h-[500px] object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
@@ -466,9 +555,9 @@ const MissionSection = () => {
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-primary rounded-full flex items-center justify-center shadow-lg shadow-primary/30"
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-secondary rounded-full flex items-center justify-center shadow-lg shadow-secondary/30"
               >
-                <Play className="h-8 w-8 text-primary-foreground fill-current" />
+                <Play className="h-8 w-8 text-secondary-foreground fill-current" />
               </motion.button>
             </div>
 
@@ -480,8 +569,8 @@ const MissionSection = () => {
               className="absolute -bottom-6 -left-6 md:left-auto md:-right-6 bg-card p-4 rounded-xl border border-border shadow-xl"
             >
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center">
-                  <Check className="h-6 w-6 text-green-500" />
+                <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+                  <Check className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <div className="text-2xl font-bold">98%</div>
