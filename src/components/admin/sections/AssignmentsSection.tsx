@@ -23,26 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-
-interface UserWithRole {
-  id: string;
-  user_id: string;
-  full_name: string;
-  phone: string | null;
-  specialization: string | null;
-  avatar_url: string | null;
-  status: string;
-  role: string;
-}
-
-interface ClientAssignment {
-  id: string;
-  client_id: string;
-  doctor_id: string;
-  assigned_at: string;
-  status: string;
-  notes: string | null;
-}
+import { UserWithRole, ClientAssignment } from '@/hooks/useAdminData';
 
 interface AssignmentsSectionProps {
   clients: UserWithRole[];

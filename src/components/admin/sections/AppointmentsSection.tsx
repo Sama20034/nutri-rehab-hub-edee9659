@@ -15,25 +15,17 @@ import {
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
+import { UserWithRole } from '@/hooks/useAdminData';
 
 interface Appointment {
   id: string;
   doctor_id: string;
   client_id: string;
-  schedule_id: string | null;
-  appointment_date: string;
-  start_time: string;
-  end_time: string;
-  status: string;
+  scheduled_at: string;
+  duration_minutes: number | null;
+  status: string | null;
   notes: string | null;
   created_at: string;
-  updated_at: string;
-}
-
-interface UserWithRole {
-  id: string;
-  user_id: string;
-  full_name: string;
 }
 
 interface AppointmentsSectionProps {
@@ -163,7 +155,7 @@ export const AppointmentsSection = ({
                       <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm font-medium">
-                          {format(new Date(apt.appointment_date), 'd MMMM yyyy', { 
+                          {format(new Date(apt.scheduled_at), 'd MMMM yyyy', { 
                             locale: isRTL ? ar : enUS 
                           })}
                         </span>
@@ -171,7 +163,8 @@ export const AppointmentsSection = ({
                       <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <Clock className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm">
-                          {apt.start_time} - {apt.end_time}
+                          {format(new Date(apt.scheduled_at), 'HH:mm', { locale: isRTL ? ar : enUS })}
+                          {apt.duration_minutes && ` (${apt.duration_minutes} ${isRTL ? 'دقيقة' : 'min'})`}
                         </span>
                       </div>
 

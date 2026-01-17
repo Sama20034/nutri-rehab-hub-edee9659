@@ -31,6 +31,8 @@ interface Profile {
 interface ProfileData {
   full_name: string;
   phone?: string;
+  specialization?: string;
+  license_number?: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

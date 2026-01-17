@@ -14,8 +14,6 @@ import { AppointmentsSection } from '@/components/doctor/sections/AppointmentsSe
 import { ExercisesSection } from '@/components/doctor/sections/ExercisesSection';
 import { DietPlansSection } from '@/components/doctor/sections/DietPlansSection';
 import { VideosSection } from '@/components/doctor/sections/VideosSection';
-import { NotesSection } from '@/components/doctor/sections/NotesSection';
-import { ProgramsSection } from '@/components/doctor/sections/ProgramsSection';
 import { ScheduleSection } from '@/components/doctor/sections/ScheduleSection';
 import { ChatSection } from '@/components/doctor/sections/ChatSection';
 import { ArticlesSection } from '@/components/doctor/sections/ArticlesSection';
@@ -49,10 +47,6 @@ const DoctorDashboard = () => {
     exercises,
     dietPlans,
     videos,
-    programs,
-    notes,
-    muscles,
-    equipment,
     loading: dataLoading,
     addExercise,
     updateExercise,
@@ -61,19 +55,7 @@ const DoctorDashboard = () => {
     updateDietPlan,
     deleteDietPlan,
     addVideo,
-    deleteVideo,
-    addProgram,
-    updateProgram,
-    deleteProgram,
-    addNote,
-    updateNote,
-    deleteNote,
-    addMuscle,
-    updateMuscle,
-    deleteMuscle,
-    addEquipment,
-    updateEquipment,
-    deleteEquipment
+    deleteVideo
   } = useDoctorData(user?.id);
 
   useEffect(() => {
@@ -99,9 +81,11 @@ const DoctorDashboard = () => {
     );
   }
 
-  const todayAppointments = appointments.filter(a => 
-    a.appointment_date === new Date().toISOString().split('T')[0] && a.status !== 'cancelled'
-  );
+  const todayAppointments = appointments.filter(a => {
+    const appointmentDate = new Date(a.scheduled_at).toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0];
+    return appointmentDate === today && a.status !== 'cancelled';
+  });
 
   const renderSection = () => {
     switch (activeSection) {
@@ -110,7 +94,7 @@ const DoctorDashboard = () => {
           <OverviewSection
             doctorName={profile?.full_name || ''}
             clientsCount={clients.length}
-            programsCount={programs.filter(p => p.status === 'active').length}
+            programsCount={dietPlans.length}
             videosCount={videos.length}
             todayAppointmentsCount={todayAppointments.length}
             pendingAppointmentsCount={appointments.filter(a => a.status === 'pending').length}
@@ -126,7 +110,6 @@ const DoctorDashboard = () => {
             videos={videos}
             dietPlans={dietPlans}
             doctorId={user?.id || ''}
-            onAddDietPlan={addDietPlan}
           />
         );
       case 'appointments':
@@ -138,17 +121,6 @@ const DoctorDashboard = () => {
             onCancel={cancelAppointment}
             onReject={rejectAppointment}
             onComplete={completeAppointment}
-          />
-        );
-      case 'programs':
-        return (
-          <ProgramsSection
-            programs={programs}
-            clients={clients}
-            doctorId={user?.id || ''}
-            onAdd={addProgram}
-            onUpdate={updateProgram}
-            onDelete={deleteProgram}
           />
         );
       case 'videos':
@@ -164,18 +136,10 @@ const DoctorDashboard = () => {
         return (
           <ExercisesSection
             exercises={exercises}
-            muscles={muscles}
-            equipment={equipment}
             doctorId={user?.id || ''}
             onAddExercise={addExercise}
             onUpdateExercise={updateExercise}
             onDeleteExercise={deleteExercise}
-            onAddMuscle={addMuscle}
-            onUpdateMuscle={updateMuscle}
-            onDeleteMuscle={deleteMuscle}
-            onAddEquipment={addEquipment}
-            onUpdateEquipment={updateEquipment}
-            onDeleteEquipment={deleteEquipment}
           />
         );
       case 'diets':
@@ -186,17 +150,6 @@ const DoctorDashboard = () => {
             onAdd={addDietPlan}
             onUpdate={updateDietPlan}
             onDelete={deleteDietPlan}
-          />
-        );
-      case 'notes':
-        return (
-          <NotesSection
-            notes={notes}
-            clients={clients}
-            doctorId={user?.id || ''}
-            onAdd={addNote}
-            onUpdate={updateNote}
-            onDelete={deleteNote}
           />
         );
       case 'schedule':

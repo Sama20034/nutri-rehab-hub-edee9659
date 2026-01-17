@@ -10,11 +10,11 @@ interface Appointment {
   id: string;
   client_id: string;
   doctor_id: string;
-  appointment_date: string;
-  start_time: string;
-  end_time: string;
-  status: string;
+  scheduled_at: string;
+  duration_minutes: number | null;
+  status: string | null;
   notes: string | null;
+  created_at: string;
 }
 
 interface ClientProfile {
@@ -25,10 +25,10 @@ interface ClientProfile {
 interface AppointmentsSectionProps {
   appointments: Appointment[];
   clients: { client_id: string; client?: ClientProfile }[];
-  onConfirm: (id: string, clientId?: string) => void;
-  onCancel: (id: string) => void;
-  onReject: (id: string, clientId?: string) => void;
-  onComplete: (id: string) => void;
+  onConfirm: (id: string, clientId?: string) => Promise<{ error: Error | null }>;
+  onCancel: (id: string) => Promise<{ error: Error | null }>;
+  onReject: (id: string, clientId?: string) => Promise<{ error: Error | null }>;
+  onComplete: (id: string) => Promise<{ error: Error | null }>;
 }
 
 export const AppointmentsSection = ({
@@ -67,6 +67,11 @@ export const AppointmentsSection = ({
     return format(date, 'dd MMMM yyyy', { locale: isRTL ? ar : enUS });
   };
 
+  const formatTime = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return format(date, 'HH:mm', { locale: isRTL ? ar : enUS });
+  };
+
   const AppointmentCard = ({ appointment, showActions }: { appointment: Appointment; showActions: boolean }) => (
     <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl">
       <div className="flex items-center gap-4">
@@ -91,15 +96,16 @@ export const AppointmentsSection = ({
             </Button>
           </div>
         )}
-        {!showActions && getStatusBadge(appointment.status)}
+        {!showActions && getStatusBadge(appointment.status || 'pending')}
       </div>
       <div className="flex items-center gap-6 text-right">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>{appointment.start_time} - {appointment.end_time}</span>
+          <span>{formatTime(appointment.scheduled_at)}</span>
+          {appointment.duration_minutes && <span>({appointment.duration_minutes} {isRTL ? 'دقيقة' : 'min'})</span>}
           <Clock className="h-4 w-4" />
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>{formatDate(appointment.appointment_date)}</span>
+          <span>{formatDate(appointment.scheduled_at)}</span>
           <Calendar className="h-4 w-4" />
         </div>
         <div className="flex items-center gap-2">

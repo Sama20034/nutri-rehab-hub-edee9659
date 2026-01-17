@@ -1,24 +1,29 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-interface UserWithRole {
+export interface UserWithRole {
   id: string;
   user_id: string;
-  full_name: string | null;
+  full_name: string;
   phone: string | null;
   avatar_url: string | null;
   created_at: string;
   updated_at: string;
   role: string;
   email?: string;
+  specialization?: string | null;
+  license_number?: string | null;
+  bio?: string | null;
+  status: string;
 }
 
-interface ClientAssignment {
+export interface ClientAssignment {
   id: string;
   client_id: string;
   doctor_id: string;
   assigned_at: string;
   status: string | null;
+  notes?: string | null;
   client?: UserWithRole;
   doctor?: UserWithRole;
 }
@@ -47,11 +52,13 @@ export const useAdminData = () => {
       if (rolesError) throw rolesError;
 
       // Combine profiles with roles
-      const usersWithRoles = profiles?.map(profile => {
+      const usersWithRoles: UserWithRole[] = profiles?.map(profile => {
         const userRole = roles?.find(r => r.user_id === profile.user_id);
         return {
           ...profile,
-          role: userRole?.role || 'unknown'
+          full_name: profile.full_name || '',
+          role: userRole?.role || 'unknown',
+          status: 'approved' // Default status since we don't have status column
         };
       }) || [];
 
