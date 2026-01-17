@@ -4,10 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 interface ClientProfile {
   id: string;
   user_id: string;
-  full_name: string;
+  full_name: string | null;
   phone: string | null;
   avatar_url: string | null;
-  status: string;
   created_at: string;
 }
 
@@ -17,7 +16,6 @@ interface ClientAssignment {
   doctor_id: string;
   assigned_at: string;
   status: string;
-  notes: string | null;
   client?: ClientProfile;
 }
 
@@ -47,15 +45,19 @@ export const useDoctorClients = (doctorId?: string) => {
         const clientIds = assignments.map(a => a.client_id);
         const { data: profiles, error: profilesError } = await supabase
           .from('profiles')
-          .select('id, user_id, full_name, phone, avatar_url, status, created_at')
+          .select('id, user_id, full_name, phone, avatar_url, created_at')
           .in('user_id', clientIds);
 
         if (profilesError) throw profilesError;
 
         // Combine assignments with client profiles
-        const assignmentsWithClients = assignments.map(assignment => ({
-          ...assignment,
-          client: profiles?.find(p => p.user_id === assignment.client_id)
+        const assignmentsWithClients: ClientAssignment[] = assignments.map(assignment => ({
+          id: assignment.id,
+          client_id: assignment.client_id,
+          doctor_id: assignment.doctor_id,
+          assigned_at: assignment.assigned_at,
+          status: assignment.status || 'active',
+          client: profiles?.find(p => p.user_id === assignment.client_id) as ClientProfile | undefined
         }));
 
         setClients(assignmentsWithClients);

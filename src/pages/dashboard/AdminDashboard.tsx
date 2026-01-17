@@ -33,11 +33,9 @@ const AdminDashboard = () => {
   } = useAdminData();
   
   const {
-    exercises, muscles, equipment, dietPlans,
+    exercises, dietPlans,
     loading: exercisesLoading,
     addExercise, updateExercise, deleteExercise,
-    addMuscle, updateMuscle, deleteMuscle,
-    addEquipment, updateEquipment, deleteEquipment,
     addDietPlan, updateDietPlan, deleteDietPlan
   } = useAdminExercisesData();
   
@@ -157,17 +155,9 @@ const AdminDashboard = () => {
         return (
           <ExercisesSection
             exercises={exercises}
-            muscles={muscles}
-            equipment={equipment}
             onAddExercise={addExercise}
             onUpdateExercise={updateExercise}
             onDeleteExercise={deleteExercise}
-            onAddMuscle={addMuscle}
-            onUpdateMuscle={updateMuscle}
-            onDeleteMuscle={deleteMuscle}
-            onAddEquipment={addEquipment}
-            onUpdateEquipment={updateEquipment}
-            onDeleteEquipment={deleteEquipment}
           />
         );
       case 'diets':

@@ -16,13 +16,13 @@ interface Article {
   id: string;
   author_id: string;
   title: string;
-  content: string;
+  content: string | null;
   excerpt: string | null;
-  cover_image_url: string | null;
+  cover_image: string | null;
   category: string | null;
-  status: string;
-  published_at: string | null;
+  status: string | null;
   created_at: string;
+  updated_at: string;
 }
 
 const categories = [
@@ -46,7 +46,7 @@ const Articles = () => {
         .from('articles')
         .select('*')
         .eq('status', 'published')
-        .order('published_at', { ascending: false });
+        .order('created_at', { ascending: false });
       
       if (error) throw error;
       return data as Article[];
@@ -55,7 +55,7 @@ const Articles = () => {
 
   const filteredArticles = articles?.filter((article) => {
     const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.content.toLowerCase().includes(searchQuery.toLowerCase());
+      (article.content || '').toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = !selectedCategory || article.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -157,10 +157,10 @@ const Articles = () => {
                     className="overflow-hidden h-full cursor-pointer hover:shadow-xl hover:border-primary/50 transition-all duration-300 group"
                     onClick={() => setSelectedArticle(article)}
                   >
-                    {article.cover_image_url && (
+                    {article.cover_image && (
                       <div className="h-48 overflow-hidden">
                         <img
-                          src={article.cover_image_url}
+                          src={article.cover_image}
                           alt={article.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
@@ -175,7 +175,7 @@ const Articles = () => {
                         )}
                         <span className="text-xs text-muted-foreground flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {format(new Date(article.published_at || article.created_at), 'PP', { locale: isRTL ? ar : undefined })}
+                          {format(new Date(article.created_at), 'PP', { locale: isRTL ? ar : undefined })}
                         </span>
                       </div>
                       <h3 className={`text-xl font-semibold mb-3 group-hover:text-primary transition-colors ${isRTL ? 'text-right' : 'text-left'}`}>
@@ -210,9 +210,9 @@ const Articles = () => {
                 </DialogTitle>
               </DialogHeader>
               <div className="mt-4">
-                {selectedArticle.cover_image_url && (
+                {selectedArticle.cover_image && (
                   <img
-                    src={selectedArticle.cover_image_url}
+                    src={selectedArticle.cover_image}
                     alt={selectedArticle.title}
                     className="w-full h-64 object-cover rounded-lg mb-6"
                   />
@@ -225,14 +225,14 @@ const Articles = () => {
                   )}
                   <span className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
-                    {format(new Date(selectedArticle.published_at || selectedArticle.created_at), 'PPP', { locale: isRTL ? ar : undefined })}
+                    {format(new Date(selectedArticle.created_at), 'PPP', { locale: isRTL ? ar : undefined })}
                   </span>
                 </div>
                 <div 
                   className={`prose prose-lg max-w-none ${isRTL ? 'text-right' : 'text-left'}`}
                   dir={isRTL ? 'rtl' : 'ltr'}
                 >
-                  {selectedArticle.content.split('\n').map((paragraph, i) => (
+                  {(selectedArticle.content || '').split('\n').map((paragraph, i) => (
                     <p key={i} className="mb-4 text-foreground leading-relaxed">
                       {paragraph}
                     </p>
