@@ -151,7 +151,7 @@ const Navbar = () => {
                   </Button>
                 </Link>
                 
-                <Link to="/auth?mode=register">
+                <Link to="/register">
                   <Button variant="hero" size="sm">
                     {t('nav.register')}
                   </Button>
@@ -256,7 +256,7 @@ const Navbar = () => {
                       {t('nav.login')}
                     </Button>
                   </Link>
-                  <Link to="/auth?mode=register" onClick={() => setIsOpen(false)}>
+                  <Link to="/register" onClick={() => setIsOpen(false)}>
                     <Button variant="hero" className="w-full">
                       {t('nav.register')}
                     </Button>

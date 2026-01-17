@@ -256,7 +256,7 @@ const PackageCard = ({ pkg, index }: { pkg: Package; index: number }) => {
 
         {/* CTA Button */}
         <Button
-          onClick={() => navigate("/auth?mode=register")}
+          onClick={() => navigate("/register")}
           className={`w-full py-6 text-lg font-bold transition-all duration-300 ${
             pkg.popular
               ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25"
@@ -423,7 +423,7 @@ const Packages = () => {
                   size="lg"
                   variant="outline"
                   className="border-2 border-white text-white hover:bg-white/10 px-8 py-6 text-lg font-bold"
-                  onClick={() => (window.location.href = "/auth?mode=register")}
+                  onClick={() => (window.location.href = "/register")}
                 >
                   {isRTL ? "اشترك الآن" : "Subscribe Now"}
                 </Button>
