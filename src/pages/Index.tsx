@@ -144,6 +144,18 @@ const HeroSection = () => {
                 </div>
               </motion.div>
             </div>
+
+            {/* Description - Below image */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="text-base md:text-lg text-muted-foreground mt-6 text-center max-w-md mx-auto"
+            >
+              {isRTL 
+                ? 'مع د. محمود ريجي وفريق طبي متخصص - تغذية علاجية، تدريب رياضي، ومتابعة شخصية.'
+                : 'With Dr. Mahmoud Regy and specialized medical team - therapeutic nutrition, sports training, and personal follow-up.'}
+            </motion.p>
           </motion.div>
 
           {/* Content - Right on desktop */}
@@ -181,18 +193,6 @@ const HeroSection = () => {
               </span>
             </motion.h1>
 
-            {/* Description */}
-            <motion.p
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="text-base md:text-lg lg:text-xl text-muted-foreground mb-6 md:mb-8 mr-auto"
-              style={{ maxWidth: '500px', marginRight: '0', marginLeft: 'auto' }}
-            >
-              {isRTL 
-                ? 'مع د. محمود ريجي وفريق طبي متخصص - تغذية علاجية، تدريب رياضي، ومتابعة شخصية.'
-                : 'With Dr. Mahmoud Regy and specialized medical team - therapeutic nutrition, sports training, and personal follow-up.'}
-            </motion.p>
 
             {/* CTA Buttons */}
             <motion.div
