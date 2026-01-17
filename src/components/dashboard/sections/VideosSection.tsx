@@ -17,10 +17,10 @@ interface ClientVideo {
     id: string;
     title: string;
     description: string | null;
-    youtube_url: string;
+    url: string;
     category: string | null;
     thumbnail_url: string | null;
-  };
+  } | null;
 }
 
 interface VideosSectionProps {
@@ -43,7 +43,7 @@ export const VideosSection = ({ isRTL, clientId }: VideosSectionProps) => {
           video_id,
           watched,
           watched_at,
-          video:videos(id, title, description, youtube_url, category, thumbnail_url)
+          video:videos(id, title, description, url, category, thumbnail_url)
         `)
         .eq('client_id', clientId);
 
@@ -211,7 +211,8 @@ export const VideosSection = ({ isRTL, clientId }: VideosSectionProps) => {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {categoryVideos.map((video) => {
-              const thumbnail = video.video?.thumbnail_url || getYouTubeThumbnail(video.video?.youtube_url || '');
+              const videoUrl = video.video?.url || '';
+              const thumbnail = video.video?.thumbnail_url || getYouTubeThumbnail(videoUrl);
               
               return (
                 <div
@@ -294,18 +295,18 @@ export const VideosSection = ({ isRTL, clientId }: VideosSectionProps) => {
       {/* Video Player Modal */}
       <Dialog open={isPlayerOpen} onOpenChange={setIsPlayerOpen}>
         <DialogContent className="max-w-4xl p-0 overflow-hidden">
-          {selectedVideo && (
+          {selectedVideo && selectedVideo.video && (
             <div className="aspect-video">
-              {isYouTubeUrl(selectedVideo.video?.youtube_url || '') ? (
+              {isYouTubeUrl(selectedVideo.video.url) ? (
                 <iframe
-                  src={getYouTubeEmbedUrl(selectedVideo.video?.youtube_url || '') || ''}
+                  src={getYouTubeEmbedUrl(selectedVideo.video.url) || ''}
                   className="w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
               ) : (
                 <video
-                  src={selectedVideo.video?.youtube_url}
+                  src={selectedVideo.video.url}
                   className="w-full h-full"
                   controls
                   autoPlay

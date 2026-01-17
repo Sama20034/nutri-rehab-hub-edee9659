@@ -12,7 +12,7 @@ interface DietPlan {
   calories_min: number | null;
   calories_max: number | null;
   goal: string | null;
-  duration_days: number | null;
+  duration_weeks: number | null;
   status: string | null;
 }
 
@@ -22,7 +22,7 @@ interface ClientDietPlan {
   start_date: string | null;
   end_date: string | null;
   status: string | null;
-  diet_plan: DietPlan;
+  diet_plan: DietPlan | null;
 }
 
 interface DietPlansSectionProps {
@@ -55,7 +55,7 @@ export const DietPlansSection = ({ isRTL, clientId }: DietPlansSectionProps) => 
             calories_min,
             calories_max,
             goal,
-            duration_days,
+            duration_weeks,
             status
           )
         `)
@@ -66,15 +66,7 @@ export const DietPlansSection = ({ isRTL, clientId }: DietPlansSectionProps) => 
       if (data) {
         // Filter out entries where diet_plan is null (due to RLS restrictions)
         const validData = data.filter(d => d.diet_plan !== null);
-        const mapped = validData.map(d => ({
-          id: d.id,
-          diet_plan_id: d.diet_plan_id,
-          start_date: d.start_date,
-          end_date: d.end_date,
-          status: d.status,
-          diet_plan: d.diet_plan as DietPlan
-        }));
-        setDietPlans(mapped);
+        setDietPlans(validData as ClientDietPlan[]);
       }
     } catch (error) {
       console.error('Error fetching diet plans:', error);
@@ -149,6 +141,8 @@ export const DietPlansSection = ({ isRTL, clientId }: DietPlansSectionProps) => 
       <div className="grid gap-6">
         {dietPlans.map((clientPlan, index) => {
           const plan = clientPlan.diet_plan;
+          if (!plan) return null;
+          
           const meals = parseMealsFromDescription(plan.description);
           
           return (
@@ -174,10 +168,10 @@ export const DietPlansSection = ({ isRTL, clientId }: DietPlansSectionProps) => 
                               {plan.calories_min}-{plan.calories_max} {isRTL ? 'سعرة' : 'cal'}
                             </Badge>
                           )}
-                          {plan.duration_days && (
+                          {plan.duration_weeks && (
                             <Badge variant="outline" className="gap-1">
                               <CalendarDays className="h-3 w-3" />
-                              {plan.duration_days} {isRTL ? 'يوم' : 'days'}
+                              {plan.duration_weeks} {isRTL ? 'أسبوع' : 'weeks'}
                             </Badge>
                           )}
                         </div>

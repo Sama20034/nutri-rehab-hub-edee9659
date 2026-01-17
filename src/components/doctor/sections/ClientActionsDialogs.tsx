@@ -14,7 +14,7 @@ import type { Exercise, DietPlan, Video } from '@/hooks/useDoctorData';
 interface ClientProfile {
   id: string;
   user_id: string;
-  full_name: string;
+  full_name: string | null;
   phone: string | null;
 }
 
@@ -54,7 +54,7 @@ export const HealthProfileDialog = ({ open, onClose, client }: HealthProfileDial
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {isRTL ? `الملف الصحي - ${client?.full_name}` : `Health Profile - ${client?.full_name}`}
+            {isRTL ? `الملف الصحي - ${client?.full_name || 'عميل'}` : `Health Profile - ${client?.full_name || 'Client'}`}
           </DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
@@ -70,15 +70,11 @@ export const HealthProfileDialog = ({ open, onClose, client }: HealthProfileDial
   );
 };
 
-// Assign Exercises Dialog - Weekly View
+// Assign Exercises Dialog
 interface ClientExercise {
   id: string;
   exercise_id: string;
   exercise_name: string;
-  day_of_week: number;
-  sets: number;
-  reps: number;
-  duration_minutes: number;
   notes: string;
 }
 
@@ -90,16 +86,6 @@ interface AssignExercisesDialogProps {
   doctorId: string;
 }
 
-const DAYS_OF_WEEK = [
-  { id: 0, ar: 'الأحد', en: 'Sunday' },
-  { id: 1, ar: 'الإثنين', en: 'Monday' },
-  { id: 2, ar: 'الثلاثاء', en: 'Tuesday' },
-  { id: 3, ar: 'الأربعاء', en: 'Wednesday' },
-  { id: 4, ar: 'الخميس', en: 'Thursday' },
-  { id: 5, ar: 'الجمعة', en: 'Friday' },
-  { id: 6, ar: 'السبت', en: 'Saturday' },
-];
-
 export const AssignExercisesDialog = ({ open, onClose, client, exercises, doctorId }: AssignExercisesDialogProps) => {
   const { isRTL } = useLanguage();
   const [clientExercises, setClientExercises] = useState<ClientExercise[]>([]);
@@ -108,10 +94,6 @@ export const AssignExercisesDialog = ({ open, onClose, client, exercises, doctor
   
   // Form state for adding new exercise
   const [selectedExercise, setSelectedExercise] = useState('');
-  const [selectedDay, setSelectedDay] = useState(0);
-  const [sets, setSets] = useState(3);
-  const [reps, setReps] = useState(10);
-  const [duration, setDuration] = useState(0);
   const [notes, setNotes] = useState('');
 
   // Load existing exercises when dialog opens
@@ -129,10 +111,6 @@ export const AssignExercisesDialog = ({ open, onClose, client, exercises, doctor
         .select(`
           id,
           exercise_id,
-          day_of_week,
-          sets,
-          reps,
-          duration_minutes,
           notes,
           exercise:exercises(name)
         `)
@@ -145,10 +123,6 @@ export const AssignExercisesDialog = ({ open, onClose, client, exercises, doctor
           id: e.id,
           exercise_id: e.exercise_id,
           exercise_name: (e.exercise as any)?.name || '',
-          day_of_week: e.day_of_week,
-          sets: e.sets || 0,
-          reps: e.reps || 0,
-          duration_minutes: e.duration_minutes || 0,
           notes: e.notes || ''
         }));
         setClientExercises(mapped);
@@ -156,10 +130,6 @@ export const AssignExercisesDialog = ({ open, onClose, client, exercises, doctor
     } catch (error) {
       console.error('Error fetching exercises:', error);
     }
-  };
-
-  const getExercisesForDay = (dayId: number) => {
-    return clientExercises.filter(ex => ex.day_of_week === dayId);
   };
 
   const handleAddExercise = () => {
@@ -175,10 +145,6 @@ export const AssignExercisesDialog = ({ open, onClose, client, exercises, doctor
       id: crypto.randomUUID(),
       exercise_id: selectedExercise,
       exercise_name: exercise.name,
-      day_of_week: selectedDay,
-      sets,
-      reps,
-      duration_minutes: duration,
       notes
     };
     
@@ -190,10 +156,6 @@ export const AssignExercisesDialog = ({ open, onClose, client, exercises, doctor
 
   const resetForm = () => {
     setSelectedExercise('');
-    setSelectedDay(0);
-    setSets(3);
-    setReps(10);
-    setDuration(0);
     setNotes('');
   };
 
@@ -220,10 +182,6 @@ export const AssignExercisesDialog = ({ open, onClose, client, exercises, doctor
           client_id: client.user_id,
           exercise_id: ex.exercise_id,
           assigned_by: doctorId,
-          day_of_week: ex.day_of_week,
-          sets: ex.sets,
-          reps: ex.reps,
-          duration_minutes: ex.duration_minutes,
           notes: ex.notes || null
         }));
 
@@ -267,57 +225,34 @@ export const AssignExercisesDialog = ({ open, onClose, client, exercises, doctor
           
           <ScrollArea className="flex-1 mt-4">
             <div className="space-y-3 pr-4">
-              {DAYS_OF_WEEK.map(day => {
-                const dayExercises = getExercisesForDay(day.id);
-                return (
+              {clientExercises.length === 0 ? (
+                <p className={`text-muted-foreground text-sm ${isRTL ? 'text-right' : ''}`}>
+                  {isRTL ? 'لا توجد تمارين' : 'No exercises'}
+                </p>
+              ) : (
+                clientExercises.map(ex => (
                   <div 
-                    key={day.id} 
-                    className="rounded-xl border border-border bg-card/50 p-4"
+                    key={ex.id} 
+                    className={`flex items-center justify-between p-3 rounded-lg bg-background border border-border ${isRTL ? 'flex-row-reverse' : ''}`}
                   >
-                    <div className={`flex items-center gap-2 mb-3 ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
-                      <span className="text-lg">💪</span>
-                      <h3 className="font-bold text-lg">{isRTL ? day.ar : day.en}</h3>
-                      <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-sm">
-                        {dayExercises.length}
-                      </span>
-                    </div>
-                    
-                    {dayExercises.length === 0 ? (
-                      <p className={`text-muted-foreground text-sm ${isRTL ? 'text-right' : ''}`}>
-                        {isRTL ? 'لا توجد تمارين' : 'No exercises'}
-                      </p>
-                    ) : (
-                      <div className="space-y-2">
-                        {dayExercises.map(ex => (
-                          <div 
-                            key={ex.id} 
-                            className={`flex items-center justify-between p-3 rounded-lg bg-background border border-border ${isRTL ? 'flex-row-reverse' : ''}`}
-                          >
-                            <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                              <Check className="h-5 w-5 text-primary" />
-                              <div className={isRTL ? 'text-right' : ''}>
-                                <p className="font-medium">{ex.exercise_name}</p>
-                                <p className="text-sm text-muted-foreground">
-                                  {ex.sets} × {ex.reps} {isRTL ? 'تكرار' : 'reps'}
-                                  {ex.duration_minutes > 0 && ` • ${ex.duration_minutes} ${isRTL ? 'دقيقة' : 'min'}`}
-                                </p>
-                              </div>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                              onClick={() => handleRemoveExercise(ex.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ))}
+                    <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                      <Check className="h-5 w-5 text-primary" />
+                      <div className={isRTL ? 'text-right' : ''}>
+                        <p className="font-medium">{ex.exercise_name}</p>
+                        {ex.notes && <p className="text-sm text-muted-foreground">{ex.notes}</p>}
                       </div>
-                    )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => handleRemoveExercise(ex.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
-                );
-              })}
+                ))
+              )}
             </div>
           </ScrollArea>
 
@@ -355,63 +290,6 @@ export const AssignExercisesDialog = ({ open, onClose, client, exercises, doctor
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-
-            <div>
-              <label className={`text-sm font-medium mb-2 block ${isRTL ? 'text-right' : ''}`}>
-                {isRTL ? 'اليوم' : 'Day'}
-              </label>
-              <Select value={selectedDay.toString()} onValueChange={(v) => setSelectedDay(parseInt(v))}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {DAYS_OF_WEEK.map(day => (
-                    <SelectItem key={day.id} value={day.id.toString()}>
-                      {isRTL ? day.ar : day.en}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-3 gap-3">
-              <div>
-                <label className={`text-sm font-medium mb-2 block ${isRTL ? 'text-right' : ''}`}>
-                  {isRTL ? 'المجموعات' : 'Sets'}
-                </label>
-                <Input
-                  type="number"
-                  value={sets}
-                  onChange={(e) => setSets(parseInt(e.target.value) || 0)}
-                  min={1}
-                  className="text-center"
-                />
-              </div>
-              <div>
-                <label className={`text-sm font-medium mb-2 block ${isRTL ? 'text-right' : ''}`}>
-                  {isRTL ? 'التكرارات' : 'Reps'}
-                </label>
-                <Input
-                  type="number"
-                  value={reps}
-                  onChange={(e) => setReps(parseInt(e.target.value) || 0)}
-                  min={1}
-                  className="text-center"
-                />
-              </div>
-              <div>
-                <label className={`text-sm font-medium mb-2 block ${isRTL ? 'text-right' : ''}`}>
-                  {isRTL ? 'المدة (دقيقة)' : 'Duration (min)'}
-                </label>
-                <Input
-                  type="number"
-                  value={duration}
-                  onChange={(e) => setDuration(parseInt(e.target.value) || 0)}
-                  min={0}
-                  className="text-center"
-                />
-              </div>
             </div>
 
             <div>
@@ -475,28 +353,30 @@ export const AssignVideosDialog = ({ open, onClose, client, videos, doctorId }: 
     return videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : '';
   };
 
-  const toggleVideo = (id: string) => {
+  const toggleVideo = (videoId: string) => {
     setSelectedVideos(prev => 
-      prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id]
+      prev.includes(videoId) 
+        ? prev.filter(id => id !== videoId)
+        : [...prev, videoId]
     );
   };
 
   const handleSave = async () => {
     if (!client) return;
     setLoading(true);
-    
+
     try {
-      // Remove unselected videos
-      const toRemove = assignedVideos.filter(id => !selectedVideos.includes(id));
-      if (toRemove.length > 0) {
+      // Delete videos that were removed
+      const toDelete = assignedVideos.filter(id => !selectedVideos.includes(id));
+      if (toDelete.length > 0) {
         await supabase
           .from('client_videos')
           .delete()
           .eq('client_id', client.user_id)
-          .in('video_id', toRemove);
+          .in('video_id', toDelete);
       }
 
-      // Add newly selected videos
+      // Add new videos
       const toAdd = selectedVideos.filter(id => !assignedVideos.includes(id));
       if (toAdd.length > 0) {
         const inserts = toAdd.map(videoId => ({
@@ -507,10 +387,11 @@ export const AssignVideosDialog = ({ open, onClose, client, videos, doctorId }: 
         await supabase.from('client_videos').insert(inserts);
       }
 
-      toast.success(isRTL ? 'تم حفظ الفيديوهات بنجاح' : 'Videos saved successfully');
+      toast.success(isRTL ? 'تم حفظ الفيديوهات' : 'Videos saved');
       onClose();
     } catch (error) {
-      toast.error(isRTL ? 'حدث خطأ' : 'An error occurred');
+      console.error('Error saving videos:', error);
+      toast.error(isRTL ? 'حدث خطأ' : 'Error occurred');
     } finally {
       setLoading(false);
     }
@@ -518,188 +399,130 @@ export const AssignVideosDialog = ({ open, onClose, client, videos, doctorId }: 
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh]">
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle className={isRTL ? 'text-right' : ''}>
-            {isRTL ? `تعيين الفيديوهات للعميل` : `Assign Videos to Client`}
+          <DialogTitle>
+            {isRTL ? 'تعيين فيديوهات للعميل' : 'Assign Videos to Client'}
           </DialogTitle>
-          <p className={`text-sm text-muted-foreground mt-1 ${isRTL ? 'text-right' : ''}`}>
-            {isRTL ? 'اختر الفيديوهات التي تريد أن تظهر للعميل' : 'Select videos you want the client to see'}
-          </p>
-          <p className={`text-sm text-primary ${isRTL ? 'text-right' : ''}`}>
-            {isRTL ? `الفيديوهات المحددة: ${selectedVideos.length}` : `Selected videos: ${selectedVideos.length}`}
-          </p>
         </DialogHeader>
-        <ScrollArea className="h-[60vh]">
-          {videos.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <VideoIcon className="h-16 w-16 text-muted-foreground/50 mb-4" />
-              <p className="text-lg text-muted-foreground mb-2">
-                {isRTL ? 'لا توجد فيديوهات متاحة' : 'No videos available'}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {isRTL ? 'أضف فيديوهات من قسم الفيديوهات أولاً' : 'Add videos from the Videos section first'}
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-2">
-              {videos.map(video => {
-                const isSelected = selectedVideos.includes(video.id);
-                const wasAssigned = assignedVideos.includes(video.id);
-                return (
-                  <div
-                    key={video.id}
-                    onClick={() => toggleVideo(video.id)}
-                    className={`relative rounded-xl overflow-hidden border-2 cursor-pointer transition-all group ${
-                      isSelected
-                        ? 'border-primary shadow-lg shadow-primary/20'
-                        : 'border-border hover:border-muted-foreground'
-                    }`}
-                  >
-                    <div className="relative aspect-video">
-                      <img
-                        src={video.thumbnail_url || getYouTubeThumbnail(video.youtube_url)}
-                        alt={video.title}
-                        className="w-full h-full object-cover"
-                      />
-                      {/* YouTube Badge */}
-                      <div className="absolute top-2 left-2 px-2 py-1 rounded bg-red-600 text-white text-xs font-medium">
-                        YouTube
+
+        <ScrollArea className="flex-1 mt-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pr-4">
+            {videos.map(video => {
+              const isSelected = selectedVideos.includes(video.id);
+              const thumbnail = video.thumbnail_url || getYouTubeThumbnail(video.url);
+              
+              return (
+                <div
+                  key={video.id}
+                  className={`relative rounded-xl overflow-hidden cursor-pointer border-2 transition-all ${
+                    isSelected ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-primary/50'
+                  }`}
+                  onClick={() => toggleVideo(video.id)}
+                >
+                  <div className="aspect-video bg-muted">
+                    {thumbnail ? (
+                      <img src={thumbnail} alt={video.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <VideoIcon className="h-8 w-8 text-muted-foreground" />
                       </div>
-                      {/* Assigned Badge */}
-                      {wasAssigned && (
-                        <div className="absolute top-2 right-2 px-2 py-1 rounded bg-primary text-primary-foreground text-xs font-medium">
-                          {isRTL ? 'معين' : 'Assigned'}
-                        </div>
-                      )}
-                      {/* Selection Overlay */}
-                      {isSelected ? (
-                        <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                          <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
-                            <Check className="h-6 w-6 text-primary-foreground" />
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                          <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
-                            <Plus className="h-6 w-6 text-foreground" />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <div className={`p-3 bg-card ${isRTL ? 'text-right' : ''}`}>
-                      <h4 className="font-bold text-sm line-clamp-1">{video.title}</h4>
-                      <p className="text-xs text-muted-foreground">{video.category || (isRTL ? 'بدون تصنيف' : 'Uncategorized')}</p>
-                    </div>
+                    )}
                   </div>
-                );
-              })}
-            </div>
-          )}
+                  <div className="p-2">
+                    <p className={`text-sm font-medium line-clamp-1 ${isRTL ? 'text-right' : ''}`}>
+                      {video.title}
+                    </p>
+                  </div>
+                  {isSelected && (
+                    <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                      <Check className="h-4 w-4 text-primary-foreground" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </ScrollArea>
-        <div className={`flex gap-2 mt-4 pt-4 border-t border-border ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <Button onClick={handleSave} disabled={loading} className="gap-2">
-            <Save className="h-4 w-4" />
+
+        <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-border">
+          <Button variant="outline" onClick={onClose}>{isRTL ? 'إلغاء' : 'Cancel'}</Button>
+          <Button onClick={handleSave} disabled={loading}>
+            <Save className="h-4 w-4 ml-2" />
             {isRTL ? 'حفظ' : 'Save'}
           </Button>
-          <Button variant="outline" onClick={onClose}>{isRTL ? 'إلغاء' : 'Cancel'}</Button>
         </div>
       </DialogContent>
     </Dialog>
   );
 };
 
-// Assign Diet Plan Dialog with Meals
-interface Meal {
-  name: string;
-  time: string;
-  content: string;
-  calories: number;
-}
-
+// Assign Diet Plan Dialog
 interface AssignDietPlanDialogProps {
   open: boolean;
   onClose: () => void;
   client: ClientProfile | null;
   dietPlans: DietPlan[];
   doctorId: string;
-  onAddDietPlan?: (plan: any) => Promise<{ error: Error | null }>;
 }
 
-export const AssignDietPlanDialog = ({ open, onClose, client, dietPlans, doctorId, onAddDietPlan }: AssignDietPlanDialogProps) => {
+export const AssignDietPlanDialog = ({ open, onClose, client, dietPlans, doctorId }: AssignDietPlanDialogProps) => {
   const { isRTL } = useLanguage();
-  const [showNewPlan, setShowNewPlan] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string>('');
+  const [currentPlanId, setCurrentPlanId] = useState<string>('');
   const [loading, setLoading] = useState(false);
-  
-  const [newPlan, setNewPlan] = useState({
-    name: '',
-    description: '',
-    calories: 2000,
-    status: 'نشط'
-  });
 
-  const [meals, setMeals] = useState<Meal[]>([
-    { name: 'الفطور', time: '08:00', content: '', calories: 0 }
-  ]);
+  useEffect(() => {
+    if (open && client) {
+      fetchCurrentPlan();
+    }
+  }, [open, client]);
 
-  const addMeal = () => {
-    setMeals([...meals, { name: '', time: '12:00', content: '', calories: 0 }]);
-  };
-
-  const removeMeal = (index: number) => {
-    setMeals(meals.filter((_, i) => i !== index));
-  };
-
-  const updateMeal = (index: number, field: keyof Meal, value: string | number) => {
-    const updated = [...meals];
-    updated[index] = { ...updated[index], [field]: value };
-    setMeals(updated);
-  };
-
-  const handleAssignExisting = async () => {
-    if (!client || !selectedPlan) return;
-    setLoading(true);
+  const fetchCurrentPlan = async () => {
+    if (!client) return;
+    const { data } = await supabase
+      .from('client_diet_plans')
+      .select('diet_plan_id')
+      .eq('client_id', client.user_id)
+      .eq('status', 'active')
+      .maybeSingle();
     
-    try {
-      await supabase.from('client_diet_plans').insert({
-        client_id: client.user_id,
-        diet_plan_id: selectedPlan,
-        assigned_by: doctorId,
-        status: 'active'
-      });
-      toast.success(isRTL ? 'تم تعيين النظام الغذائي بنجاح' : 'Diet plan assigned successfully');
-      onClose();
-    } catch (error) {
-      toast.error(isRTL ? 'حدث خطأ' : 'An error occurred');
-    } finally {
-      setLoading(false);
+    if (data) {
+      setCurrentPlanId(data.diet_plan_id);
+      setSelectedPlan(data.diet_plan_id);
     }
   };
 
-  const handleCreateAndAssign = async () => {
-    if (!client || !newPlan.name || !onAddDietPlan) return;
+  const handleSave = async () => {
+    if (!client || !selectedPlan) return;
     setLoading(true);
-    
+
     try {
-      const planData = {
-        doctor_id: doctorId,
-        name: newPlan.name,
-        description: newPlan.description + '\n\n' + meals.map(m => `${m.name} (${m.time}): ${m.content} - ${m.calories} سعرة`).join('\n'),
-        calories_min: newPlan.calories - 200,
-        calories_max: newPlan.calories + 200,
-        status: newPlan.status,
-        goal: null,
-        duration_days: null
-      };
-      
-      const { error } = await onAddDietPlan(planData);
-      if (error) throw error;
-      
-      toast.success(isRTL ? 'تم إنشاء وتعيين النظام الغذائي بنجاح' : 'Diet plan created and assigned successfully');
+      // Mark old plan as inactive
+      if (currentPlanId) {
+        await supabase
+          .from('client_diet_plans')
+          .update({ status: 'inactive' })
+          .eq('client_id', client.user_id)
+          .eq('diet_plan_id', currentPlanId);
+      }
+
+      // Add new plan
+      if (selectedPlan !== currentPlanId) {
+        await supabase.from('client_diet_plans').insert({
+          client_id: client.user_id,
+          diet_plan_id: selectedPlan,
+          assigned_by: doctorId,
+          status: 'active',
+          start_date: new Date().toISOString().split('T')[0]
+        });
+      }
+
+      toast.success(isRTL ? 'تم حفظ النظام الغذائي' : 'Diet plan saved');
       onClose();
     } catch (error) {
-      toast.error(isRTL ? 'حدث خطأ' : 'An error occurred');
+      console.error('Error saving diet plan:', error);
+      toast.error(isRTL ? 'حدث خطأ' : 'Error occurred');
     } finally {
       setLoading(false);
     }
@@ -707,148 +530,35 @@ export const AssignDietPlanDialog = ({ open, onClose, client, dietPlans, doctorI
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh]">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {showNewPlan 
-              ? (isRTL ? 'إضافة نظام غذائي جديد' : 'Add New Diet Plan')
-              : (isRTL ? `النظام الغذائي - ${client?.full_name}` : `Diet Plan - ${client?.full_name}`)}
+            {isRTL ? 'تعيين نظام غذائي' : 'Assign Diet Plan'}
           </DialogTitle>
         </DialogHeader>
-        
-        <ScrollArea className="max-h-[60vh]">
-          {!showNewPlan ? (
-            <div className="space-y-4 py-4">
-              <div className="flex justify-between items-center">
-                <label className="font-medium">{isRTL ? 'اختر نظام غذائي موجود' : 'Select existing diet plan'}</label>
-                <Button variant="outline" size="sm" onClick={() => setShowNewPlan(true)}>
-                  <Plus className="h-4 w-4 mr-1" />
-                  {isRTL ? 'إنشاء جديد' : 'Create New'}
-                </Button>
-              </div>
-              <Select value={selectedPlan} onValueChange={setSelectedPlan}>
-                <SelectTrigger>
-                  <SelectValue placeholder={isRTL ? 'اختر نظام غذائي' : 'Select diet plan'} />
-                </SelectTrigger>
-                <SelectContent>
-                  {dietPlans.map(plan => (
-                    <SelectItem key={plan.id} value={plan.id}>
-                      {plan.name} - {plan.calories_min}-{plan.calories_max} {isRTL ? 'سعرة' : 'cal'}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
-              <Button onClick={handleAssignExisting} disabled={!selectedPlan || loading} className="w-full">
-                {isRTL ? 'تعيين النظام الغذائي' : 'Assign Diet Plan'}
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4 py-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block">{isRTL ? 'العنوان' : 'Title'}</label>
-                <Input
-                  value={newPlan.name}
-                  onChange={(e) => setNewPlan({ ...newPlan, name: e.target.value })}
-                  placeholder={isRTL ? 'نظام غذائي لإنقاص الوزن' : 'Weight loss diet plan'}
-                />
-              </div>
 
-              <div>
-                <label className="text-sm font-medium mb-2 block">{isRTL ? 'الوصف' : 'Description'}</label>
-                <Textarea
-                  value={newPlan.description}
-                  onChange={(e) => setNewPlan({ ...newPlan, description: e.target.value })}
-                  rows={3}
-                />
-              </div>
+        <div className="space-y-4 py-4">
+          <Select value={selectedPlan} onValueChange={setSelectedPlan}>
+            <SelectTrigger>
+              <SelectValue placeholder={isRTL ? 'اختر نظام غذائي' : 'Select diet plan'} />
+            </SelectTrigger>
+            <SelectContent>
+              {dietPlans.map(plan => (
+                <SelectItem key={plan.id} value={plan.id}>
+                  {plan.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">{isRTL ? 'إجمالي السعرات' : 'Total Calories'}</label>
-                  <Input
-                    type="number"
-                    value={newPlan.calories}
-                    onChange={(e) => setNewPlan({ ...newPlan, calories: parseInt(e.target.value) || 0 })}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-2 block">{isRTL ? 'الحالة' : 'Status'}</label>
-                  <Select value={newPlan.status} onValueChange={(v) => setNewPlan({ ...newPlan, status: v })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="نشط">{isRTL ? 'نشط' : 'Active'}</SelectItem>
-                      <SelectItem value="مجاني">{isRTL ? 'مجاني' : 'Free'}</SelectItem>
-                      <SelectItem value="مميز">{isRTL ? 'مميز' : 'Premium'}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Meals Section */}
-              <div>
-                <div className="flex justify-between items-center mb-3">
-                  <label className="font-medium">{isRTL ? 'الوجبات' : 'Meals'}</label>
-                  <Button variant="outline" size="sm" onClick={addMeal}>
-                    <Plus className="h-4 w-4 mr-1" />
-                    {isRTL ? 'إضافة وجبة' : 'Add Meal'}
-                  </Button>
-                </div>
-                
-                <div className="space-y-4">
-                  {meals.map((meal, index) => (
-                    <div key={index} className="p-4 rounded-xl border border-border space-y-3">
-                      <div className="flex gap-3 items-center">
-                        <Button variant="ghost" size="icon" className="text-destructive" onClick={() => removeMeal(index)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                        <div className="flex items-center gap-2 flex-1">
-                          <Clock className="h-4 w-4 text-muted-foreground" />
-                          <Input
-                            type="time"
-                            value={meal.time}
-                            onChange={(e) => updateMeal(index, 'time', e.target.value)}
-                            className="w-32"
-                          />
-                        </div>
-                        <Input
-                          value={meal.name}
-                          onChange={(e) => updateMeal(index, 'name', e.target.value)}
-                          placeholder={isRTL ? 'اسم الوجبة' : 'Meal name'}
-                          className="flex-1"
-                        />
-                      </div>
-                      <Textarea
-                        value={meal.content}
-                        onChange={(e) => updateMeal(index, 'content', e.target.value)}
-                        placeholder={isRTL ? 'محتوى الوجبة...' : 'Meal content...'}
-                        rows={2}
-                      />
-                      <Input
-                        type="number"
-                        value={meal.calories}
-                        onChange={(e) => updateMeal(index, 'calories', parseInt(e.target.value) || 0)}
-                        placeholder={isRTL ? 'السعرات' : 'Calories'}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setShowNewPlan(false)} className="flex-1">
-                  {isRTL ? 'رجوع' : 'Back'}
-                </Button>
-                <Button onClick={handleCreateAndAssign} disabled={!newPlan.name || loading} className="flex-1">
-                  <Save className="h-4 w-4 mr-2" />
-                  {isRTL ? 'حفظ' : 'Save'}
-                </Button>
-              </div>
-            </div>
-          )}
-        </ScrollArea>
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" onClick={onClose}>{isRTL ? 'إلغاء' : 'Cancel'}</Button>
+          <Button onClick={handleSave} disabled={loading || !selectedPlan}>
+            <Save className="h-4 w-4 ml-2" />
+            {isRTL ? 'حفظ' : 'Save'}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

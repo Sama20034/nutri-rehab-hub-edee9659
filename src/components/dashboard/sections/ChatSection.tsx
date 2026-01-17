@@ -13,7 +13,7 @@ interface Message {
   sender_id: string;
   content: string;
   created_at: string;
-  read_at: string | null;
+  read: boolean;
 }
 
 interface Conversation {
@@ -64,9 +64,15 @@ export const ChatSection = ({ isRTL, clientId }: ChatSectionProps) => {
         .select('doctor_id')
         .eq('client_id', clientId)
         .eq('status', 'active')
-        .single();
+        .maybeSingle();
 
-      if (assignmentError || !assignment) {
+      if (assignmentError) {
+        console.error('Assignment error:', assignmentError);
+        setLoading(false);
+        return;
+      }
+      
+      if (!assignment) {
         setLoading(false);
         return;
       }
@@ -76,7 +82,7 @@ export const ChatSection = ({ isRTL, clientId }: ChatSectionProps) => {
         .from('profiles')
         .select('full_name')
         .eq('user_id', assignment.doctor_id)
-        .single();
+        .maybeSingle();
 
       // Check if conversation exists
       let { data: existingConv } = await supabase
@@ -84,7 +90,7 @@ export const ChatSection = ({ isRTL, clientId }: ChatSectionProps) => {
         .select('id, doctor_id')
         .eq('client_id', clientId)
         .eq('doctor_id', assignment.doctor_id)
-        .single();
+        .maybeSingle();
 
       if (!existingConv) {
         // Create new conversation
@@ -101,11 +107,13 @@ export const ChatSection = ({ isRTL, clientId }: ChatSectionProps) => {
         existingConv = newConv;
       }
 
-      setConversation({
-        id: existingConv.id,
-        doctor_id: existingConv.doctor_id,
-        doctor_name: doctorProfile?.full_name || (isRTL ? 'الطبيب' : 'Doctor')
-      });
+      if (existingConv) {
+        setConversation({
+          id: existingConv.id,
+          doctor_id: existingConv.doctor_id,
+          doctor_name: doctorProfile?.full_name || (isRTL ? 'الطبيب' : 'Doctor')
+        });
+      }
     } catch (error) {
       console.error('Error fetching conversation:', error);
     } finally {
@@ -118,7 +126,7 @@ export const ChatSection = ({ isRTL, clientId }: ChatSectionProps) => {
 
     const { data, error } = await supabase
       .from('messages')
-      .select('*')
+      .select('id, sender_id, content, created_at, read')
       .eq('conversation_id', conversation.id)
       .order('created_at', { ascending: true });
 

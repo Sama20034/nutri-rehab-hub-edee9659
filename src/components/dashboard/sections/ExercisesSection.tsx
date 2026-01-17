@@ -11,10 +11,6 @@ import { toast } from 'sonner';
 interface ClientExercise {
   id: string;
   exercise_id: string;
-  day_of_week: number;
-  sets: number | null;
-  reps: number | null;
-  duration_minutes: number | null;
   notes: string | null;
   completed: boolean;
   completed_at: string | null;
@@ -23,16 +19,14 @@ interface ClientExercise {
     name: string;
     description: string | null;
     video_url: string | null;
-  };
+    duration_minutes: number | null;
+  } | null;
 }
 
 interface ExercisesSectionProps {
   isRTL: boolean;
   clientId: string;
 }
-
-const DAYS_OF_WEEK_AR = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-const DAYS_OF_WEEK_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export const ExercisesSection = ({ isRTL, clientId }: ExercisesSectionProps) => {
   const [exercises, setExercises] = useState<ClientExercise[]>([]);
@@ -47,14 +41,10 @@ export const ExercisesSection = ({ isRTL, clientId }: ExercisesSectionProps) => 
         .select(`
           id,
           exercise_id,
-          day_of_week,
-          sets,
-          reps,
-          duration_minutes,
           notes,
           completed,
           completed_at,
-          exercise:exercises(id, name, description, video_url)
+          exercise:exercises(id, name, description, video_url, duration_minutes)
         `)
         .eq('client_id', clientId);
 
@@ -115,21 +105,10 @@ export const ExercisesSection = ({ isRTL, clientId }: ExercisesSectionProps) => 
     }
   };
 
-  // Group exercises by day
-  const exercisesByDay = DAYS_OF_WEEK_AR.reduce((acc, _, index) => {
-    acc[index] = exercises.filter(e => e.day_of_week === index);
-    return acc;
-  }, {} as Record<number, ClientExercise[]>);
-
   // Calculate progress
   const totalExercises = exercises.length;
   const completedExercises = exercises.filter(e => e.completed).length;
   const progressPercentage = totalExercises > 0 ? Math.round((completedExercises / totalExercises) * 100) : 0;
-
-  // Get days that have exercises
-  const daysWithExercises = Object.entries(exercisesByDay)
-    .filter(([_, dayExercises]) => dayExercises.length > 0)
-    .map(([day, dayExercises]) => ({ day: parseInt(day), exercises: dayExercises }));
 
   if (loading) {
     return (
@@ -181,7 +160,7 @@ export const ExercisesSection = ({ isRTL, clientId }: ExercisesSectionProps) => 
           <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <Dumbbell className="h-5 w-5 text-primary" />
             <h2 className="font-semibold">
-              {isRTL ? 'التقدم الأسبوعي' : 'Weekly Progress'}
+              {isRTL ? 'التقدم' : 'Progress'}
             </h2>
           </div>
           <span className="text-primary font-bold">{progressPercentage}%</span>
@@ -195,76 +174,51 @@ export const ExercisesSection = ({ isRTL, clientId }: ExercisesSectionProps) => 
         </p>
       </div>
 
-      {/* Exercises by Day */}
-      <div className="space-y-4">
-        {daysWithExercises.map(({ day, exercises: dayExercises }) => {
-          const dayName = isRTL ? DAYS_OF_WEEK_AR[day] : DAYS_OF_WEEK_EN[day];
-          const dayCompleted = dayExercises.filter(e => e.completed).length;
-          const dayTotal = dayExercises.length;
-
-          return (
-            <div key={day} className="bg-card border border-border rounded-xl overflow-hidden">
-              {/* Day Header */}
-              <div className={`p-4 border-b border-border flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                  <Dumbbell className="h-5 w-5 text-primary" />
-                  <span className="font-semibold">{dayName}</span>
+      {/* Exercises List */}
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
+        <div className="divide-y divide-border">
+          {exercises.map((exercise) => (
+            <div 
+              key={exercise.id} 
+              className={`p-4 flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}
+            >
+              <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <button
+                  onClick={() => handleToggleComplete(exercise.id, exercise.completed)}
+                  className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
+                    exercise.completed 
+                      ? 'bg-primary border-primary text-primary-foreground' 
+                      : 'border-muted-foreground hover:border-primary'
+                  }`}
+                >
+                  {exercise.completed && <Check className="h-4 w-4" />}
+                </button>
+                <div className={isRTL ? 'text-right' : 'text-left'}>
+                  <p className={`font-medium ${exercise.completed ? 'line-through text-muted-foreground' : ''}`}>
+                    {exercise.exercise?.name}
+                  </p>
+                  {exercise.exercise?.duration_minutes && (
+                    <p className="text-sm text-muted-foreground">
+                      {exercise.exercise.duration_minutes} {isRTL ? 'دقيقة' : 'min'}
+                    </p>
+                  )}
                 </div>
-                <Badge variant="outline" className="text-primary border-primary">
-                  {dayCompleted}/{dayTotal}
-                </Badge>
               </div>
 
-              {/* Day Exercises */}
-              <div className="divide-y divide-border">
-                {dayExercises.map((exercise) => (
-                  <div 
-                    key={exercise.id} 
-                    className={`p-4 flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}
-                  >
-                    <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                      <button
-                        onClick={() => handleToggleComplete(exercise.id, exercise.completed)}
-                        className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
-                          exercise.completed 
-                            ? 'bg-primary border-primary text-primary-foreground' 
-                            : 'border-muted-foreground hover:border-primary'
-                        }`}
-                      >
-                        {exercise.completed && <Check className="h-4 w-4" />}
-                      </button>
-                      <div className={isRTL ? 'text-right' : 'text-left'}>
-                        <p className={`font-medium ${exercise.completed ? 'line-through text-muted-foreground' : ''}`}>
-                          {exercise.exercise?.name}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {exercise.sets && exercise.reps && (
-                            <span>{exercise.sets} × {exercise.reps} {isRTL ? 'تكرار' : 'reps'}</span>
-                          )}
-                          {exercise.duration_minutes && (
-                            <span> • {exercise.duration_minutes} {isRTL ? 'سعرة' : 'cal'}</span>
-                          )}
-                        </p>
-                      </div>
-                    </div>
-
-                    {exercise.exercise?.video_url && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleWatchVideo(exercise.exercise?.video_url)}
-                        className={`gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
-                      >
-                        <Play className="h-4 w-4" />
-                        {isRTL ? 'شاهد' : 'Watch'}
-                      </Button>
-                    )}
-                  </div>
-                ))}
-              </div>
+              {exercise.exercise?.video_url && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleWatchVideo(exercise.exercise?.video_url || null)}
+                  className={`gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
+                >
+                  <Play className="h-4 w-4" />
+                  {isRTL ? 'شاهد' : 'Watch'}
+                </Button>
+              )}
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
 
       {/* Video Player Modal */}
