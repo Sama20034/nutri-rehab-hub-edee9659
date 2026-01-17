@@ -152,9 +152,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (roleError) throw roleError;
       }
 
-      // Update profile with additional data including status as pending
+      // Update profile with additional data
+      // Admin and Doctor accounts are auto-approved, clients need approval
       const profileUpdate: Record<string, unknown> = {
-        status: 'pending',
+        status: role === 'admin' || role === 'doctor' ? 'approved' : 'pending',
       };
       
       if (profileData.phone) {
