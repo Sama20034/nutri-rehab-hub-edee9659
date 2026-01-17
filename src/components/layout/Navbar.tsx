@@ -25,12 +25,10 @@ const Navbar = () => {
 
   const navLinks = [
     { path: '/', label: t('nav.home') },
-    { path: '/about', label: t('nav.about') },
-    { path: '/services', label: t('nav.services') },
+    { path: '/about', label: isRTL ? 'من نحن' : 'About' },
     { path: '/packages', label: isRTL ? 'الباقات' : 'Packages' },
     { path: '/store', label: isRTL ? 'المتجر' : 'Store', icon: ShoppingBag },
     { path: '/articles', label: isRTL ? 'المقالات' : 'Articles' },
-    { path: '/success-stories', label: t('nav.success') },
     { path: '/contact', label: t('nav.contact') },
   ];
 
