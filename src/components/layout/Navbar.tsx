@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
-import logo from '@/assets/logo.png';
+import logo from '@/assets/alligator-fit-logo.png';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -61,8 +61,8 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3">
-            <img src={logo} alt="NutriRehab" className="h-12 w-auto" />
-            <span className="text-xl font-bold text-gradient hidden sm:block">NutriRehab</span>
+            <img src={logo} alt="Alligator Fit" className="h-12 w-auto" />
+            <span className="text-xl font-bold text-gradient hidden sm:block">Alligator Fit</span>
           </Link>
 
           {/* Desktop Navigation */}
