@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
-import logo from '@/assets/logo.png';
+import logo from '@/assets/alligator-fit-logo.png';
 
 type AppRole = 'client' | 'doctor' | 'admin';
 
@@ -139,8 +139,8 @@ const Auth = () => {
       >
         {/* Logo */}
         <Link to="/" className="flex items-center justify-center gap-3 mb-8">
-          <img src={logo} alt="NutriRehab" className="h-14 w-auto" />
-          <span className="text-2xl font-bold text-gradient">NutriRehab</span>
+          <img src={logo} alt="Alligator Fit" className="h-14 w-auto" />
+          <span className="text-2xl font-bold text-gradient">Alligator Fit</span>
         </Link>
 
         {/* Auth Card */}
