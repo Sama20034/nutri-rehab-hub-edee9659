@@ -61,7 +61,7 @@ export const useAdminData = () => {
           ...profile,
           full_name: profile.full_name || '',
           role: userRole?.role || 'unknown',
-          status: 'approved' // Default status since we don't have status column
+          status: profile.status || 'pending'
         };
       }) || [];
 
@@ -178,8 +178,8 @@ export const useAdminData = () => {
   const doctors = users.filter(u => u.role === 'doctor');
   const clients = users.filter(u => u.role === 'client');
   const admins = users.filter(u => u.role === 'admin');
-  const pendingUsers: UserWithRole[] = [];
-  const approvedUsers = users;
+  const pendingUsers = users.filter(u => u.status === 'pending');
+  const approvedUsers = users.filter(u => u.status === 'approved');
 
   return {
     users,
