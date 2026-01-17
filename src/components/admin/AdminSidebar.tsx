@@ -21,6 +21,9 @@ interface AdminSidebarProps {
 
 const sidebarItems = [
   { id: 'overview', labelAr: 'نظرة عامة', labelEn: 'Overview', icon: LayoutDashboard },
+  { id: 'store', labelAr: 'المتجر', labelEn: 'Store', icon: Dumbbell },
+  { id: 'payments', labelAr: 'المدفوعات', labelEn: 'Payments', icon: Calendar },
+  { id: 'discounts', labelAr: 'الخصومات', labelEn: 'Discounts', icon: FileText },
   { id: 'pending', labelAr: 'طلبات الموافقة', labelEn: 'Pending Approvals', icon: UserPlus },
   { id: 'doctors', labelAr: 'الأطباء', labelEn: 'Doctors', icon: Stethoscope },
   { id: 'clients', labelAr: 'العملاء', labelEn: 'Clients', icon: Users },
