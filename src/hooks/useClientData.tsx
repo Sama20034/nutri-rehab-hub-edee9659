@@ -1,22 +1,19 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-interface DoctorProfile {
-  id: string;
-  user_id: string;
-  full_name: string;
-  specialization: string | null;
-  avatar_url: string | null;
-  bio: string | null;
-}
-
 interface ClientAssignment {
   id: string;
   client_id: string;
   doctor_id: string;
   assigned_at: string;
-  status: string;
-  notes: string | null;
+  status: string | null;
+}
+
+interface DoctorProfile {
+  id: string;
+  user_id: string;
+  full_name: string | null;
+  avatar_url: string | null;
 }
 
 export const useClientData = (clientId?: string) => {
@@ -31,27 +28,25 @@ export const useClientData = (clientId?: string) => {
     try {
       setLoading(true);
       
-      // Fetch client assignment
       const { data: assignmentData, error: assignmentError } = await supabase
         .from('client_assignments')
         .select('*')
         .eq('client_id', clientId)
         .eq('status', 'active')
-        .single();
+        .maybeSingle();
 
-      if (assignmentError && assignmentError.code !== 'PGRST116') {
+      if (assignmentError) {
         throw assignmentError;
       }
 
       if (assignmentData) {
         setAssignment(assignmentData);
 
-        // Fetch doctor profile
         const { data: doctorProfile, error: doctorError } = await supabase
           .from('profiles')
-          .select('id, user_id, full_name, specialization, avatar_url, bio')
+          .select('id, user_id, full_name, avatar_url')
           .eq('user_id', assignmentData.doctor_id)
-          .single();
+          .maybeSingle();
 
         if (doctorError) throw doctorError;
         setAssignedDoctor(doctorProfile);

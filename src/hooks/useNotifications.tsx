@@ -5,10 +5,9 @@ interface Notification {
   id: string;
   user_id: string;
   title: string;
-  message: string;
-  type: string;
-  read: boolean;
-  related_id: string | null;
+  message: string | null;
+  type: string | null;
+  read: boolean | null;
   created_at: string;
 }
 

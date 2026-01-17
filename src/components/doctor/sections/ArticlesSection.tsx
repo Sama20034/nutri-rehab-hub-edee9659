@@ -22,12 +22,11 @@ interface Article {
   id: string;
   author_id: string;
   title: string;
-  content: string;
+  content: string | null;
   excerpt: string | null;
-  cover_image_url: string | null;
+  cover_image: string | null;
   category: string | null;
-  status: string;
-  published_at: string | null;
+  status: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -49,7 +48,7 @@ export const ArticlesSection = ({ doctorId }: ArticlesSectionProps) => {
     title: '',
     content: '',
     excerpt: '',
-    cover_image_url: '',
+    cover_image: '',
     category: '',
   });
 
@@ -69,13 +68,17 @@ export const ArticlesSection = ({ doctorId }: ArticlesSectionProps) => {
   });
 
   const createMutation = useMutation({
-    mutationFn: async (data: { title: string; content: string; excerpt: string; cover_image_url: string; category: string; status: string }) => {
+    mutationFn: async (data: { title: string; content: string; excerpt: string; cover_image: string; category: string; status: string }) => {
       const { error } = await supabase
         .from('articles')
         .insert({
-          ...data,
+          title: data.title,
+          content: data.content,
+          excerpt: data.excerpt,
+          cover_image: data.cover_image,
+          category: data.category,
+          status: data.status,
           author_id: doctorId,
-          published_at: data.status === 'published' ? new Date().toISOString() : null,
         });
       if (error) throw error;
     },
@@ -90,14 +93,17 @@ export const ArticlesSection = ({ doctorId }: ArticlesSectionProps) => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async ({ id, ...data }: { id: string; title: string; content: string; excerpt: string; cover_image_url: string; category: string; status: string }) => {
-      const updateData: any = { ...data };
-      if (data.status === 'published' && !editingArticle?.published_at) {
-        updateData.published_at = new Date().toISOString();
-      }
+    mutationFn: async ({ id, ...data }: { id: string; title: string; content: string; excerpt: string; cover_image: string; category: string; status: string }) => {
       const { error } = await supabase
         .from('articles')
-        .update(updateData)
+        .update({
+          title: data.title,
+          content: data.content,
+          excerpt: data.excerpt,
+          cover_image: data.cover_image,
+          category: data.category,
+          status: data.status,
+        })
         .eq('id', id);
       if (error) throw error;
     },
@@ -129,7 +135,7 @@ export const ArticlesSection = ({ doctorId }: ArticlesSectionProps) => {
   });
 
   const resetForm = () => {
-    setFormData({ title: '', content: '', excerpt: '', cover_image_url: '', category: '' });
+    setFormData({ title: '', content: '', excerpt: '', cover_image: '', category: '' });
     setEditingArticle(null);
     setIsDialogOpen(false);
   };
@@ -151,9 +157,9 @@ export const ArticlesSection = ({ doctorId }: ArticlesSectionProps) => {
     setEditingArticle(article);
     setFormData({
       title: article.title,
-      content: article.content,
+      content: article.content || '',
       excerpt: article.excerpt || '',
-      cover_image_url: article.cover_image_url || '',
+      cover_image: article.cover_image || '',
       category: article.category || '',
     });
     setIsDialogOpen(true);
@@ -229,8 +235,8 @@ export const ArticlesSection = ({ doctorId }: ArticlesSectionProps) => {
                     {isRTL ? 'صورة الغلاف (URL)' : 'Cover Image (URL)'}
                   </label>
                   <Input
-                    value={formData.cover_image_url}
-                    onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
+                    value={formData.cover_image}
+                    onChange={(e) => setFormData({ ...formData, cover_image: e.target.value })}
                     placeholder="https://..."
                   />
                 </div>
@@ -297,10 +303,10 @@ export const ArticlesSection = ({ doctorId }: ArticlesSectionProps) => {
             <Card key={article.id} className="overflow-hidden">
               <CardContent className="p-0">
                 <div className={`flex ${isRTL ? 'flex-row-reverse' : ''}`}>
-                  {article.cover_image_url && (
+                  {article.cover_image && (
                     <div className="w-48 h-32 shrink-0">
                       <img
-                        src={article.cover_image_url}
+                        src={article.cover_image}
                         alt={article.title}
                         className="w-full h-full object-cover"
                       />

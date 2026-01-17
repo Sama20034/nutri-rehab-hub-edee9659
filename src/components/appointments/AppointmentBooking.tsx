@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+
 interface DoctorSchedule {
   id: string;
   doctor_id: string;
@@ -26,8 +27,7 @@ interface DoctorSchedule {
 
 interface DoctorInfo {
   user_id: string;
-  full_name: string;
-  specialization: string | null;
+  full_name: string | null;
 }
 
 interface Props {
@@ -59,20 +59,26 @@ export const AppointmentBooking = ({ clientId, assignedDoctorId, schedules, onBo
 
   useEffect(() => {
     const fetchDoctors = async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('user_id, full_name, specialization')
-        .eq('status', 'approved');
-      
-      // Filter only doctors
+      // Fetch all doctor user_ids
       const { data: roles } = await supabase
         .from('user_roles')
         .select('user_id')
         .eq('role', 'doctor');
       
       const doctorIds = roles?.map(r => r.user_id) || [];
-      const doctorProfiles = data?.filter(p => doctorIds.includes(p.user_id)) || [];
-      setDoctors(doctorProfiles);
+      
+      if (doctorIds.length === 0) {
+        setDoctors([]);
+        return;
+      }
+      
+      // Fetch profiles for doctors
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, full_name')
+        .in('user_id', doctorIds);
+      
+      setDoctors(profiles || []);
     };
 
     fetchDoctors();
@@ -178,8 +184,7 @@ export const AppointmentBooking = ({ clientId, assignedDoctorId, schedules, onBo
                 <SelectItem key={doctor.user_id} value={doctor.user_id}>
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4" />
-                    {doctor.full_name}
-                    {doctor.specialization && <span className="text-muted-foreground">({doctor.specialization})</span>}
+                    {doctor.full_name || (language === 'ar' ? 'طبيب' : 'Doctor')}
                   </div>
                 </SelectItem>
               ))}

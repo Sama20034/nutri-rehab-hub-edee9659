@@ -14,14 +14,14 @@ interface Message {
   sender_id: string;
   content: string;
   created_at: string;
-  read_at: string | null;
+  read: boolean;
 }
 
 interface Conversation {
   id: string;
   client_id: string;
   client_name: string;
-  last_message_at: string;
+  last_message_at: string | null;
 }
 
 interface ChatSectionProps {
@@ -104,7 +104,7 @@ export const ChatSection = ({ isRTL, doctorId }: ChatSectionProps) => {
 
     const { data, error } = await supabase
       .from('messages')
-      .select('*')
+      .select('id, sender_id, content, created_at, read')
       .eq('conversation_id', selectedConversation.id)
       .order('created_at', { ascending: true });
 
@@ -249,7 +249,7 @@ export const ChatSection = ({ isRTL, doctorId }: ChatSectionProps) => {
                 <div className="flex-1 min-w-0">
                   <p className="font-medium truncate">{conv.client_name}</p>
                   <p className="text-xs text-muted-foreground">
-                    {format(new Date(conv.last_message_at), 'HH:mm')}
+                    {conv.last_message_at ? format(new Date(conv.last_message_at), 'HH:mm') : ''}
                   </p>
                 </div>
               </button>

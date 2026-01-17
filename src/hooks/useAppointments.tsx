@@ -7,23 +7,19 @@ interface DoctorSchedule {
   day_of_week: number;
   start_time: string;
   end_time: string;
-  is_available: boolean;
+  is_available: boolean | null;
   created_at: string;
-  updated_at: string;
 }
 
 interface Appointment {
   id: string;
   client_id: string;
   doctor_id: string;
-  schedule_id: string | null;
-  appointment_date: string;
-  start_time: string;
-  end_time: string;
-  status: string;
+  scheduled_at: string;
+  duration_minutes: number | null;
+  status: string | null;
   notes: string | null;
   created_at: string;
-  updated_at: string;
 }
 
 export const useAppointments = (userId?: string, role?: string) => {
@@ -54,7 +50,7 @@ export const useAppointments = (userId?: string, role?: string) => {
       const { data, error: fetchError } = await supabase
         .from('appointments')
         .select('*')
-        .order('appointment_date', { ascending: true });
+        .order('scheduled_at', { ascending: true });
       
       if (fetchError) throw fetchError;
       setAppointments(data || []);
@@ -80,7 +76,7 @@ export const useAppointments = (userId?: string, role?: string) => {
   }, [userId, role, refreshData]);
 
   // Schedule management (for doctors)
-  const addSchedule = async (schedule: Omit<DoctorSchedule, 'id' | 'created_at' | 'updated_at'>) => {
+  const addSchedule = async (schedule: Omit<DoctorSchedule, 'id' | 'created_at'>) => {
     try {
       const { error } = await supabase.from('doctor_schedules').insert(schedule);
       if (error) throw error;
@@ -120,7 +116,7 @@ export const useAppointments = (userId?: string, role?: string) => {
   };
 
   // Appointment management
-  const createAppointment = async (appointment: Omit<Appointment, 'id' | 'created_at' | 'updated_at'>) => {
+  const createAppointment = async (appointment: Omit<Appointment, 'id' | 'created_at'>) => {
     try {
       const { data, error } = await supabase
         .from('appointments')
@@ -135,9 +131,8 @@ export const useAppointments = (userId?: string, role?: string) => {
         await supabase.from('notifications').insert({
           user_id: appointment.doctor_id,
           title: 'حجز موعد جديد',
-          message: `لديك طلب حجز موعد جديد بتاريخ ${appointment.appointment_date} من ${appointment.start_time} إلى ${appointment.end_time}`,
-          type: 'appointment',
-          related_id: data.id
+          message: `لديك طلب حجز موعد جديد`,
+          type: 'appointment'
         });
       }
 
@@ -175,8 +170,7 @@ export const useAppointments = (userId?: string, role?: string) => {
         user_id: clientId,
         title: 'تأكيد الموعد',
         message: 'تم تأكيد موعدك من قبل الطبيب',
-        type: 'appointment',
-        related_id: id
+        type: 'appointment'
       });
     }
     
@@ -196,8 +190,7 @@ export const useAppointments = (userId?: string, role?: string) => {
         user_id: clientId,
         title: 'رفض الموعد',
         message: 'تم رفض موعدك من قبل الطبيب. يرجى اختيار موعد آخر.',
-        type: 'appointment',
-        related_id: id
+        type: 'appointment'
       });
     }
     
