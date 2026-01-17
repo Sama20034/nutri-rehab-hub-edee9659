@@ -86,6 +86,38 @@ export type Database = {
         }
         Relationships: []
       }
+      cart_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          quantity: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          quantity?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          quantity?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_assignments: {
         Row: {
           assigned_at: string
@@ -594,6 +626,87 @@ export type Database = {
         }
         Relationships: []
       }
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string
+          product_id: string
+          quantity: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id: string
+          product_id: string
+          quantity?: number
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string
+          product_id?: string
+          quantity?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string
+          grants_content_access: boolean | null
+          id: string
+          notes: string | null
+          phone: string | null
+          shipping_address: string | null
+          status: string | null
+          total_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          grants_content_access?: boolean | null
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          shipping_address?: string | null
+          status?: string | null
+          total_amount?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          grants_content_access?: boolean | null
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          shipping_address?: string | null
+          status?: string | null
+          total_amount?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
@@ -648,6 +761,75 @@ export type Database = {
           user_id?: string
           verified_at?: string | null
           verified_by?: string | null
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          description_ar: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          medical_followup_notes: string | null
+          medical_followup_notes_ar: string | null
+          medical_followup_required: boolean | null
+          name: string
+          name_ar: string | null
+          price: number
+          stock_quantity: number | null
+          suitable_for: string | null
+          suitable_for_ar: string | null
+          updated_at: string
+          usage_instructions: string | null
+          usage_instructions_ar: string | null
+          video_url: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          description_ar?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          medical_followup_notes?: string | null
+          medical_followup_notes_ar?: string | null
+          medical_followup_required?: boolean | null
+          name: string
+          name_ar?: string | null
+          price?: number
+          stock_quantity?: number | null
+          suitable_for?: string | null
+          suitable_for_ar?: string | null
+          updated_at?: string
+          usage_instructions?: string | null
+          usage_instructions_ar?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          description_ar?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          medical_followup_notes?: string | null
+          medical_followup_notes_ar?: string | null
+          medical_followup_required?: boolean | null
+          name?: string
+          name_ar?: string | null
+          price?: number
+          stock_quantity?: number | null
+          suitable_for?: string | null
+          suitable_for_ar?: string | null
+          updated_at?: string
+          usage_instructions?: string | null
+          usage_instructions_ar?: string | null
+          video_url?: string | null
         }
         Relationships: []
       }
@@ -824,6 +1006,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_content_access_via_order: {
+        Args: { p_user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
