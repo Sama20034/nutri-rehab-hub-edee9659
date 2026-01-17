@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Search, Edit, Trash2, Eye, User, Phone, Calendar, Dumbbell, Utensils, FileText, Activity, X } from 'lucide-react';
+import { Users, Search, Edit, Trash2, Eye, User, Phone, Calendar, Dumbbell, Utensils, FileText, Activity, Heart, Package, CreditCard } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -298,8 +298,12 @@ export const ClientsSection = ({
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
             </div>
           ) : clientDetails && (
-            <Tabs defaultValue="appointments" className="mt-4">
-              <TabsList className="grid grid-cols-5 w-full">
+            <Tabs defaultValue="profile" className="mt-4">
+              <TabsList className="grid grid-cols-6 w-full">
+                <TabsTrigger value="profile" className="gap-1">
+                  <Heart className="h-4 w-4" />
+                  <span className="hidden sm:inline">{isRTL ? 'الملف الصحي' : 'Profile'}</span>
+                </TabsTrigger>
                 <TabsTrigger value="appointments" className="gap-1">
                   <Calendar className="h-4 w-4" />
                   <span className="hidden sm:inline">{isRTL ? 'المواعيد' : 'Appointments'}</span>
@@ -321,6 +325,135 @@ export const ClientsSection = ({
                   <span className="hidden sm:inline">{isRTL ? 'القياسات' : 'Measures'}</span>
                 </TabsTrigger>
               </TabsList>
+
+              {/* Health Profile Tab */}
+              <TabsContent value="profile" className="mt-4 space-y-4">
+                <div className="grid gap-4">
+                  {/* Basic Info Card */}
+                  <Card className="bg-muted/50">
+                    <CardContent className="p-4 space-y-4">
+                      <h4 className="font-semibold flex items-center gap-2">
+                        <User className="h-4 w-4 text-primary" />
+                        {isRTL ? 'البيانات الأساسية' : 'Basic Information'}
+                      </h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-background">
+                          <User className="h-5 w-5 text-muted-foreground" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">{isRTL ? 'الاسم الكامل' : 'Full Name'}</p>
+                            <p className="font-medium">{selectedClient?.full_name || '-'}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-background">
+                          <Phone className="h-5 w-5 text-muted-foreground" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">{isRTL ? 'رقم الهاتف' : 'Phone'}</p>
+                            <p className="font-medium" dir="ltr">{selectedClient?.phone || '-'}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-background">
+                          <Package className="h-5 w-5 text-muted-foreground" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">{isRTL ? 'الباقة المختارة' : 'Selected Package'}</p>
+                            <p className="font-medium">{selectedClient?.selected_package || (isRTL ? 'لم يتم الاختيار' : 'Not selected')}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-background">
+                          <CreditCard className="h-5 w-5 text-muted-foreground" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">{isRTL ? 'طريقة الدفع' : 'Payment Method'}</p>
+                            <p className="font-medium">{selectedClient?.payment_method || '-'}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Status Card */}
+                  <Card className="bg-muted/50">
+                    <CardContent className="p-4 space-y-4">
+                      <h4 className="font-semibold flex items-center gap-2">
+                        <Heart className="h-4 w-4 text-red-500" />
+                        {isRTL ? 'حالة الحساب' : 'Account Status'}
+                      </h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-background">
+                          <div className={`w-3 h-3 rounded-full ${selectedClient?.status === 'approved' ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                          <div>
+                            <p className="text-xs text-muted-foreground">{isRTL ? 'حالة الحساب' : 'Status'}</p>
+                            <p className="font-medium">
+                              {selectedClient?.status === 'approved' 
+                                ? (isRTL ? 'موافق عليه' : 'Approved') 
+                                : (isRTL ? 'معلق' : 'Pending')}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-background">
+                          <Heart className={`h-5 w-5 ${selectedClient?.medical_followup ? 'text-green-500' : 'text-muted-foreground'}`} />
+                          <div>
+                            <p className="text-xs text-muted-foreground">{isRTL ? 'المتابعة الطبية' : 'Medical Followup'}</p>
+                            <p className="font-medium">
+                              {selectedClient?.medical_followup 
+                                ? (isRTL ? 'مفعّل' : 'Enabled') 
+                                : (isRTL ? 'غير مفعّل' : 'Disabled')}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-background">
+                          <Calendar className="h-5 w-5 text-muted-foreground" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">{isRTL ? 'تاريخ التسجيل' : 'Registration Date'}</p>
+                            <p className="font-medium">
+                              {selectedClient?.created_at 
+                                ? format(new Date(selectedClient.created_at), 'PPP', { locale: isRTL ? ar : undefined })
+                                : '-'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-background">
+                          <Users className="h-5 w-5 text-muted-foreground" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">{isRTL ? 'الدور' : 'Role'}</p>
+                            <p className="font-medium">{selectedClient?.role || 'client'}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Quick Stats */}
+                  <div className="grid grid-cols-4 gap-3">
+                    <Card className="bg-blue-500/10 border-blue-500/20">
+                      <CardContent className="p-3 text-center">
+                        <Dumbbell className="h-5 w-5 text-blue-500 mx-auto mb-1" />
+                        <p className="text-lg font-bold">{clientDetails?.exercises.length || 0}</p>
+                        <p className="text-xs text-muted-foreground">{isRTL ? 'تمارين' : 'Exercises'}</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-green-500/10 border-green-500/20">
+                      <CardContent className="p-3 text-center">
+                        <Utensils className="h-5 w-5 text-green-500 mx-auto mb-1" />
+                        <p className="text-lg font-bold">{clientDetails?.dietPlans.length || 0}</p>
+                        <p className="text-xs text-muted-foreground">{isRTL ? 'أنظمة' : 'Diets'}</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-purple-500/10 border-purple-500/20">
+                      <CardContent className="p-3 text-center">
+                        <FileText className="h-5 w-5 text-purple-500 mx-auto mb-1" />
+                        <p className="text-lg font-bold">{clientDetails?.notes.length || 0}</p>
+                        <p className="text-xs text-muted-foreground">{isRTL ? 'ملاحظات' : 'Notes'}</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-orange-500/10 border-orange-500/20">
+                      <CardContent className="p-3 text-center">
+                        <Calendar className="h-5 w-5 text-orange-500 mx-auto mb-1" />
+                        <p className="text-lg font-bold">{clientDetails?.appointments.length || 0}</p>
+                        <p className="text-xs text-muted-foreground">{isRTL ? 'مواعيد' : 'Appointments'}</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              </TabsContent>
 
               <TabsContent value="appointments" className="mt-4 space-y-3">
                 {clientDetails.appointments.length === 0 ? (

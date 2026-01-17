@@ -15,6 +15,9 @@ export interface UserWithRole {
   license_number?: string | null;
   bio?: string | null;
   status: string;
+  selected_package?: string | null;
+  payment_method?: string | null;
+  medical_followup?: boolean | null;
 }
 
 export interface ClientAssignment {
