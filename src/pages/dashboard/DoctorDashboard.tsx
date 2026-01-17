@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAppointments } from '@/hooks/useAppointments';
 import { useDoctorClients } from '@/hooks/useDoctorClients';
 import { useDoctorData } from '@/hooks/useDoctorData';
+import { useDoctorMedical } from '@/hooks/useDoctorMedical';
 import { DoctorSidebar } from '@/components/doctor/DoctorSidebar';
 import { OverviewSection } from '@/components/doctor/sections/OverviewSection';
 import { ClientsSection } from '@/components/doctor/sections/ClientsSection';
@@ -17,6 +18,7 @@ import { VideosSection } from '@/components/doctor/sections/VideosSection';
 import { ScheduleSection } from '@/components/doctor/sections/ScheduleSection';
 import { ChatSection } from '@/components/doctor/sections/ChatSection';
 import { ArticlesSection } from '@/components/doctor/sections/ArticlesSection';
+import { NotesSection } from '@/components/doctor/sections/NotesSection';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { cn } from '@/lib/utils';
 
@@ -58,6 +60,15 @@ const DoctorDashboard = () => {
     deleteVideo
   } = useDoctorData(user?.id);
 
+  const {
+    notes,
+    loading: notesLoading,
+    addNote,
+    updateNote,
+    deleteNote,
+    addMeasurement
+  } = useDoctorMedical(user?.id);
+
   useEffect(() => {
     if (!loading) {
       if (!user || role !== 'doctor') {
@@ -73,7 +84,7 @@ const DoctorDashboard = () => {
     navigate('/');
   };
 
-  if (loading || appointmentsLoading || clientsLoading || dataLoading) {
+  if (loading || appointmentsLoading || clientsLoading || dataLoading || notesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -110,6 +121,19 @@ const DoctorDashboard = () => {
             videos={videos}
             dietPlans={dietPlans}
             doctorId={user?.id || ''}
+            onAddNote={addNote}
+            onAddMeasurement={addMeasurement}
+          />
+        );
+      case 'notes':
+        return (
+          <NotesSection
+            notes={notes}
+            clients={clients}
+            doctorId={user?.id || ''}
+            onAdd={addNote}
+            onUpdate={updateNote}
+            onDelete={deleteNote}
           />
         );
       case 'appointments':
