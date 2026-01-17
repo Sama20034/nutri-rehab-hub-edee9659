@@ -6,17 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
-
-interface UserWithRole {
-  id: string;
-  user_id: string;
-  full_name: string;
-  phone: string | null;
-  specialization: string | null;
-  avatar_url: string | null;
-  status: string;
-  role: string;
-}
+import { UserWithRole } from '@/hooks/useAdminData';
 
 interface PendingSectionProps {
   pendingUsers: UserWithRole[];

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Menu, Globe, FileText, Clock } from 'lucide-react';
+import { LogOut, Menu, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -18,7 +18,7 @@ import { SchedulesSection } from '@/components/admin/sections/SchedulesSection';
 import { ExercisesSection } from '@/components/admin/sections/ExercisesSection';
 import { DietPlansSection } from '@/components/admin/sections/DietPlansSection';
 import { ArticlesSection } from '@/components/admin/sections/ArticlesSection';
-import { PlaceholderSection } from '@/components/admin/sections/PlaceholderSection';
+
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import logo from '@/assets/logo.png';
 
@@ -27,7 +27,7 @@ const AdminDashboard = () => {
   const { user, profile, role, loading, signOut, status } = useAuth();
   const navigate = useNavigate();
   const {
-    users, doctors, clients, pendingUsers, approvedUsers, assignments,
+    doctors, clients, pendingUsers, approvedUsers, assignments,
     loading: dataLoading, updateUserStatus, assignClientToDoctor,
     transferClient, deleteAssignment
   } = useAdminData();
@@ -43,8 +43,7 @@ const AdminDashboard = () => {
     appointments, 
     confirmAppointment, 
     cancelAppointment, 
-    completeAppointment,
-    refreshData: refreshAppointments
+    completeAppointment
   } = useAppointments(user?.id, 'admin');
 
   const [activeSection, setActiveSection] = useState('overview');
@@ -72,9 +71,6 @@ const AdminDashboard = () => {
     return updateUserStatus(userId, 'rejected');
   };
 
-  const handleSuspend = async (userId: string) => {
-    return updateUserStatus(userId, 'suspended');
-  };
 
   if (loading || dataLoading || exercisesLoading) {
     return (

@@ -8,20 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
-interface UserWithRole {
-  id: string;
-  user_id: string;
-  full_name: string;
-  phone: string | null;
-  specialization: string | null;
-  license_number: string | null;
-  bio: string | null;
-  avatar_url: string | null;
-  status: string;
-  created_at: string;
-  role: string;
-}
+import { UserWithRole } from '@/hooks/useAdminData';
 
 interface DoctorsSectionProps {
   doctors: UserWithRole[];
