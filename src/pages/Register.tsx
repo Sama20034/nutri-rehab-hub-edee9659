@@ -29,7 +29,7 @@ import { Switch } from "@/components/ui/switch";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/alligator-fit-logo.png";
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -582,8 +582,8 @@ const Register = () => {
       >
         {/* Logo */}
         <Link to="/" className="flex items-center justify-center gap-3 mb-6">
-          <img src={logo} alt="NutriRehab" className="h-12 w-auto" />
-          <span className="text-xl font-bold text-gradient">NutriRehab</span>
+          <img src={logo} alt="Alligator Fit" className="h-12 w-auto" />
+          <span className="text-xl font-bold text-gradient">Alligator Fit</span>
         </Link>
 
         {/* Progress Steps */}
