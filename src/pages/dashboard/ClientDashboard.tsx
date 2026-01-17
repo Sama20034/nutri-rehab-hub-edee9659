@@ -73,6 +73,10 @@ const ClientDashboard = () => {
             completedSessions={completedCount}
             doctorName={assignedDoctor?.full_name}
             onSectionChange={setActiveSection}
+            userName={profile?.full_name || undefined}
+            packageName={profile?.selected_package || undefined}
+            subscriptionStatus={status === 'approved' ? 'active' : status || 'pending'}
+            hasMedicalFollowup={profile?.medical_followup || false}
           />
         );
       case 'health-profile':
