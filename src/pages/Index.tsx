@@ -77,7 +77,7 @@ const HeroSection = () => {
 
       {/* Green/Orange Gradient Orbs */}
       <motion.div 
-        className="absolute top-1/4 left-0 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[150px]"
+        className="absolute top-1/4 left-0 w-[200px] md:w-[500px] h-[200px] md:h-[500px] bg-primary/20 rounded-full blur-[80px] md:blur-[150px]"
         animate={{ 
           scale: [1, 1.3, 1],
           opacity: [0.2, 0.4, 0.2]
@@ -85,7 +85,7 @@ const HeroSection = () => {
         transition={{ duration: 10, repeat: Infinity }}
       />
       <motion.div 
-        className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-secondary/20 rounded-full blur-[120px]"
+        className="absolute bottom-1/4 right-0 w-[150px] md:w-[400px] h-[150px] md:h-[400px] bg-secondary/20 rounded-full blur-[60px] md:blur-[120px]"
         animate={{ 
           scale: [1.2, 1, 1.2],
           opacity: [0.2, 0.4, 0.2]
@@ -93,8 +93,8 @@ const HeroSection = () => {
         transition={{ duration: 8, repeat: Infinity, delay: 4 }}
       />
 
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10 pt-16 sm:pt-20">
+        <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Content */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -119,7 +119,7 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 md:mb-6 leading-tight"
             >
               <span className="bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
                 {isRTL ? 'ضمان فورمة' : 'Lifetime Fitness'}
@@ -135,7 +135,7 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="text-lg md:text-xl text-muted-foreground mb-8 max-w-lg"
+              className="text-base md:text-lg lg:text-xl text-muted-foreground mb-6 md:mb-8 max-w-lg"
             >
               {isRTL 
                 ? 'مع د. محمود ريجي وفريق طبي متخصص - تغذية علاجية، تدريب رياضي، ومتابعة شخصية.'
@@ -147,16 +147,16 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className={`flex flex-col sm:flex-row gap-4 ${isRTL ? 'sm:justify-end' : 'sm:justify-start'}`}
+              className={`flex flex-col sm:flex-row gap-3 md:gap-4 ${isRTL ? 'sm:justify-end' : 'sm:justify-start'}`}
             >
-              <Link to="/register">
-                <Button size="lg" className="gap-2 text-lg px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/30 font-bold">
+              <Link to="/register" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto gap-2 text-base md:text-lg px-6 md:px-8 py-5 md:py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/30 font-bold">
                   {isRTL ? 'اشترك الآن' : 'Subscribe Now'}
                   <ArrowRight className={`h-5 w-5 ${isRTL ? 'rotate-180' : ''}`} />
                 </Button>
               </Link>
-              <Link to="/store">
-                <Button size="lg" variant="outline" className="gap-2 text-lg px-8 py-6 border-secondary/50 text-secondary hover:bg-secondary/10 font-bold">
+              <Link to="/store" className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2 text-base md:text-lg px-6 md:px-8 py-5 md:py-6 border-secondary/50 text-secondary hover:bg-secondary/10 font-bold">
                   <ShoppingBag className="h-5 w-5" />
                   {isRTL ? 'المكملات الغذائية' : 'Supplements Store'}
                 </Button>
@@ -168,19 +168,19 @@ const HeroSection = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7 }}
-              className="mt-12 grid grid-cols-3 gap-6"
+              className="mt-8 md:mt-12 grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-6"
             >
               {[
                 { value: '10K+', label: isRTL ? 'متدرب' : 'Members', icon: Users },
                 { value: '98%', label: isRTL ? 'نجاح' : 'Success', icon: Award },
                 { value: '5+', label: isRTL ? 'سنوات' : 'Years', icon: Clock },
               ].map((stat, index) => (
-                <div key={index} className={`flex items-center gap-3 p-3 rounded-xl bg-card/50 border border-border/50 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                  <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                    <stat.icon className="h-5 w-5 text-primary" />
+                <div key={index} className={`flex items-center gap-2 md:gap-3 p-2 md:p-3 rounded-xl bg-card/50 border border-border/50 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
+                    <stat.icon className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                   </div>
                   <div className={isRTL ? 'text-right' : 'text-left'}>
-                    <div className="text-xl font-bold text-primary">{stat.value}</div>
+                    <div className="text-lg md:text-xl font-bold text-primary">{stat.value}</div>
                     <div className="text-xs text-muted-foreground">{stat.label}</div>
                   </div>
                 </div>
@@ -208,7 +208,7 @@ const HeroSection = () => {
                 <img
                   src={drMahmoud1}
                   alt="Dr. Mahmoud Regy - Alligator Fit"
-                  className="w-full max-w-md mx-auto rounded-3xl shadow-2xl shadow-primary/20"
+                  className="w-full max-w-xs sm:max-w-md mx-auto rounded-2xl md:rounded-3xl shadow-2xl shadow-primary/20"
                 />
               </motion.div>
 
@@ -217,11 +217,11 @@ const HeroSection = () => {
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.8 }}
-                className="absolute -top-4 -right-4 md:right-0 bg-card p-3 rounded-xl border border-border shadow-xl"
+                className="absolute -top-2 -right-2 sm:-top-4 sm:-right-4 md:right-0 bg-card p-2 sm:p-3 rounded-lg sm:rounded-xl border border-border shadow-xl"
               >
-                <div className="flex items-center gap-2">
-                  <Dumbbell className="h-5 w-5 text-secondary" />
-                  <span className="font-bold text-sm">{isRTL ? 'تدريب احترافي' : 'Pro Training'}</span>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <Dumbbell className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
+                  <span className="font-bold text-xs sm:text-sm">{isRTL ? 'تدريب احترافي' : 'Pro Training'}</span>
                 </div>
               </motion.div>
 
@@ -229,11 +229,11 @@ const HeroSection = () => {
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 1 }}
-                className="absolute -bottom-4 -left-4 md:left-0 bg-card p-3 rounded-xl border border-border shadow-xl"
+                className="absolute -bottom-2 -left-2 sm:-bottom-4 sm:-left-4 md:left-0 bg-card p-2 sm:p-3 rounded-lg sm:rounded-xl border border-border shadow-xl"
               >
-                <div className="flex items-center gap-2">
-                  <Heart className="h-5 w-5 text-primary" />
-                  <span className="font-bold text-sm">{isRTL ? 'صحة مضمونة' : 'Guaranteed Health'}</span>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                  <span className="font-bold text-xs sm:text-sm">{isRTL ? 'صحة مضمونة' : 'Guaranteed Health'}</span>
                 </div>
               </motion.div>
             </div>
