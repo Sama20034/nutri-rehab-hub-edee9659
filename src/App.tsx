@@ -8,9 +8,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import FloatingCTA from "@/components/FloatingCTA";
 import Index from "./pages/Index";
 import About from "./pages/About";
-import Services from "./pages/Services";
 import Packages from "./pages/Packages";
-import SuccessStories from "./pages/SuccessStories";
 import Contact from "./pages/Contact";
 import Auth from "./pages/Auth";
 import Register from "./pages/Register";
@@ -39,9 +37,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/about" element={<About />} />
-              <Route path="/services" element={<Services />} />
               <Route path="/packages" element={<Packages />} />
-              <Route path="/success-stories" element={<SuccessStories />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/articles" element={<Articles />} />
               <Route path="/service-policy" element={<ServicePolicy />} />
