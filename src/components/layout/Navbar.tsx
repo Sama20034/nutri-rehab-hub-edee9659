@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Globe, LayoutDashboard, User, LogOut, ChevronDown } from 'lucide-react';
+import { Menu, X, Globe, LayoutDashboard, User, LogOut, ChevronDown, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -28,6 +28,7 @@ const Navbar = () => {
     { path: '/about', label: t('nav.about') },
     { path: '/services', label: t('nav.services') },
     { path: '/packages', label: isRTL ? 'الباقات' : 'Packages' },
+    { path: '/store', label: isRTL ? 'المتجر' : 'Store', icon: ShoppingBag },
     { path: '/articles', label: isRTL ? 'المقالات' : 'Articles' },
     { path: '/success-stories', label: t('nav.success') },
     { path: '/contact', label: t('nav.contact') },
