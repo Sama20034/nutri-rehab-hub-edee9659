@@ -213,20 +213,31 @@
     padding-right: 1rem;
   }
   
-  /* Stack grid items on mobile */
-  .grid-cols-3 {
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-  }
-  
   /* Smaller text on mobile */
   h1 {
-    font-size: 1.875rem !important;
+    font-size: 1.75rem !important;
     line-height: 2.25rem !important;
   }
   
   h2 {
-    font-size: 1.5rem !important;
-    line-height: 2rem !important;
+    font-size: 1.375rem !important;
+    line-height: 1.875rem !important;
+  }
+
+  h3 {
+    font-size: 1.125rem !important;
+    line-height: 1.5rem !important;
+  }
+
+  /* Better touch targets */
+  button, a {
+    min-height: 44px;
+  }
+
+  /* Fix cards on mobile */
+  .card {
+    margin-left: 0;
+    margin-right: 0;
   }
 }
 
@@ -234,4 +245,15 @@
   html {
     font-size: 15px;
   }
+}
+
+/* Improved scrolling */
+* {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Better image handling on mobile */
+img {
+  max-width: 100%;
+  height: auto;
 }
