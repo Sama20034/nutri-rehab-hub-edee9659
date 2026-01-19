@@ -19,7 +19,7 @@ import PendingApproval from "./pages/PendingApproval";
 import Articles from "./pages/Articles";
 import ServicePolicy from "./pages/ServicePolicy";
 import ClientDashboard from "./pages/dashboard/ClientDashboard";
-import DoctorDashboard from "./pages/dashboard/DoctorDashboard";
+
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import Profile from "./pages/Profile";
 import Store from "./pages/Store";
@@ -49,11 +49,11 @@ const App = () => (
               <Route path="/terms" element={<Policies />} />
               <Route path="/refund" element={<Policies />} />
               <Route path="/dashboard" element={<ClientDashboard />} />
-              <Route path="/doctor" element={<DoctorDashboard />} />
+              <Route path="/doctor" element={<NotFound />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/dashboard/client" element={<ClientDashboard />} />
-              <Route path="/dashboard/doctor" element={<DoctorDashboard />} />
+              <Route path="/dashboard/admin" element={<AdminDashboard />} />
               <Route path="/dashboard/admin" element={<AdminDashboard />} />
               <Route path="/store" element={<Store />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
