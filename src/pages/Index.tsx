@@ -1120,7 +1120,7 @@ const FinalCTA = () => {
             </a>
             <Link to="/register" className="w-full sm:w-auto">
               <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2 text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 border-primary/50">
-                {isRTL ? 'اشترك الآن' : 'Subscribe Now'}
+                {isRTL ? 'اشترك الان عبر الدفع الالكتروني' : 'Subscribe via Electronic Payment'}
                 <ArrowRight className={`h-4 w-4 sm:h-5 sm:w-5 ${isRTL ? 'rotate-180' : ''}`} />
               </Button>
             </Link>
