@@ -1037,8 +1037,8 @@ const FooterSection = () => {
 const Index = () => {
   return <Layout>
       <HeroSection />
-      <CountdownTimer />
       <TransformationsCarousel />
+      <CountdownTimer />
       <MissionSection />
       <SubscriptionPlans />
       <SupplementsPreview />
