@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, MessageCircle, Phone, Star, Check, ChevronLeft, ChevronRight, Play, ShoppingBag, Target, Users, Award, Zap, Clock, Shield, Instagram, Facebook, Twitter, Youtube, Dumbbell, Heart } from 'lucide-react';
+import { ArrowRight, MessageCircle, Phone, Star, Check, ChevronLeft, ChevronRight, Play, ShoppingBag, Target, Users, Award, Zap, Clock, Shield, Instagram, Facebook, Twitter, Youtube, Dumbbell, Heart, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -747,40 +747,69 @@ const MissionSection = () => {
 };
 
 // Subscription Plans Preview
+// Subscription Plans Component - Full Version
 const SubscriptionPlans = () => {
-  const {
-    isRTL
-  } = useLanguage();
-  const plans = [{
-    name: isRTL ? 'الأساسي' : 'Basic',
-    price: 299,
-    period: isRTL ? '/شهر' : '/month',
-    features: [isRTL ? 'برنامج تدريب مخصص' : 'Custom training program', isRTL ? 'نظام غذائي أساسي' : 'Basic nutrition plan', isRTL ? 'متابعة أسبوعية' : 'Weekly follow-up', isRTL ? 'دعم عبر الواتساب' : 'WhatsApp support'],
-    popular: false
+  const { isRTL } = useLanguage();
+  const [selectedTypes, setSelectedTypes] = useState<{[key: string]: 'regular' | 'medical'}>({});
+
+  const packages = [{
+    id: '6-weeks',
+    name: isRTL ? 'نظام 6 أسابيع' : '6 Weeks Program',
+    duration: isRTL ? '6 أسابيع' : '6 weeks',
+    regularPrice: 999,
+    medicalPrice: 1499,
+    icon: Zap,
+    features: isRTL 
+      ? ['برنامج تدريبي مخصص', 'نظام غذائي متكامل', 'متابعة أسبوعية', 'دعم عبر الواتساب', 'تحديثات البرنامج']
+      : ['Custom training program', 'Complete nutrition plan', 'Weekly follow-up', 'WhatsApp support', 'Program updates'],
+    popular: false,
+    badge: null
   }, {
-    name: isRTL ? 'المميز' : 'Premium',
-    price: 499,
-    period: isRTL ? '/شهر' : '/month',
-    features: [isRTL ? 'كل مميزات الأساسي' : 'All Basic features', isRTL ? 'متابعة يومية' : 'Daily follow-up', isRTL ? 'استشارة طبية' : 'Medical consultation', isRTL ? 'فيديوهات تعليمية' : 'Educational videos', isRTL ? 'تعديلات غير محدودة' : 'Unlimited adjustments'],
-    popular: true
+    id: '90-days',
+    name: isRTL ? 'تحدي 90 يوم' : '90 Days Challenge',
+    duration: isRTL ? '90 يوم + شهر هدية' : '90 days + 1 month free',
+    regularPrice: 1699,
+    medicalPrice: 1999,
+    icon: Award,
+    features: isRTL 
+      ? ['برنامج تدريبي مخصص', 'نظام غذائي متكامل', 'متابعة أسبوعية مكثفة', 'دعم عبر الواتساب 24/7', 'شهر إضافي مجاني', 'تقارير تقدم شهرية']
+      : ['Custom training program', 'Complete nutrition plan', 'Intensive weekly follow-up', '24/7 WhatsApp support', 'Extra free month', 'Monthly progress reports'],
+    popular: true,
+    badge: isRTL ? 'الأكثر طلباً' : 'Most Popular'
   }, {
-    name: isRTL ? 'VIP' : 'VIP',
-    price: 999,
-    period: isRTL ? '/شهر' : '/month',
-    features: [isRTL ? 'كل مميزات المميز' : 'All Premium features', isRTL ? 'مكالمات فيديو' : 'Video calls', isRTL ? 'خطة مكملات' : 'Supplements plan', isRTL ? 'أولوية في الرد' : 'Priority response', isRTL ? 'خصومات على المتجر' : 'Store discounts'],
-    popular: false
+    id: '6-months',
+    name: isRTL ? 'نظام 6 شهور' : '6 Months Program',
+    duration: isRTL ? '6 شهور' : '6 months',
+    regularPrice: 2999,
+    medicalPrice: 4000,
+    icon: Crown,
+    features: isRTL 
+      ? ['كل مميزات تحدي 90 يوم', 'جلسات استشارية شهرية', 'تحديثات غير محدودة', 'أولوية في الدعم', 'خصومات على المكملات']
+      : ['All 90 days features', 'Monthly consultation sessions', 'Unlimited updates', 'Priority support', 'Supplement discounts'],
+    popular: false,
+    badge: null
+  }, {
+    id: '1-year',
+    name: isRTL ? 'نظام سنة كاملة' : 'Full Year Program',
+    duration: isRTL ? '12 شهر' : '12 months',
+    regularPrice: 5999,
+    medicalPrice: 8000,
+    icon: Star,
+    features: isRTL 
+      ? ['كل مميزات 6 شهور', 'تحول شامل مضمون', 'متابعة VIP مستمرة', 'جلسات فيديو شهرية', 'مكملات مجانية', 'ضمان استرداد المال']
+      : ['All 6 months features', 'Guaranteed complete transformation', 'Continuous VIP follow-up', 'Monthly video sessions', 'Free supplements', 'Money-back guarantee'],
+    popular: false,
+    badge: isRTL ? 'أفضل قيمة' : 'Best Value'
   }];
+
+  const getSelectedType = (id: string) => selectedTypes[id] || 'regular';
+  const getPrice = (pkg: typeof packages[0]) => {
+    return getSelectedType(pkg.id) === 'medical' ? pkg.medicalPrice : pkg.regularPrice;
+  };
+
   return <section className="py-12 sm:py-16 md:py-20 bg-background">
       <div className="container mx-auto px-4">
-        <motion.div initial={{
-        opacity: 0,
-        y: 30
-      }} whileInView={{
-        opacity: 1,
-        y: 0
-      }} viewport={{
-        once: true
-      }} className="text-center mb-8 sm:mb-12">
+        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8 sm:mb-12">
           <Badge className="mb-3 sm:mb-4 bg-primary/20 text-primary border-primary/30 text-xs sm:text-sm">
             {isRTL ? '💎 باقاتنا' : '💎 Our Plans'}
           </Badge>
@@ -792,57 +821,93 @@ const SubscriptionPlans = () => {
           </p>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-5xl mx-auto">
-          {plans.map((plan, index) => <motion.div key={index} initial={{
-          opacity: 0,
-          y: 30
-        }} whileInView={{
-          opacity: 1,
-          y: 0
-        }} viewport={{
-          once: true
-        }} transition={{
-          delay: index * 0.1
-        }}>
-              <Card className={`relative h-full border-2 ${plan.popular ? 'border-primary' : 'border-border'}`}>
-                {plan.popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground px-4">
-                      {isRTL ? 'الأكثر طلباً' : 'Most Popular'}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
+          {packages.map((pkg, index) => (
+            <motion.div 
+              key={pkg.id} 
+              initial={{ opacity: 0, y: 30 }} 
+              whileInView={{ opacity: 1, y: 0 }} 
+              viewport={{ once: true }} 
+              transition={{ delay: index * 0.1 }}
+            >
+              <Card className={`relative h-full border-2 ${pkg.popular ? 'border-primary' : 'border-border'}`}>
+                {pkg.badge && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                    <Badge className={`px-4 py-1 ${pkg.popular ? 'bg-primary text-primary-foreground' : 'bg-secondary text-background'}`}>
+                      ✨ {pkg.badge}
                     </Badge>
-                  </div>}
-                <CardContent className="p-6">
-                  <div className="text-center mb-6">
-                    <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-                    <div className="flex items-baseline justify-center gap-1">
-                      <span className="text-4xl font-bold text-primary">{plan.price}</span>
-                      <span className="text-muted-foreground">{isRTL ? 'ر.س' : 'SAR'}{plan.period}</span>
+                  </div>
+                )}
+                
+                <CardContent className="p-5">
+                  {/* Icon */}
+                  <div className="flex justify-center mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
+                      <pkg.icon className="w-6 h-6 text-primary" />
                     </div>
                   </div>
 
-                  <ul className="space-y-3 mb-6">
-                    {plan.features.map((feature, i) => <li key={i} className="flex items-center gap-2">
-                        <Check className="h-5 w-5 text-primary flex-shrink-0" />
-                        <span className="text-sm">{feature}</span>
-                      </li>)}
+                  {/* Name & Duration */}
+                  <div className="text-center mb-4">
+                    <h3 className="text-lg font-bold mb-1">{pkg.name}</h3>
+                    <p className="text-sm text-muted-foreground">{pkg.duration}</p>
+                  </div>
+
+                  {/* Type Toggle */}
+                  <div className="flex rounded-lg bg-muted p-1 mb-4">
+                    <button
+                      onClick={() => setSelectedTypes(prev => ({...prev, [pkg.id]: 'regular'}))}
+                      className={`flex-1 py-2 px-3 rounded-md text-xs font-medium transition-all ${
+                        getSelectedType(pkg.id) === 'regular' 
+                          ? 'bg-card text-foreground shadow-sm' 
+                          : 'text-muted-foreground'
+                      }`}
+                    >
+                      {isRTL ? 'عادي' : 'Regular'}
+                    </button>
+                    <button
+                      onClick={() => setSelectedTypes(prev => ({...prev, [pkg.id]: 'medical'}))}
+                      className={`flex-1 py-2 px-3 rounded-md text-xs font-medium transition-all ${
+                        getSelectedType(pkg.id) === 'medical' 
+                          ? 'bg-card text-foreground shadow-sm' 
+                          : 'text-muted-foreground'
+                      }`}
+                    >
+                      {isRTL ? 'متابعة طبية' : 'Medical'}
+                    </button>
+                  </div>
+
+                  {/* Price */}
+                  <div className="text-center mb-4">
+                    <div className="flex items-baseline justify-center gap-1">
+                      <span className="text-3xl font-bold text-primary">{getPrice(pkg).toLocaleString()}</span>
+                      <span className="text-sm text-muted-foreground">{isRTL ? 'ج.م' : 'EGP'}</span>
+                    </div>
+                  </div>
+
+                  {/* Features */}
+                  <ul className="space-y-2 mb-6">
+                    {pkg.features.map((feature, i) => (
+                      <li key={i} className="flex items-center gap-2 text-sm">
+                        <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                        <span className="text-muted-foreground">{feature}</span>
+                      </li>
+                    ))}
                   </ul>
 
+                  {/* CTA Button */}
                   <Link to="/register">
-                    <Button className={`w-full ${plan.popular ? 'bg-primary' : ''}`} variant={plan.popular ? 'default' : 'outline'}>
+                    <Button 
+                      className={`w-full ${pkg.popular ? 'bg-primary' : ''}`} 
+                      variant={pkg.popular ? 'default' : 'outline'}
+                    >
                       {isRTL ? 'اشترك الآن' : 'Subscribe Now'}
                     </Button>
                   </Link>
                 </CardContent>
               </Card>
-            </motion.div>)}
-        </div>
-
-        <div className="text-center mt-8">
-          <Link to="/packages">
-            <Button variant="link" className="text-primary gap-2">
-              {isRTL ? 'عرض جميع الباقات' : 'View All Plans'}
-              <ArrowRight className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />
-            </Button>
-          </Link>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>;
