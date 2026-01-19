@@ -389,7 +389,7 @@ const TransformationsCarousel = () => {
     beforeImage: transformationBefore,
     afterImage: transformationAfter,
     duration: isRTL ? '12 اسبوع' : '12 weeks',
-    category: isRTL ? 'خسارة دهون و بناء عضلات' : 'Fat Loss & Muscle Building',
+    category: isRTL ? 'بناء عضلات' : 'Muscle Building',
     showMask: true,
     program: isRTL ? 'سوبر تنشيف 💪' : 'Super Cutting 💪'
   }, {
