@@ -372,7 +372,7 @@ const TransformationsCarousel = () => {
   const {
     isRTL
   } = useLanguage();
-  const [showAfter, setShowAfter] = useState(false);
+  const [activeStates, setActiveStates] = useState<{[key: number]: boolean}>({});
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const transformations = [{
@@ -381,142 +381,198 @@ const TransformationsCarousel = () => {
     afterImage: transformationAfter,
     duration: isRTL ? '12 اسبوع' : '12 weeks',
     category: isRTL ? 'خسارة دهون و بناء عضلات' : 'Fat Loss & Muscle Building',
-    showMask: true
+    showMask: true,
+    program: isRTL ? 'سوبر تنشيف 💪' : 'Super Cutting 💪'
   }, {
     name: isRTL ? 'أحمد محمد' : 'Ahmed Mohamed',
     beforeImage: transformation2Before,
     afterImage: transformation2After,
     duration: isRTL ? '16 اسبوع' : '16 weeks',
     category: isRTL ? 'خسارة دهون' : 'Fat Loss',
-    showMask: false
+    showMask: false,
+    program: isRTL ? 'برنامج بناء العضلات' : 'Muscle Building'
   }];
 
-  const nextSlide = () => setCurrentIndex(prev => (prev + 1) % transformations.length);
-  const prevSlide = () => setCurrentIndex(prev => (prev - 1 + transformations.length) % transformations.length);
+  const toggleCard = (index: number) => {
+    setActiveStates(prev => ({...prev, [index]: !prev[index]}));
+  };
 
-  return <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-background via-background to-primary/5">
-      <div className="container mx-auto px-4">
-        <motion.div initial={{
-        opacity: 0,
-        y: 30
-      }} whileInView={{
+  const getCardStyle = (index: number) => {
+    const diff = index - currentIndex;
+    const total = transformations.length;
+    
+    // Handle wrapping for carousel effect
+    let adjustedDiff = diff;
+    if (diff > total / 2) adjustedDiff = diff - total;
+    if (diff < -total / 2) adjustedDiff = diff + total;
+    
+    if (adjustedDiff === 0) {
+      return {
+        transform: 'translateX(0) scale(1)',
+        zIndex: 30,
         opacity: 1,
-        y: 0
-      }} viewport={{
-        once: true
-      }} className="text-center mb-8 sm:mb-12">
-          <Badge className="mb-3 sm:mb-4 bg-primary/20 text-primary border-primary/30 text-xs sm:text-sm">
-            {isRTL ? '💪 تحولات حقيقية' : '💪 Real Transformations'}
+        filter: 'blur(0px)'
+      };
+    } else if (adjustedDiff === 1 || (adjustedDiff === -(total - 1))) {
+      return {
+        transform: 'translateX(70%) scale(0.85)',
+        zIndex: 20,
+        opacity: 0.7,
+        filter: 'blur(2px)'
+      };
+    } else if (adjustedDiff === -1 || (adjustedDiff === (total - 1))) {
+      return {
+        transform: 'translateX(-70%) scale(0.85)',
+        zIndex: 20,
+        opacity: 0.7,
+        filter: 'blur(2px)'
+      };
+    }
+    return {
+      transform: 'translateX(0) scale(0.7)',
+      zIndex: 10,
+      opacity: 0,
+      filter: 'blur(4px)'
+    };
+  };
+
+  return <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-purple-950/20 via-background to-background overflow-hidden">
+      <div className="container mx-auto px-4">
+        {/* Header Badge */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="flex justify-center mb-8"
+        >
+          <Badge className="px-6 py-2 bg-secondary text-background text-base font-bold rounded-full">
+            ⭐ {isRTL ? 'تم التحول!' : 'Transformed!'}
           </Badge>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
-            {isRTL ? 'قصص نجاح عملائنا' : 'Our Success Stories'}
-          </h2>
-          <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
-            {isRTL ? 'اضغط على الصورة لمشاهدة النتيجة' : 'Click on the image to see the result'}
-          </p>
         </motion.div>
 
-        <div className="relative max-w-lg mx-auto">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="relative"
-          >
-            {/* Main Transformation Card */}
-            <Card 
-              className="overflow-hidden border-2 border-primary/30 bg-gradient-to-br from-card via-card to-primary/5 cursor-pointer group"
-              onClick={() => setShowAfter(!showAfter)}
-            >
-              <div className="relative aspect-[3/4]">
-                {/* Image with transition */}
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={showAfter ? 'after' : 'before'}
-                    initial={{ opacity: 0, scale: 1.05 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.3 }}
-                    className="absolute inset-0"
-                  >
-                    <img 
-                      src={showAfter ? transformations[currentIndex].afterImage : transformations[currentIndex].beforeImage} 
-                      alt={showAfter ? "After" : "Before"} 
-                      className="w-full h-full object-cover"
-                    />
-                  </motion.div>
-                </AnimatePresence>
-                
-                {/* Emoji Mask Overlay - only if showMask is true */}
-                {transformations[currentIndex].showMask && (
-                  <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
-                    <motion.img 
-                      src={emojiMask} 
-                      alt="mask" 
-                      className="w-24 h-24 sm:w-28 sm:h-28 object-contain"
-                      animate={showAfter ? { rotate: [0, 10, -10, 0] } : { y: [0, -5, 0] }}
-                      transition={{ duration: 0.5 }}
-                    />
+        {/* Carousel Container */}
+        <div className="relative h-[600px] sm:h-[700px] flex items-center justify-center">
+          {transformations.map((transformation, index) => {
+            const style = getCardStyle(index);
+            const isActive = index === currentIndex;
+            const showAfter = activeStates[index] || false;
+            
+            return (
+              <motion.div
+                key={index}
+                className="absolute w-[280px] sm:w-[320px] cursor-pointer"
+                style={{
+                  zIndex: style.zIndex,
+                  filter: style.filter,
+                }}
+                animate={{
+                  x: style.transform.includes('70%') ? '70%' : style.transform.includes('-70%') ? '-70%' : '0%',
+                  scale: style.transform.includes('0.85') ? 0.85 : style.transform.includes('0.7') ? 0.7 : 1,
+                  opacity: style.opacity,
+                }}
+                transition={{ duration: 0.5, ease: 'easeInOut' }}
+                onClick={() => isActive ? toggleCard(index) : setCurrentIndex(index)}
+              >
+                <Card className={`overflow-hidden border-2 ${isActive ? 'border-primary/50 shadow-2xl shadow-primary/20' : 'border-border/30'} bg-gradient-to-br from-card via-card to-primary/5 rounded-2xl`}>
+                  <div className="relative aspect-[3/4]">
+                    {/* Image */}
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={showAfter ? 'after' : 'before'}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="absolute inset-0"
+                      >
+                        <img 
+                          src={showAfter ? transformation.afterImage : transformation.beforeImage} 
+                          alt={showAfter ? "After" : "Before"} 
+                          className="w-full h-full object-cover"
+                        />
+                      </motion.div>
+                    </AnimatePresence>
+                    
+                    {/* Emoji Mask */}
+                    {transformation.showMask && (
+                      <div className="absolute top-8 left-1/2 -translate-x-1/2 z-10">
+                        <motion.img 
+                          src={emojiMask} 
+                          alt="mask" 
+                          className="w-20 h-20 sm:w-24 sm:h-24 object-contain"
+                          animate={showAfter ? { scale: [1, 1.1, 1] } : {}}
+                        />
+                      </div>
+                    )}
+
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+                    
+                    {/* Duration & Status Badge */}
+                    <div className="absolute bottom-32 right-3 left-3 flex justify-between items-center">
+                      <Badge className={`px-3 py-1.5 ${showAfter ? 'bg-green-500/90' : 'bg-muted/80'} text-white text-xs`}>
+                        {showAfter ? (isRTL ? 'بعد' : 'After') : (isRTL ? 'قبل' : 'Before')}
+                      </Badge>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/60 px-2 py-1 rounded-full">
+                        <Clock className="w-3 h-3" />
+                        {transformation.duration}
+                      </div>
+                    </div>
+
+                    {/* Info at bottom */}
+                    <div className="absolute bottom-0 left-0 right-0 p-4 text-center">
+                      <span className="text-secondary text-xs font-medium">{transformation.category}</span>
+                      <h3 className="text-lg font-bold text-foreground mt-1">{transformation.name}</h3>
+                      
+                      {isActive && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="mt-3"
+                        >
+                          <p className="text-primary font-semibold text-sm">{transformation.program}</p>
+                          <div className="flex items-center justify-center gap-2 mt-2">
+                            <Star className="w-5 h-5 text-primary" />
+                            <span className="text-muted-foreground text-xs">{isRTL ? 'نتيجة مذهلة!' : 'Amazing result!'}</span>
+                          </div>
+                        </motion.div>
+                      )}
+                    </div>
                   </div>
-                )}
-
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
-                
-                {/* Before/After Badge */}
-                <motion.div 
-                  className="absolute bottom-20 left-1/2 -translate-x-1/2"
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <Badge className={`text-lg px-6 py-2 ${showAfter ? 'bg-green-500/90 text-white' : 'bg-secondary/90 text-background'}`}>
-                    <Clock className="w-4 h-4 mr-2" />
-                    {transformations[currentIndex].duration} • {showAfter ? (isRTL ? 'بعد' : 'After') : (isRTL ? 'قبل' : 'Before')}
-                  </Badge>
-                </motion.div>
-
-                {/* Info at bottom */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-center">
-                  <span className="text-secondary text-sm font-medium">{transformations[currentIndex].category}</span>
-                  <h3 className="text-xl font-bold text-foreground mt-1">{transformations[currentIndex].name}</h3>
-                  <motion.p 
-                    className="text-secondary flex items-center justify-center gap-2 mt-2 cursor-pointer"
-                    animate={{ scale: [1, 1.05, 1] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
-                    <span>✨</span>
-                    {isRTL ? 'اضغط للنتيجة' : 'Click for result'}
-                  </motion.p>
-                </div>
-              </div>
-            </Card>
-
-            {/* Tap instruction */}
-            <motion.div 
-              className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-muted-foreground text-sm flex items-center gap-2"
-              animate={{ opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <span>👆</span>
-              {isRTL ? 'اضغط على الصورة' : 'Tap the image'}
-            </motion.div>
-          </motion.div>
+                </Card>
+              </motion.div>
+            );
+          })}
         </div>
 
-        {/* Navigation dots if multiple transformations */}
-        {transformations.length > 1 && (
-          <div className="flex justify-center gap-2 mt-12">
-            {transformations.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => { setCurrentIndex(index); setShowAfter(false); }}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  currentIndex === index ? 'bg-primary w-8' : 'bg-muted-foreground/30'
-                }`}
-              />
-            ))}
-          </div>
-        )}
+        {/* Navigation Arrows */}
+        <div className="flex justify-center gap-4 mt-4">
+          <button 
+            onClick={() => setCurrentIndex(prev => (prev - 1 + transformations.length) % transformations.length)}
+            className="w-10 h-10 bg-card border border-border rounded-full flex items-center justify-center hover:bg-primary/10 transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button 
+            onClick={() => setCurrentIndex(prev => (prev + 1) % transformations.length)}
+            className="w-10 h-10 bg-card border border-border rounded-full flex items-center justify-center hover:bg-primary/10 transition-colors"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Dots */}
+        <div className="flex justify-center gap-2 mt-4">
+          {transformations.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentIndex(index)}
+              className={`w-2 h-2 rounded-full transition-all ${
+                currentIndex === index ? 'bg-primary w-6' : 'bg-muted-foreground/30'
+              }`}
+            />
+          ))}
+        </div>
       </div>
     </section>;
 };
