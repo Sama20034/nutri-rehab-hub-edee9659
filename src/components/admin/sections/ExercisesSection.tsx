@@ -124,18 +124,35 @@ export const ExercisesSection = ({
       duration_minutes: exerciseForm.duration_minutes ? parseInt(exerciseForm.duration_minutes) : null
     };
     
-    const result = editingExercise
-      ? await onUpdateExercise(editingExercise.id, data)
-      : await onAddExercise(data);
+    let result;
+    let exerciseId: string | null = null;
+    
+    if (editingExercise) {
+      result = await onUpdateExercise(editingExercise.id, data);
+      exerciseId = editingExercise.id;
+    } else {
+      result = await onAddExercise(data);
+      // Get the newly created exercise ID
+      if (!result.error) {
+        const { data: newExercise } = await supabase
+          .from('exercises')
+          .select('id')
+          .eq('name', exerciseForm.name)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+        exerciseId = newExercise?.id || null;
+      }
+    }
     
     if (result.error) {
       toast.error(result.error.message);
     } else {
-      // Assign to clients if editing and clients selected
-      if (editingExercise && selectedClients.length > 0 && onAssignToClients && user) {
-        const assignResult = await onAssignToClients(editingExercise.id, selectedClients, user.id);
+      // Assign to clients if any selected
+      if (selectedClients.length > 0 && onAssignToClients && user && exerciseId) {
+        const assignResult = await onAssignToClients(exerciseId, selectedClients, user.id);
         if (assignResult.error) {
-          toast.error(isRTL ? 'تم تحديث التمرين لكن فشل التعيين للعملاء' : 'Exercise updated but failed to assign to clients');
+          toast.error(isRTL ? 'تم حفظ التمرين لكن فشل التعيين للعملاء' : 'Exercise saved but failed to assign to clients');
         } else {
           toast.success(isRTL ? `تم تعيين التمرين لـ ${selectedClients.length} عميل` : `Assigned to ${selectedClients.length} clients`);
         }
@@ -324,8 +341,8 @@ export const ExercisesSection = ({
               />
             </div>
 
-            {/* Client Assignment - Only show when editing */}
-            {editingExercise && onAssignToClients && (
+            {/* Client Assignment */}
+            {onAssignToClients && (
               <div className="border-t pt-4 mt-4">
                 <Label className="flex items-center gap-2 mb-2">
                   <Users className="h-4 w-4" />
