@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Layout from '@/components/layout/Layout';
+import { supabase } from '@/integrations/supabase/client';
 import drMahmoud1 from '@/assets/dr-mahmoud-1.png';
 import drMahmoud2 from '@/assets/dr-mahmoud-2.png';
 import alligatorFitLogo from '@/assets/alligator-fit-logo.png';
@@ -364,41 +365,91 @@ const CountdownTimer = () => {
 
 // Transformations Carousel Component
 const TransformationsCarousel = () => {
-  const {
-    isRTL
-  } = useLanguage();
+  const { isRTL } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const transformations = [{
-    name: 'أحمد محمد',
-    before: 95,
-    after: 72,
-    duration: '3 أشهر',
-    image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400'
+  const [transformations, setTransformations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fallback data in case database is empty
+  const fallbackData = [{
+    client_name: 'أحمد محمد',
+    weight_before: 95,
+    weight_after: 72,
+    duration_text: '3 أشهر',
+    before_image_url: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400',
+    rating: 5
   }, {
-    name: 'سارة علي',
-    before: 85,
-    after: 62,
-    duration: '4 أشهر',
-    image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400'
+    client_name: 'سارة علي',
+    weight_before: 85,
+    weight_after: 62,
+    duration_text: '4 أشهر',
+    before_image_url: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
+    rating: 5
   }, {
-    name: 'محمد خالد',
-    before: 110,
-    after: 82,
-    duration: '6 أشهر',
-    image: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400'
+    client_name: 'محمد خالد',
+    weight_before: 110,
+    weight_after: 82,
+    duration_text: '6 أشهر',
+    before_image_url: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400',
+    rating: 5
   }, {
-    name: 'نور حسن',
-    before: 78,
-    after: 58,
-    duration: '3 أشهر',
-    image: 'https://images.unsplash.com/photo-1550345332-09e3ac987658?w=400'
+    client_name: 'نور حسن',
+    weight_before: 78,
+    weight_after: 58,
+    duration_text: '3 أشهر',
+    before_image_url: 'https://images.unsplash.com/photo-1550345332-09e3ac987658?w=400',
+    rating: 5
   }];
-  const nextSlide = () => setCurrentIndex(prev => (prev + 1) % transformations.length);
-  const prevSlide = () => setCurrentIndex(prev => (prev - 1 + transformations.length) % transformations.length);
+
+  // Fetch transformations from database
   useEffect(() => {
+    const fetchTransformations = async () => {
+      const { data, error } = await supabase
+        .from('transformations')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+      
+      if (error || !data || data.length === 0) {
+        setTransformations(fallbackData);
+      } else {
+        setTransformations(data);
+      }
+      setLoading(false);
+    };
+    
+    fetchTransformations();
+  }, []);
+
+  const dataToShow = transformations.length > 0 ? transformations : fallbackData;
+
+  const nextSlide = () => setCurrentIndex(prev => (prev + 1) % dataToShow.length);
+  const prevSlide = () => setCurrentIndex(prev => (prev - 1 + dataToShow.length) % dataToShow.length);
+  
+  useEffect(() => {
+    if (dataToShow.length === 0) return;
     const timer = setInterval(nextSlide, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [dataToShow.length]);
+
+  if (loading || dataToShow.length === 0) {
+    return (
+      <section className="py-12 sm:py-16 md:py-20 bg-background">
+        <div className="container mx-auto px-4 text-center">
+          <div className="animate-pulse h-64 bg-muted rounded-lg"></div>
+        </div>
+      </section>
+    );
+  }
+
+  const current = dataToShow[currentIndex];
+  const weightBefore = current.weight_before || current.before || 0;
+  const weightAfter = current.weight_after || current.after || 0;
+  const clientName = current.client_name || current.name || '';
+  const duration = current.duration_text || current.duration || '';
+  const image = current.before_image_url || current.image || '';
+  const rating = current.rating || 5;
+
   return <section className="py-12 sm:py-16 md:py-20 bg-background">
       <div className="container mx-auto px-4">
         <motion.div initial={{
@@ -438,7 +489,7 @@ const TransformationsCarousel = () => {
               {/* Before/After Card */}
               <Card className="overflow-hidden border-border bg-card">
                 <div className="relative aspect-[4/3]">
-                  <img src={transformations[currentIndex].image} alt="Transformation" className="w-full h-full object-cover" />
+                  <img src={image} alt="Transformation" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4">
                     <div className="flex justify-between items-end">
@@ -446,13 +497,13 @@ const TransformationsCarousel = () => {
                         <Badge className="bg-red-500/20 text-red-400 mb-2">
                           {isRTL ? 'قبل' : 'Before'}
                         </Badge>
-                        <div className="text-3xl font-bold">{transformations[currentIndex].before} kg</div>
+                        <div className="text-3xl font-bold">{weightBefore} kg</div>
                       </div>
                       <div className="text-right">
                         <Badge className="bg-green-500/20 text-green-400 mb-2">
                           {isRTL ? 'بعد' : 'After'}
                         </Badge>
-                        <div className="text-3xl font-bold">{transformations[currentIndex].after} kg</div>
+                        <div className="text-3xl font-bold">{weightAfter} kg</div>
                       </div>
                     </div>
                   </div>
@@ -467,9 +518,9 @@ const TransformationsCarousel = () => {
                       <Star className="h-8 w-8 text-primary" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold">{transformations[currentIndex].name}</h3>
+                      <h3 className="text-xl font-bold">{clientName}</h3>
                       <p className="text-muted-foreground">
-                        {isRTL ? `خسر ${transformations[currentIndex].before - transformations[currentIndex].after} كجم` : `Lost ${transformations[currentIndex].before - transformations[currentIndex].after} kg`}
+                        {isRTL ? `خسر ${weightBefore - weightAfter} كجم` : `Lost ${weightBefore - weightAfter} kg`}
                       </p>
                     </div>
                   </div>
@@ -477,18 +528,20 @@ const TransformationsCarousel = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between p-3 bg-muted/50 rounded-lg">
                       <span className="text-muted-foreground">{isRTL ? 'المدة' : 'Duration'}</span>
-                      <span className="font-semibold">{transformations[currentIndex].duration}</span>
+                      <span className="font-semibold">{duration}</span>
                     </div>
                     <div className="flex justify-between p-3 bg-muted/50 rounded-lg">
                       <span className="text-muted-foreground">{isRTL ? 'الخسارة' : 'Lost'}</span>
                       <span className="font-semibold text-green-500">
-                        -{transformations[currentIndex].before - transformations[currentIndex].after} kg
+                        -{weightBefore - weightAfter} kg
                       </span>
                     </div>
                   </div>
 
                   <div className="flex gap-2 mt-6">
-                    {[...Array(5)].map((_, i) => <Star key={i} className="h-5 w-5 fill-yellow-500 text-yellow-500" />)}
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className={`h-5 w-5 ${i < rating ? 'fill-yellow-500 text-yellow-500' : 'text-muted-foreground'}`} />
+                    ))}
                   </div>
                 </CardContent>
               </Card>
@@ -505,7 +558,7 @@ const TransformationsCarousel = () => {
 
           {/* Dots */}
           <div className="flex justify-center gap-2 mt-8">
-            {transformations.map((_, index) => <button key={index} onClick={() => setCurrentIndex(index)} className={`w-3 h-3 rounded-full transition-all ${index === currentIndex ? 'bg-primary w-8' : 'bg-muted-foreground/30'}`} />)}
+            {dataToShow.map((_, index) => <button key={index} onClick={() => setCurrentIndex(index)} className={`w-3 h-3 rounded-full transition-all ${index === currentIndex ? 'bg-primary w-8' : 'bg-muted-foreground/30'}`} />)}
           </div>
         </div>
       </div>
