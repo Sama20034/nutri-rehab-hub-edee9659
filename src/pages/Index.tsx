@@ -12,6 +12,8 @@ import drMahmoud2 from '@/assets/dr-mahmoud-2.png';
 import alligatorFitLogo from '@/assets/alligator-fit-logo.png';
 import transformationBefore from '@/assets/transformation-before.png';
 import transformationAfter from '@/assets/transformation-after.png';
+import transformation2Before from '@/assets/transformation2-before.png';
+import transformation2After from '@/assets/transformation2-after.png';
 import emojiMask from '@/assets/emoji-mask.png';
 
 // Hero Section Component
@@ -378,7 +380,15 @@ const TransformationsCarousel = () => {
     beforeImage: transformationBefore,
     afterImage: transformationAfter,
     duration: isRTL ? '12 اسبوع' : '12 weeks',
-    category: isRTL ? 'خسارة دهون و بناء عضلات' : 'Fat Loss & Muscle Building'
+    category: isRTL ? 'خسارة دهون و بناء عضلات' : 'Fat Loss & Muscle Building',
+    showMask: true
+  }, {
+    name: isRTL ? 'أحمد محمد' : 'Ahmed Mohamed',
+    beforeImage: transformation2Before,
+    afterImage: transformation2After,
+    duration: isRTL ? '16 اسبوع' : '16 weeks',
+    category: isRTL ? 'خسارة دهون' : 'Fat Loss',
+    showMask: false
   }];
 
   const nextSlide = () => setCurrentIndex(prev => (prev + 1) % transformations.length);
@@ -437,16 +447,18 @@ const TransformationsCarousel = () => {
                   </motion.div>
                 </AnimatePresence>
                 
-                {/* Emoji Mask Overlay */}
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
-                  <motion.img 
-                    src={emojiMask} 
-                    alt="mask" 
-                    className="w-24 h-24 sm:w-28 sm:h-28 object-contain"
-                    animate={showAfter ? { rotate: [0, 10, -10, 0] } : { y: [0, -5, 0] }}
-                    transition={{ duration: 0.5 }}
-                  />
-                </div>
+                {/* Emoji Mask Overlay - only if showMask is true */}
+                {transformations[currentIndex].showMask && (
+                  <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
+                    <motion.img 
+                      src={emojiMask} 
+                      alt="mask" 
+                      className="w-24 h-24 sm:w-28 sm:h-28 object-contain"
+                      animate={showAfter ? { rotate: [0, 10, -10, 0] } : { y: [0, -5, 0] }}
+                      transition={{ duration: 0.5 }}
+                    />
+                  </div>
+                )}
 
                 {/* Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
