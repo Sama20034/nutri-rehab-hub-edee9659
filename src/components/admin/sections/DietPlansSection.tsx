@@ -123,20 +123,34 @@ export const DietPlansSection = ({
     };
 
     let result;
+    let newPlanId: string | null = null;
+    
     if (editingPlan) {
       result = await onUpdate(editingPlan.id, planData);
-      
-      // Assign to new clients if any selected
-      if (!result.error && selectedClients.length > 0 && onAssignToClients && user) {
-        const assignResult = await onAssignToClients(editingPlan.id, selectedClients, user.id);
-        if (assignResult.error) {
-          toast.error(isRTL ? 'تم تحديث النظام لكن فشل التعيين للعملاء' : 'Plan updated but failed to assign to clients');
-        } else {
-          toast.success(isRTL ? `تم تعيين النظام لـ ${selectedClients.length} عميل` : `Assigned to ${selectedClients.length} clients`);
-        }
-      }
+      newPlanId = editingPlan.id;
     } else {
       result = await onAdd(planData);
+      // Get the newly created plan ID from the result
+      if (!result.error) {
+        const { data } = await supabase
+          .from('diet_plans')
+          .select('id')
+          .eq('name', formData.name)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+        newPlanId = data?.id || null;
+      }
+    }
+    
+    // Assign to clients if any selected
+    if (!result.error && selectedClients.length > 0 && onAssignToClients && user && newPlanId) {
+      const assignResult = await onAssignToClients(newPlanId, selectedClients, user.id);
+      if (assignResult.error) {
+        toast.error(isRTL ? 'تم حفظ النظام لكن فشل التعيين للعملاء' : 'Plan saved but failed to assign to clients');
+      } else {
+        toast.success(isRTL ? `تم تعيين النظام لـ ${selectedClients.length} عميل` : `Assigned to ${selectedClients.length} clients`);
+      }
     }
 
     if (result.error) {
@@ -327,8 +341,8 @@ export const DietPlansSection = ({
               />
             </div>
 
-            {/* Client Assignment - Only show when editing */}
-            {editingPlan && onAssignToClients && (
+            {/* Client Assignment */}
+            {onAssignToClients && (
               <div className="border-t pt-4 mt-4">
                 <Label className="flex items-center gap-2 mb-2">
                   <Users className="h-4 w-4" />
