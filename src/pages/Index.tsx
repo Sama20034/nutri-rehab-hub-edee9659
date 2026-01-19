@@ -528,7 +528,7 @@ const MissionSection = () => {
   }, {
     icon: Award,
     title: isRTL ? 'خبرة علمية' : 'Scientific Expertise',
-    desc: isRTL ? 'مبني على أسس علمية' : 'Based on scientific foundations'
+    desc: isRTL ? 'مبني على أسس علميه في علم الطب والرياضه والتغذيه' : 'Based on scientific foundations'
   }, {
     icon: Zap,
     title: isRTL ? 'تحولات سريعة' : 'Fast Transformations',
