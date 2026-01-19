@@ -533,6 +533,10 @@ const MissionSection = () => {
     icon: Zap,
     title: isRTL ? 'تحولات سريعة' : 'Fast Transformations',
     desc: isRTL ? 'نتائج ملموسة في أسابيع' : 'Tangible results in weeks'
+  }, {
+    icon: Award,
+    title: isRTL ? 'شهادات معتمدة' : 'Certified Credentials',
+    desc: isRTL ? 'اكتر من 20 شهاده و ميدالية رياضية' : 'More than 20 certificates and sports medals'
   }];
   return <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto px-4">
