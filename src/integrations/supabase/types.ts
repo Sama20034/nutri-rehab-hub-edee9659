@@ -952,43 +952,58 @@ export type Database = {
           after_image_url: string | null
           before_image_url: string
           category: string | null
+          client_name: string | null
           created_at: string
           description: string | null
           display_order: number | null
+          duration_text: string | null
           id: string
           is_active: boolean | null
           is_combined_image: boolean | null
+          rating: number | null
           title: string
           updated_at: string
           use_emoji_mask: boolean | null
+          weight_after: number | null
+          weight_before: number | null
         }
         Insert: {
           after_image_url?: string | null
           before_image_url: string
           category?: string | null
+          client_name?: string | null
           created_at?: string
           description?: string | null
           display_order?: number | null
+          duration_text?: string | null
           id?: string
           is_active?: boolean | null
           is_combined_image?: boolean | null
+          rating?: number | null
           title: string
           updated_at?: string
           use_emoji_mask?: boolean | null
+          weight_after?: number | null
+          weight_before?: number | null
         }
         Update: {
           after_image_url?: string | null
           before_image_url?: string
           category?: string | null
+          client_name?: string | null
           created_at?: string
           description?: string | null
           display_order?: number | null
+          duration_text?: string | null
           id?: string
           is_active?: boolean | null
           is_combined_image?: boolean | null
+          rating?: number | null
           title?: string
           updated_at?: string
           use_emoji_mask?: boolean | null
+          weight_after?: number | null
+          weight_before?: number | null
         }
         Relationships: []
       }
