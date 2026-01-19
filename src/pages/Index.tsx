@@ -14,6 +14,8 @@ import transformationBefore from '@/assets/transformation-before.png';
 import transformationAfter from '@/assets/transformation-after.png';
 import transformation2Before from '@/assets/transformation2-before.png';
 import transformation2After from '@/assets/transformation2-after.png';
+import transformation3Before from '@/assets/transformation3-before.png';
+import transformation3After from '@/assets/transformation3-after.png';
 import emojiMask from '@/assets/emoji-mask.png';
 
 // Hero Section Component
@@ -391,6 +393,14 @@ const TransformationsCarousel = () => {
     category: isRTL ? 'خسارة دهون' : 'Fat Loss',
     showMask: false,
     program: isRTL ? 'برنامج بناء العضلات' : 'Muscle Building'
+  }, {
+    name: isRTL ? 'تحول سريع' : 'Quick Transform',
+    beforeImage: transformation3Before,
+    afterImage: transformation3After,
+    duration: isRTL ? '29 يوم' : '29 days',
+    category: isRTL ? 'ما يقرب من 10 كيلو في 29 يوم' : 'About 10 kg in 29 days',
+    showMask: true,
+    program: isRTL ? 'تحدي الـ 30 يوم 🔥' : '30 Day Challenge 🔥'
   }];
 
   const toggleCard = (index: number) => {
