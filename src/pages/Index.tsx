@@ -519,7 +519,7 @@ const MissionSection = () => {
   } = useLanguage();
   const features = [{
     icon: Target,
-    title: isRTL ? 'نتائج مضمونة' : 'Guaranteed Results',
+    title: isRTL ? 'نتائج مضمونه بإذن الله' : 'Guaranteed Results',
     desc: isRTL ? 'نلتزم بتحقيق أهدافك' : 'We commit to achieving your goals'
   }, {
     icon: Users,
