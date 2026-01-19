@@ -538,7 +538,7 @@ const TransformationsCarousel = () => {
                         <img 
                           src={transformation.beforeImage} 
                           alt="Before" 
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover object-top"
                         />
                         
                         {/* Emoji Mask */}
@@ -596,7 +596,7 @@ const TransformationsCarousel = () => {
                         <img 
                           src={transformation.afterImage} 
                           alt="After" 
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover object-top"
                         />
                         
                         {/* Emoji Mask */}
