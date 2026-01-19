@@ -10,6 +10,9 @@ import Layout from '@/components/layout/Layout';
 import drMahmoud1 from '@/assets/dr-mahmoud-1.png';
 import drMahmoud2 from '@/assets/dr-mahmoud-2.png';
 import alligatorFitLogo from '@/assets/alligator-fit-logo.png';
+import transformationBefore from '@/assets/transformation-before.png';
+import transformationAfter from '@/assets/transformation-after.png';
+import emojiMask from '@/assets/emoji-mask.png';
 
 // Hero Section Component
 const HeroSection = () => {
@@ -367,39 +370,21 @@ const TransformationsCarousel = () => {
   const {
     isRTL
   } = useLanguage();
+  const [showAfter, setShowAfter] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+
   const transformations = [{
-    name: 'أحمد محمد',
-    before: 95,
-    after: 72,
-    duration: '3 أشهر',
-    image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400'
-  }, {
-    name: 'سارة علي',
-    before: 85,
-    after: 62,
-    duration: '4 أشهر',
-    image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400'
-  }, {
-    name: 'محمد خالد',
-    before: 110,
-    after: 82,
-    duration: '6 أشهر',
-    image: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400'
-  }, {
-    name: 'نور حسن',
-    before: 78,
-    after: 58,
-    duration: '3 أشهر',
-    image: 'https://images.unsplash.com/photo-1550345332-09e3ac987658?w=400'
+    name: isRTL ? 'الجيماوي مشاري' : 'Mashari',
+    beforeImage: transformationBefore,
+    afterImage: transformationAfter,
+    duration: isRTL ? '12 اسبوع' : '12 weeks',
+    category: isRTL ? 'خسارة دهون و بناء عضلات' : 'Fat Loss & Muscle Building'
   }];
+
   const nextSlide = () => setCurrentIndex(prev => (prev + 1) % transformations.length);
   const prevSlide = () => setCurrentIndex(prev => (prev - 1 + transformations.length) % transformations.length);
-  useEffect(() => {
-    const timer = setInterval(nextSlide, 5000);
-    return () => clearInterval(timer);
-  }, []);
-  return <section className="py-12 sm:py-16 md:py-20 bg-background">
+
+  return <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-background via-background to-primary/5">
       <div className="container mx-auto px-4">
         <motion.div initial={{
         opacity: 0,
@@ -417,97 +402,109 @@ const TransformationsCarousel = () => {
             {isRTL ? 'قصص نجاح عملائنا' : 'Our Success Stories'}
           </h2>
           <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
-            {isRTL ? 'شاهد تحولات حقيقية لأشخاص حققوا أهدافهم معنا' : 'See real transformations from people who achieved their goals with us'}
+            {isRTL ? 'اضغط على الصورة لمشاهدة النتيجة' : 'Click on the image to see the result'}
           </p>
         </motion.div>
 
-        <div className="relative max-w-4xl mx-auto px-2 sm:px-8">
-          <AnimatePresence mode="wait">
-            <motion.div key={currentIndex} initial={{
-            opacity: 0,
-            x: 100
-          }} animate={{
-            opacity: 1,
-            x: 0
-          }} exit={{
-            opacity: 0,
-            x: -100
-          }} transition={{
-            duration: 0.5
-          }} className="grid md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
-              {/* Before/After Card */}
-              <Card className="overflow-hidden border-border bg-card">
-                <div className="relative aspect-[4/3]">
-                  <img src={transformations[currentIndex].image} alt="Transformation" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent" />
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <div className="flex justify-between items-end">
-                      <div>
-                        <Badge className="bg-red-500/20 text-red-400 mb-2">
-                          {isRTL ? 'قبل' : 'Before'}
-                        </Badge>
-                        <div className="text-3xl font-bold">{transformations[currentIndex].before} kg</div>
-                      </div>
-                      <div className="text-right">
-                        <Badge className="bg-green-500/20 text-green-400 mb-2">
-                          {isRTL ? 'بعد' : 'After'}
-                        </Badge>
-                        <div className="text-3xl font-bold">{transformations[currentIndex].after} kg</div>
-                      </div>
-                    </div>
-                  </div>
+        <div className="relative max-w-lg mx-auto">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="relative"
+          >
+            {/* Main Transformation Card */}
+            <Card 
+              className="overflow-hidden border-2 border-primary/30 bg-gradient-to-br from-card via-card to-primary/5 cursor-pointer group"
+              onClick={() => setShowAfter(!showAfter)}
+            >
+              <div className="relative aspect-[3/4]">
+                {/* Image with transition */}
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={showAfter ? 'after' : 'before'}
+                    initial={{ opacity: 0, scale: 1.05 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.3 }}
+                    className="absolute inset-0"
+                  >
+                    <img 
+                      src={showAfter ? transformations[currentIndex].afterImage : transformations[currentIndex].beforeImage} 
+                      alt={showAfter ? "After" : "Before"} 
+                      className="w-full h-full object-cover"
+                    />
+                  </motion.div>
+                </AnimatePresence>
+                
+                {/* Emoji Mask Overlay */}
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
+                  <motion.img 
+                    src={emojiMask} 
+                    alt="mask" 
+                    className="w-24 h-24 sm:w-28 sm:h-28 object-contain"
+                    animate={showAfter ? { rotate: [0, 10, -10, 0] } : { y: [0, -5, 0] }}
+                    transition={{ duration: 0.5 }}
+                  />
                 </div>
-              </Card>
 
-              {/* Info Card */}
-              <Card className="border-border bg-card flex flex-col justify-center p-6">
-                <CardContent className="p-0">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
-                      <Star className="h-8 w-8 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold">{transformations[currentIndex].name}</h3>
-                      <p className="text-muted-foreground">
-                        {isRTL ? `خسر ${transformations[currentIndex].before - transformations[currentIndex].after} كجم` : `Lost ${transformations[currentIndex].before - transformations[currentIndex].after} kg`}
-                      </p>
-                    </div>
-                  </div>
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+                
+                {/* Before/After Badge */}
+                <motion.div 
+                  className="absolute bottom-20 left-1/2 -translate-x-1/2"
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <Badge className={`text-lg px-6 py-2 ${showAfter ? 'bg-green-500/90 text-white' : 'bg-secondary/90 text-background'}`}>
+                    <Clock className="w-4 h-4 mr-2" />
+                    {transformations[currentIndex].duration} • {showAfter ? (isRTL ? 'بعد' : 'After') : (isRTL ? 'قبل' : 'Before')}
+                  </Badge>
+                </motion.div>
 
-                  <div className="space-y-4">
-                    <div className="flex justify-between p-3 bg-muted/50 rounded-lg">
-                      <span className="text-muted-foreground">{isRTL ? 'المدة' : 'Duration'}</span>
-                      <span className="font-semibold">{transformations[currentIndex].duration}</span>
-                    </div>
-                    <div className="flex justify-between p-3 bg-muted/50 rounded-lg">
-                      <span className="text-muted-foreground">{isRTL ? 'الخسارة' : 'Lost'}</span>
-                      <span className="font-semibold text-green-500">
-                        -{transformations[currentIndex].before - transformations[currentIndex].after} kg
-                      </span>
-                    </div>
-                  </div>
+                {/* Info at bottom */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 text-center">
+                  <span className="text-secondary text-sm font-medium">{transformations[currentIndex].category}</span>
+                  <h3 className="text-xl font-bold text-foreground mt-1">{transformations[currentIndex].name}</h3>
+                  <motion.p 
+                    className="text-secondary flex items-center justify-center gap-2 mt-2 cursor-pointer"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    <span>✨</span>
+                    {isRTL ? 'اضغط للنتيجة' : 'Click for result'}
+                  </motion.p>
+                </div>
+              </div>
+            </Card>
 
-                  <div className="flex gap-2 mt-6">
-                    {[...Array(5)].map((_, i) => <Star key={i} className="h-5 w-5 fill-yellow-500 text-yellow-500" />)}
-                  </div>
-                </CardContent>
-              </Card>
+            {/* Tap instruction */}
+            <motion.div 
+              className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-muted-foreground text-sm flex items-center gap-2"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <span>👆</span>
+              {isRTL ? 'اضغط على الصورة' : 'Tap the image'}
             </motion.div>
-          </AnimatePresence>
-
-          {/* Navigation Buttons */}
-          <button onClick={prevSlide} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 sm:-translate-x-4 md:-translate-x-12 w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-card border border-border rounded-full flex items-center justify-center hover:bg-primary/10 transition-colors z-10">
-            <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
-          </button>
-          <button onClick={nextSlide} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 sm:translate-x-4 md:translate-x-12 w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-card border border-border rounded-full flex items-center justify-center hover:bg-primary/10 transition-colors z-10">
-            <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
-          </button>
-
-          {/* Dots */}
-          <div className="flex justify-center gap-2 mt-8">
-            {transformations.map((_, index) => <button key={index} onClick={() => setCurrentIndex(index)} className={`w-3 h-3 rounded-full transition-all ${index === currentIndex ? 'bg-primary w-8' : 'bg-muted-foreground/30'}`} />)}
-          </div>
+          </motion.div>
         </div>
+
+        {/* Navigation dots if multiple transformations */}
+        {transformations.length > 1 && (
+          <div className="flex justify-center gap-2 mt-12">
+            {transformations.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => { setCurrentIndex(index); setShowAfter(false); }}
+                className={`w-3 h-3 rounded-full transition-all ${
+                  currentIndex === index ? 'bg-primary w-8' : 'bg-muted-foreground/30'
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>;
 };
