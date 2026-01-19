@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Phone, Stethoscope, FileText } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Phone, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import logo from '@/assets/alligator-fit-logo.png';
 
-type AppRole = 'client' | 'doctor' | 'admin';
+type AppRole = 'client' | 'admin';
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -27,8 +27,6 @@ const Auth = () => {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [selectedRole, setSelectedRole] = useState<AppRole>('client');
-  const [specialization, setSpecialization] = useState('');
-  const [licenseNumber, setLicenseNumber] = useState('');
 
   useEffect(() => {
     if (searchParams.get('mode') === 'register') {
@@ -43,7 +41,6 @@ const Auth = () => {
       if (status === 'approved' || role === 'admin') {
         const dashboardRoutes: Record<AppRole, string> = {
           client: '/dashboard/client',
-          doctor: '/dashboard/doctor',
           admin: '/dashboard/admin'
         };
         navigate(dashboardRoutes[role]);
@@ -97,9 +94,7 @@ const Auth = () => {
 
         const { error } = await signUp(email, password, selectedRole, {
           full_name: fullName,
-          phone,
-          specialization: selectedRole === 'doctor' ? specialization : undefined,
-          license_number: selectedRole === 'doctor' ? licenseNumber : undefined
+          phone
         });
 
         if (error) {
@@ -125,7 +120,6 @@ const Auth = () => {
 
   const roles: { value: AppRole; labelAr: string; labelEn: string; icon: React.ReactNode }[] = [
     { value: 'client', labelAr: 'عميل', labelEn: 'Client', icon: <User className="h-5 w-5" /> },
-    { value: 'doctor', labelAr: 'طبيب / معالج', labelEn: 'Doctor / Therapist', icon: <Stethoscope className="h-5 w-5" /> },
     { value: 'admin', labelAr: 'مدير', labelEn: 'Admin', icon: <FileText className="h-5 w-5" /> },
   ];
 
@@ -232,41 +226,6 @@ const Auth = () => {
                       </div>
                     </div>
 
-                    {/* Doctor-specific fields */}
-                    {selectedRole === 'doctor' && (
-                      <>
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">{isRTL ? 'التخصص' : 'Specialization'}</label>
-                          <div className="relative">
-                            <Stethoscope className={`absolute top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground ${isRTL ? 'right-3' : 'left-3'}`} />
-                            <Input
-                              type="text"
-                              required
-                              value={specialization}
-                              onChange={(e) => setSpecialization(e.target.value)}
-                              placeholder={isRTL ? 'مثال: أخصائي تغذية علاجية' : 'e.g., Clinical Nutritionist'}
-                              className={`bg-background ${isRTL ? 'pr-10' : 'pl-10'}`}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">{isRTL ? 'رقم الترخيص' : 'License Number'}</label>
-                          <div className="relative">
-                            <FileText className={`absolute top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground ${isRTL ? 'right-3' : 'left-3'}`} />
-                            <Input
-                              type="text"
-                              required
-                              value={licenseNumber}
-                              onChange={(e) => setLicenseNumber(e.target.value)}
-                              placeholder={isRTL ? 'أدخل رقم ترخيصك المهني' : 'Enter your license number'}
-                              className={`bg-background ${isRTL ? 'pr-10' : 'pl-10'}`}
-                              dir="ltr"
-                            />
-                          </div>
-                        </div>
-                      </>
-                    )}
                   </>
                 )}
               </>
