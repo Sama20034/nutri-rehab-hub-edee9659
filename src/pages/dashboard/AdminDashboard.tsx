@@ -7,15 +7,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAdminData } from '@/hooks/useAdminData';
 import { useAdminExercisesData } from '@/hooks/useAdminExercisesData';
 import { useAdminStats } from '@/hooks/useAdminStats';
-import { useAppointments } from '@/hooks/useAppointments';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { OverviewSection } from '@/components/admin/sections/OverviewSection';
 import { PendingSection } from '@/components/admin/sections/PendingSection';
-import { DoctorsSection } from '@/components/admin/sections/DoctorsSection';
 import { ClientsSection } from '@/components/admin/sections/ClientsSection';
 import { AssignmentsSection } from '@/components/admin/sections/AssignmentsSection';
-import { AppointmentsSection } from '@/components/admin/sections/AppointmentsSection';
-import { SchedulesSection } from '@/components/admin/sections/SchedulesSection';
 import { ExercisesSection } from '@/components/admin/sections/ExercisesSection';
 import { DietPlansSection } from '@/components/admin/sections/DietPlansSection';
 import { ArticlesSection } from '@/components/admin/sections/ArticlesSection';
@@ -43,13 +39,6 @@ const AdminDashboard = () => {
     addDietPlan, updateDietPlan, deleteDietPlan,
     assignDietPlanToClients, assignExerciseToClients
   } = useAdminExercisesData();
-  
-  const { 
-    appointments, 
-    confirmAppointment, 
-    cancelAppointment, 
-    completeAppointment
-  } = useAppointments(user?.id, 'admin');
 
   const {
     stats: salesStats,
@@ -145,14 +134,6 @@ const AdminDashboard = () => {
             onReject={handleReject}
           />
         );
-      case 'doctors':
-        return (
-          <DoctorsSection
-            doctors={doctors}
-            onApprove={(userId) => updateUserStatus(userId, 'approved')}
-            onSuspend={(userId) => updateUserStatus(userId, 'suspended')}
-          />
-        );
       case 'clients':
         return (
           <ClientsSection
@@ -171,21 +152,6 @@ const AdminDashboard = () => {
             onTransfer={transferClient}
             onDelete={deleteAssignment}
           />
-        );
-      case 'appointments':
-        return (
-          <AppointmentsSection
-            appointments={appointments}
-            doctors={doctors}
-            clients={clients}
-            onConfirm={confirmAppointment}
-            onCancel={cancelAppointment}
-            onComplete={completeAppointment}
-          />
-        );
-      case 'schedules':
-        return (
-          <SchedulesSection doctors={doctors} />
         );
       case 'exercises':
         return (

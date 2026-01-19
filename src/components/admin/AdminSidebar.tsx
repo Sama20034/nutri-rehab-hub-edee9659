@@ -1,8 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { 
-  LayoutDashboard, Users, Calendar, Clock, Dumbbell, 
-  Utensils, FileText, ClipboardList, Stethoscope, UserPlus, X, LogOut, Home
+  LayoutDashboard, Users, Dumbbell, 
+  Utensils, FileText, ClipboardList, UserPlus, X, LogOut, Home, CreditCard, Tag
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
@@ -22,14 +22,11 @@ interface AdminSidebarProps {
 const sidebarItems = [
   { id: 'overview', labelAr: 'نظرة عامة', labelEn: 'Overview', icon: LayoutDashboard },
   { id: 'store', labelAr: 'المتجر', labelEn: 'Store', icon: Dumbbell },
-  { id: 'payments', labelAr: 'المدفوعات', labelEn: 'Payments', icon: Calendar },
-  { id: 'discounts', labelAr: 'الخصومات', labelEn: 'Discounts', icon: FileText },
+  { id: 'payments', labelAr: 'المدفوعات', labelEn: 'Payments', icon: CreditCard },
+  { id: 'discounts', labelAr: 'الخصومات', labelEn: 'Discounts', icon: Tag },
   { id: 'pending', labelAr: 'طلبات الموافقة', labelEn: 'Pending Approvals', icon: UserPlus },
-  { id: 'doctors', labelAr: 'الأطباء', labelEn: 'Doctors', icon: Stethoscope },
   { id: 'clients', labelAr: 'العملاء', labelEn: 'Clients', icon: Users },
   { id: 'assignments', labelAr: 'تعيين العملاء', labelEn: 'Client Assignments', icon: ClipboardList },
-  { id: 'schedules', labelAr: 'جداول الأطباء', labelEn: 'Doctor Schedules', icon: Clock },
-  { id: 'appointments', labelAr: 'المواعيد', labelEn: 'Appointments', icon: Calendar },
   { id: 'exercises', labelAr: 'التمارين', labelEn: 'Exercises', icon: Dumbbell },
   { id: 'diets', labelAr: 'الأنظمة الغذائية', labelEn: 'Diet Plans', icon: Utensils },
   { id: 'articles', labelAr: 'المقالات', labelEn: 'Articles', icon: FileText },
