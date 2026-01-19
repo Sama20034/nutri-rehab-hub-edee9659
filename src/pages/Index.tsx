@@ -524,7 +524,7 @@ const MissionSection = () => {
   }, {
     icon: Users,
     title: isRTL ? 'متابعة شخصية' : 'Personal Follow-up',
-    desc: isRTL ? 'فريق متخصص لك' : 'Dedicated team for you'
+    desc: isRTL ? 'فريق متخصص لك مع متابعه مع د.محمود شخصياً' : 'Dedicated team for you'
   }, {
     icon: Award,
     title: isRTL ? 'خبرة علمية' : 'Scientific Expertise',
