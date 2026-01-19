@@ -16,6 +16,8 @@ import transformation2Before from '@/assets/transformation2-before.png';
 import transformation2After from '@/assets/transformation2-after.png';
 import transformation3Before from '@/assets/transformation3-before.png';
 import transformation3After from '@/assets/transformation3-after.png';
+import transformation4Before from '@/assets/transformation4-before.png';
+import transformation4After from '@/assets/transformation4-after.png';
 import emojiMask from '@/assets/emoji-mask.png';
 
 // Hero Section Component
@@ -401,6 +403,14 @@ const TransformationsCarousel = () => {
     category: isRTL ? 'ما يقرب من 10 كيلو في 29 يوم' : 'About 10 kg in 29 days',
     showMask: true,
     program: isRTL ? 'تحدي الـ 30 يوم 🔥' : '30 Day Challenge 🔥'
+  }, {
+    name: isRTL ? 'بناء العضلات' : 'Muscle Building',
+    beforeImage: transformation4Before,
+    afterImage: transformation4After,
+    duration: isRTL ? '6 أشهر' : '6 months',
+    category: isRTL ? 'بناء العضلات' : 'Muscle Building',
+    showMask: false,
+    program: isRTL ? 'برنامج الضخامة 💪' : 'Bulk Program 💪'
   }];
 
   const toggleCard = (index: number) => {
