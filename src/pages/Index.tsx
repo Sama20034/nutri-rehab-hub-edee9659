@@ -18,6 +18,8 @@ import transformation3Before from '@/assets/transformation3-before.png';
 import transformation3After from '@/assets/transformation3-after.png';
 import transformation4Before from '@/assets/transformation4-before.png';
 import transformation4After from '@/assets/transformation4-after.png';
+import transformation5Before from '@/assets/transformation5-before.png';
+import transformation5After from '@/assets/transformation5-after.png';
 import emojiMask from '@/assets/emoji-mask.png';
 
 // Hero Section Component
@@ -411,6 +413,14 @@ const TransformationsCarousel = () => {
     category: isRTL ? 'بناء العضلات' : 'Muscle Building',
     showMask: false,
     program: isRTL ? 'برنامج الضخامة 💪' : 'Bulk Program 💪'
+  }, {
+    name: '',
+    beforeImage: transformation5Before,
+    afterImage: transformation5After,
+    duration: '',
+    category: '',
+    showMask: false,
+    program: ''
   }];
 
   const toggleCard = (index: number) => {
