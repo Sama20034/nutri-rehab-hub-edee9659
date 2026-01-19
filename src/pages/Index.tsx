@@ -223,7 +223,7 @@ const HeroSection = () => {
               label: isRTL ? 'نجاح' : 'Success',
               icon: Award
             }, {
-              value: '10K',
+              value: '+10',
               label: isRTL ? 'سنوات' : 'Years',
               icon: Clock
             }].map((stat, index) => <div key={index} className="flex flex-col items-center gap-1 p-2 sm:p-3 rounded-lg sm:rounded-xl bg-card/50 border border-border/50">
