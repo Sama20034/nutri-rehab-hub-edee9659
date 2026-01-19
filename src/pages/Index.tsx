@@ -215,7 +215,7 @@ const HeroSection = () => {
             delay: 0.7
           }} className="mt-6 sm:mt-8 md:mt-12 grid grid-cols-3 gap-2 sm:gap-3 md:gap-6">
               {[{
-              value: '+10K',
+              value: '+10',
               label: isRTL ? 'متدرب' : 'Members',
               icon: Users
             }, {
