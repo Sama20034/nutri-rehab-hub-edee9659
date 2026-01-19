@@ -210,7 +210,7 @@ const HeroSection = () => {
             y: 0
           }} transition={{
             delay: 0.5
-          }} className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 sm:justify-start">
+          }} className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 justify-center">
               
               <Link to="/register" className="w-full sm:w-auto order-1 sm:order-2">
                 <Button size="lg" className="w-full sm:w-auto gap-2 text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/30 font-bold">
