@@ -522,73 +522,133 @@ const TransformationsCarousel = () => {
                 transition={{ duration: 0.5, ease: 'easeInOut' }}
                 onClick={() => isActive ? toggleCard(index) : setCurrentIndex(index)}
               >
-                <Card className={`overflow-hidden border-2 ${isActive ? 'border-primary/50 shadow-2xl shadow-primary/20' : 'border-border/30'} bg-gradient-to-br from-card via-card to-primary/5 rounded-2xl`}>
-                  <div className="relative aspect-[3/4]">
-                    {/* Image */}
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        key={showAfter ? 'after' : 'before'}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="absolute inset-0"
-                      >
+                <div className="perspective-1000">
+                  <motion.div
+                    className="relative w-full"
+                    animate={{ rotateY: showAfter ? 180 : 0 }}
+                    transition={{ duration: 0.6, ease: 'easeInOut' }}
+                    style={{ transformStyle: 'preserve-3d' }}
+                  >
+                    {/* Front Side - Before */}
+                    <Card 
+                      className={`overflow-hidden border-2 ${isActive ? 'border-primary/50 shadow-2xl shadow-primary/20' : 'border-border/30'} bg-gradient-to-br from-card via-card to-primary/5 rounded-2xl`}
+                      style={{ backfaceVisibility: 'hidden' }}
+                    >
+                      <div className="relative aspect-[3/4]">
                         <img 
-                          src={showAfter ? transformation.afterImage : transformation.beforeImage} 
-                          alt={showAfter ? "After" : "Before"} 
+                          src={transformation.beforeImage} 
+                          alt="Before" 
                           className="w-full h-full object-cover"
                         />
-                      </motion.div>
-                    </AnimatePresence>
-                    
-                    {/* Emoji Mask */}
-                    {transformation.showMask && (
-                      <div className="absolute top-8 left-1/2 -translate-x-1/2 z-10">
-                        <motion.img 
-                          src={emojiMask} 
-                          alt="mask" 
-                          className="w-20 h-20 sm:w-24 sm:h-24 object-contain"
-                          animate={showAfter ? { scale: [1, 1.1, 1] } : {}}
-                        />
-                      </div>
-                    )}
-
-                    {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-                    
-                    {/* Duration & Status Badge */}
-                    <div className="absolute bottom-32 right-3 left-3 flex justify-between items-center">
-                      <Badge className={`px-3 py-1.5 ${showAfter ? 'bg-green-500/90' : 'bg-muted/80'} text-white text-xs`}>
-                        {showAfter ? (isRTL ? 'بعد' : 'After') : (isRTL ? 'قبل' : 'Before')}
-                      </Badge>
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/60 px-2 py-1 rounded-full">
-                        <Clock className="w-3 h-3" />
-                        {transformation.duration}
-                      </div>
-                    </div>
-
-                    {/* Info at bottom */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4 text-center">
-                      <span className="text-secondary text-xs font-medium">{transformation.category}</span>
-                      <h3 className="text-lg font-bold text-foreground mt-1">{transformation.name}</h3>
-                      
-                      {isActive && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="mt-3"
-                        >
-                          <p className="text-primary font-semibold text-sm">{transformation.program}</p>
-                          <div className="flex items-center justify-center gap-2 mt-2">
-                            <Star className="w-5 h-5 text-primary" />
-                            <span className="text-muted-foreground text-xs">{isRTL ? 'نتيجة مذهلة!' : 'Amazing result!'}</span>
+                        
+                        {/* Emoji Mask */}
+                        {transformation.showMask && (
+                          <div className="absolute top-8 left-1/2 -translate-x-1/2 z-10">
+                            <img 
+                              src={emojiMask} 
+                              alt="mask" 
+                              className="w-20 h-20 sm:w-24 sm:h-24 object-contain"
+                            />
                           </div>
-                        </motion.div>
-                      )}
-                    </div>
-                  </div>
-                </Card>
+                        )}
+
+                        {/* Gradient Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+                        
+                        {/* Click for result text */}
+                        {isActive && (
+                          <motion.div 
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
+                            animate={{ scale: [1, 1.05, 1] }}
+                            transition={{ duration: 1.5, repeat: Infinity }}
+                          >
+                            <Badge className="px-4 py-2 bg-primary/90 text-white text-sm font-bold shadow-lg">
+                              {isRTL ? '👆 اضغط للنتيجة' : '👆 Click for result'}
+                            </Badge>
+                          </motion.div>
+                        )}
+                        
+                        {/* Duration & Status Badge */}
+                        <div className="absolute bottom-32 right-3 left-3 flex justify-between items-center">
+                          <Badge className="px-3 py-1.5 bg-muted/80 text-white text-xs">
+                            {isRTL ? 'قبل' : 'Before'}
+                          </Badge>
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/60 px-2 py-1 rounded-full">
+                            <Clock className="w-3 h-3" />
+                            {transformation.duration}
+                          </div>
+                        </div>
+
+                        {/* Info at bottom */}
+                        <div className="absolute bottom-0 left-0 right-0 p-4 text-center">
+                          <span className="text-secondary text-xs font-medium">{transformation.category}</span>
+                          <h3 className="text-lg font-bold text-foreground mt-1">{transformation.name}</h3>
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Back Side - After */}
+                    <Card 
+                      className={`absolute inset-0 overflow-hidden border-2 ${isActive ? 'border-green-500/50 shadow-2xl shadow-green-500/20' : 'border-border/30'} bg-gradient-to-br from-card via-card to-green-500/5 rounded-2xl`}
+                      style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                    >
+                      <div className="relative aspect-[3/4]">
+                        <img 
+                          src={transformation.afterImage} 
+                          alt="After" 
+                          className="w-full h-full object-cover"
+                        />
+                        
+                        {/* Emoji Mask */}
+                        {transformation.showMask && (
+                          <div className="absolute top-8 left-1/2 -translate-x-1/2 z-10">
+                            <motion.img 
+                              src={emojiMask} 
+                              alt="mask" 
+                              className="w-20 h-20 sm:w-24 sm:h-24 object-contain"
+                              animate={{ scale: [1, 1.1, 1] }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                            />
+                          </div>
+                        )}
+
+                        {/* Gradient Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+                        
+                        {/* Duration & Status Badge */}
+                        <div className="absolute bottom-32 right-3 left-3 flex justify-between items-center">
+                          <Badge className="px-3 py-1.5 bg-green-500/90 text-white text-xs">
+                            {isRTL ? 'بعد' : 'After'}
+                          </Badge>
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/60 px-2 py-1 rounded-full">
+                            <Clock className="w-3 h-3" />
+                            {transformation.duration}
+                          </div>
+                        </div>
+
+                        {/* Info at bottom */}
+                        <div className="absolute bottom-0 left-0 right-0 p-4 text-center">
+                          <span className="text-secondary text-xs font-medium">{transformation.category}</span>
+                          <h3 className="text-lg font-bold text-foreground mt-1">{transformation.name}</h3>
+                          
+                          {isActive && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="mt-3"
+                            >
+                              <p className="text-green-500 font-semibold text-sm">{transformation.program}</p>
+                              <div className="flex items-center justify-center gap-2 mt-2">
+                                <Star className="w-5 h-5 text-green-500" />
+                                <span className="text-muted-foreground text-xs">{isRTL ? 'نتيجة مذهلة!' : 'Amazing result!'}</span>
+                              </div>
+                            </motion.div>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  </motion.div>
+                </div>
               </motion.div>
             );
           })}
