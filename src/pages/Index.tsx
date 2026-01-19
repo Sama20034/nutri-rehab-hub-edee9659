@@ -1115,7 +1115,7 @@ const FinalCTA = () => {
             <a href="https://wa.me/966500000000" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
               <Button size="lg" className="w-full sm:w-auto gap-2 text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 bg-green-600 hover:bg-green-700">
                 <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
-                {isRTL ? 'تواصل عبر واتساب' : 'Contact via WhatsApp'}
+                {isRTL ? 'ادفع عن طريق الواتساب' : 'Pay via WhatsApp'}
               </Button>
             </a>
             <Link to="/register" className="w-full sm:w-auto">
