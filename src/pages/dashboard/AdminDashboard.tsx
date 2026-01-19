@@ -18,6 +18,7 @@ import { ArticlesSection } from '@/components/admin/sections/ArticlesSection';
 import { StoreSection } from '@/components/admin/sections/StoreSection';
 import { PaymentsSection } from '@/components/admin/sections/PaymentsSection';
 import { DiscountsSection } from '@/components/admin/sections/DiscountsSection';
+import { VideosSection } from '@/components/admin/sections/VideosSection';
 
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import logo from '@/assets/logo.png';
@@ -173,6 +174,8 @@ const AdminDashboard = () => {
             onAssignToClients={assignDietPlanToClients}
           />
         );
+      case 'videos':
+        return <VideosSection />;
       case 'articles':
         return <ArticlesSection />;
       default:
