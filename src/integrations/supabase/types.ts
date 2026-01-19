@@ -947,6 +947,51 @@ export type Database = {
         }
         Relationships: []
       }
+      transformations: {
+        Row: {
+          after_image_url: string | null
+          before_image_url: string
+          category: string | null
+          created_at: string
+          description: string | null
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          is_combined_image: boolean | null
+          title: string
+          updated_at: string
+          use_emoji_mask: boolean | null
+        }
+        Insert: {
+          after_image_url?: string | null
+          before_image_url: string
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_combined_image?: boolean | null
+          title: string
+          updated_at?: string
+          use_emoji_mask?: boolean | null
+        }
+        Update: {
+          after_image_url?: string | null
+          before_image_url?: string
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_combined_image?: boolean | null
+          title?: string
+          updated_at?: string
+          use_emoji_mask?: boolean | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string

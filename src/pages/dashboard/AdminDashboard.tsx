@@ -19,6 +19,7 @@ import { StoreSection } from '@/components/admin/sections/StoreSection';
 import { PaymentsSection } from '@/components/admin/sections/PaymentsSection';
 import { DiscountsSection } from '@/components/admin/sections/DiscountsSection';
 import { VideosSection } from '@/components/admin/sections/VideosSection';
+import { TransformationsSection } from '@/components/admin/sections/TransformationsSection';
 
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import logo from '@/assets/logo.png';
@@ -176,6 +177,8 @@ const AdminDashboard = () => {
         );
       case 'videos':
         return <VideosSection />;
+      case 'transformations':
+        return <TransformationsSection />;
       case 'articles':
         return <ArticlesSection />;
       default:

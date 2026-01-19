@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { 
-  LayoutDashboard, Users, Dumbbell, Video,
+  LayoutDashboard, Users, Dumbbell, Video, Star,
   Utensils, FileText, ClipboardList, UserPlus, X, LogOut, Home, CreditCard, Tag
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -30,6 +30,7 @@ const sidebarItems = [
   { id: 'exercises', labelAr: 'التمارين', labelEn: 'Exercises', icon: Dumbbell },
   { id: 'diets', labelAr: 'الأنظمة الغذائية', labelEn: 'Diet Plans', icon: Utensils },
   { id: 'videos', labelAr: 'الفيديوهات', labelEn: 'Videos', icon: Video },
+  { id: 'transformations', labelAr: 'قصص النجاح', labelEn: 'Success Stories', icon: Star },
   { id: 'articles', labelAr: 'المقالات', labelEn: 'Articles', icon: FileText },
 ];
 
