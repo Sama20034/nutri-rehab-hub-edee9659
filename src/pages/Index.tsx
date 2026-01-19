@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, MessageCircle, Phone, Star, Check, ChevronLeft, ChevronRight, Play, ShoppingBag, Target, Users, Award, Zap, Clock, Shield, Instagram, Facebook, Twitter, Youtube, Dumbbell, Heart, Crown } from 'lucide-react';
+import { ArrowRight, MessageCircle, Phone, Star, Check, ChevronLeft, ChevronRight, ShoppingBag, Target, Users, Award, Zap, Clock, Shield, Instagram, Facebook, Twitter, Youtube, Dumbbell, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,20 +10,6 @@ import Layout from '@/components/layout/Layout';
 import drMahmoud1 from '@/assets/dr-mahmoud-1.png';
 import drMahmoud2 from '@/assets/dr-mahmoud-2.png';
 import alligatorFitLogo from '@/assets/alligator-fit-logo.png';
-import transformationBefore from '@/assets/transformation-before.png';
-import transformationAfter from '@/assets/transformation-after.png';
-import transformation2Before from '@/assets/transformation2-before.png';
-import transformation2After from '@/assets/transformation2-after.png';
-import transformation3Before from '@/assets/transformation3-before.png';
-import transformation3After from '@/assets/transformation3-after.png';
-import transformation4Before from '@/assets/transformation4-before.png';
-import transformation4After from '@/assets/transformation4-after.png';
-import transformation5Before from '@/assets/transformation5-before.png';
-import transformation5After from '@/assets/transformation5-after.png';
-import transformation6Before from '@/assets/transformation6-before.png';
-import transformation6After from '@/assets/transformation6-after.png';
-import transformation7Combined from '@/assets/transformation7-combined.png';
-import emojiMask from '@/assets/emoji-mask.png';
 
 // Hero Section Component
 const HeroSection = () => {
@@ -167,7 +153,7 @@ const HeroSection = () => {
           x: 0
         }} transition={{
           duration: 0.8
-        }} className="text-center order-1 lg:order-2">
+        }} className="text-right order-1 lg:order-2">
             {/* Badge */}
             <motion.div initial={{
             opacity: 0,
@@ -177,7 +163,7 @@ const HeroSection = () => {
             scale: 1
           }} transition={{
             delay: 0.2
-          }} className="mb-6 flex justify-center">
+          }} className="mb-6 flex justify-start">
               <Badge className="px-4 py-2 text-sm bg-secondary/20 text-secondary border-secondary/30 font-bold">
                 {isRTL ? '🔥 Alligator Fit - القوة والصحة' : '🔥 Alligator Fit - Power & Health'}
               </Badge>
@@ -194,7 +180,7 @@ const HeroSection = () => {
             delay: 0.3
           }} className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold mb-3 sm:mb-4 md:mb-6 leading-tight">
               <span className="bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
-                {isRTL ? 'ضمان مكمل معاك للأبد' : 'Lifetime Fitness'}
+                {isRTL ? 'ضمان يكمل معاك للابد' : 'Lifetime Fitness'}
               </span>
               <br />
               
@@ -210,7 +196,7 @@ const HeroSection = () => {
             y: 0
           }} transition={{
             delay: 0.5
-          }} className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 justify-center">
+          }} className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 sm:justify-start">
               
               <Link to="/register" className="w-full sm:w-auto order-1 sm:order-2">
                 <Button size="lg" className="w-full sm:w-auto gap-2 text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-lg shadow-primary/30 font-bold">
@@ -381,306 +367,146 @@ const TransformationsCarousel = () => {
   const {
     isRTL
   } = useLanguage();
-  const [activeStates, setActiveStates] = useState<{[key: number]: boolean}>({});
   const [currentIndex, setCurrentIndex] = useState(0);
-
   const transformations = [{
-    name: isRTL ? 'الجيماوي مشاري' : 'Mashari',
-    beforeImage: transformationBefore,
-    afterImage: transformationAfter,
-    duration: isRTL ? '12 اسبوع' : '12 weeks',
-    category: isRTL ? 'بناء عضلات' : 'Muscle Building',
-    showMask: true,
-    program: isRTL ? 'سوبر تنشيف 💪' : 'Super Cutting 💪'
+    name: 'أحمد محمد',
+    before: 95,
+    after: 72,
+    duration: '3 أشهر',
+    image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400'
   }, {
-    name: isRTL ? 'أحمد محمد' : 'Ahmed Mohamed',
-    beforeImage: transformation2Before,
-    afterImage: transformation2After,
-    duration: isRTL ? '16 اسبوع' : '16 weeks',
-    category: isRTL ? 'خسارة دهون' : 'Fat Loss',
-    showMask: false,
-    program: isRTL ? 'برنامج بناء العضلات' : 'Muscle Building'
+    name: 'سارة علي',
+    before: 85,
+    after: 62,
+    duration: '4 أشهر',
+    image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400'
   }, {
-    name: isRTL ? 'تحول سريع' : 'Quick Transform',
-    beforeImage: transformation3Before,
-    afterImage: transformation3After,
-    duration: isRTL ? '29 يوم' : '29 days',
-    category: isRTL ? 'ما يقرب من 10 كيلو في 29 يوم' : 'About 10 kg in 29 days',
-    showMask: true,
-    program: isRTL ? 'تحدي الـ 30 يوم 🔥' : '30 Day Challenge 🔥'
+    name: 'محمد خالد',
+    before: 110,
+    after: 82,
+    duration: '6 أشهر',
+    image: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400'
   }, {
-    name: isRTL ? 'بناء العضلات' : 'Muscle Building',
-    beforeImage: transformation4Before,
-    afterImage: transformation4After,
-    duration: isRTL ? '6 أشهر' : '6 months',
-    category: isRTL ? 'بناء العضلات' : 'Muscle Building',
-    showMask: false,
-    program: isRTL ? 'برنامج الضخامة 💪' : 'Bulk Program 💪'
-  }, {
-    name: '',
-    beforeImage: transformation5Before,
-    afterImage: transformation5After,
-    duration: '',
-    category: '',
-    showMask: false,
-    program: ''
-  }, {
-    name: '',
-    beforeImage: transformation6Before,
-    afterImage: transformation6After,
-    duration: '',
-    category: '',
-    showMask: false,
-    program: ''
-  }, {
-    name: isRTL ? 'في أقل من شهر 💪✨' : 'In Less Than a Month 💪✨',
-    beforeImage: transformation7Combined,
-    afterImage: transformation7Combined,
-    duration: isRTL ? 'أقل من شهر' : 'Less than a month',
-    category: '',
-    showMask: false,
-    program: ''
+    name: 'نور حسن',
+    before: 78,
+    after: 58,
+    duration: '3 أشهر',
+    image: 'https://images.unsplash.com/photo-1550345332-09e3ac987658?w=400'
   }];
-
-  const toggleCard = (index: number) => {
-    setActiveStates(prev => ({...prev, [index]: !prev[index]}));
-  };
-
-  const getCardStyle = (index: number) => {
-    const diff = index - currentIndex;
-    const total = transformations.length;
-    
-    // Handle wrapping for carousel effect
-    let adjustedDiff = diff;
-    if (diff > total / 2) adjustedDiff = diff - total;
-    if (diff < -total / 2) adjustedDiff = diff + total;
-    
-    if (adjustedDiff === 0) {
-      return {
-        transform: 'translateX(0) scale(1)',
-        zIndex: 30,
-        opacity: 1,
-        filter: 'blur(0px)'
-      };
-    } else if (adjustedDiff === 1 || (adjustedDiff === -(total - 1))) {
-      return {
-        transform: 'translateX(70%) scale(0.85)',
-        zIndex: 20,
-        opacity: 0.7,
-        filter: 'blur(2px)'
-      };
-    } else if (adjustedDiff === -1 || (adjustedDiff === (total - 1))) {
-      return {
-        transform: 'translateX(-70%) scale(0.85)',
-        zIndex: 20,
-        opacity: 0.7,
-        filter: 'blur(2px)'
-      };
-    }
-    return {
-      transform: 'translateX(0) scale(0.7)',
-      zIndex: 10,
-      opacity: 0,
-      filter: 'blur(4px)'
-    };
-  };
-
-  return <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-purple-950/20 via-background to-background overflow-hidden">
+  const nextSlide = () => setCurrentIndex(prev => (prev + 1) % transformations.length);
+  const prevSlide = () => setCurrentIndex(prev => (prev - 1 + transformations.length) % transformations.length);
+  useEffect(() => {
+    const timer = setInterval(nextSlide, 5000);
+    return () => clearInterval(timer);
+  }, []);
+  return <section className="py-12 sm:py-16 md:py-20 bg-background">
       <div className="container mx-auto px-4">
-        {/* Header Badge */}
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="flex justify-center mb-8"
-        >
-          <Badge className="px-6 py-2 bg-secondary text-background text-base font-bold rounded-full">
-            ⭐ {isRTL ? 'تم التحول!' : 'Transformed!'}
+        <motion.div initial={{
+        opacity: 0,
+        y: 30
+      }} whileInView={{
+        opacity: 1,
+        y: 0
+      }} viewport={{
+        once: true
+      }} className="text-center mb-8 sm:mb-12">
+          <Badge className="mb-3 sm:mb-4 bg-primary/20 text-primary border-primary/30 text-xs sm:text-sm">
+            {isRTL ? '💪 تحولات حقيقية' : '💪 Real Transformations'}
           </Badge>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
+            {isRTL ? 'قصص نجاح عملائنا' : 'Our Success Stories'}
+          </h2>
+          <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
+            {isRTL ? 'شاهد تحولات حقيقية لأشخاص حققوا أهدافهم معنا' : 'See real transformations from people who achieved their goals with us'}
+          </p>
         </motion.div>
 
-        {/* Carousel Container */}
-        <div className="relative h-[600px] sm:h-[700px] flex items-center justify-center">
-          {transformations.map((transformation, index) => {
-            const style = getCardStyle(index);
-            const isActive = index === currentIndex;
-            const showAfter = activeStates[index] || false;
-            
-            return (
-              <motion.div
-                key={index}
-                className="absolute w-[280px] sm:w-[320px] cursor-pointer"
-                style={{
-                  zIndex: style.zIndex,
-                  filter: style.filter,
-                }}
-                animate={{
-                  x: style.transform.includes('70%') ? '70%' : style.transform.includes('-70%') ? '-70%' : '0%',
-                  scale: style.transform.includes('0.85') ? 0.85 : style.transform.includes('0.7') ? 0.7 : 1,
-                  opacity: style.opacity,
-                }}
-                transition={{ duration: 0.5, ease: 'easeInOut' }}
-                onClick={() => isActive ? toggleCard(index) : setCurrentIndex(index)}
-              >
-                <div className="perspective-1000">
-                  <motion.div
-                    className="relative w-full"
-                    animate={{ rotateY: showAfter ? 180 : 0 }}
-                    transition={{ duration: 0.6, ease: 'easeInOut' }}
-                    style={{ transformStyle: 'preserve-3d' }}
-                  >
-                    {/* Front Side - Before */}
-                    <Card 
-                      className={`overflow-hidden border-2 ${isActive ? 'border-primary/50 shadow-2xl shadow-primary/20' : 'border-border/30'} bg-gradient-to-br from-card via-card to-primary/5 rounded-2xl`}
-                      style={{ backfaceVisibility: 'hidden' }}
-                    >
-                      <div className="relative aspect-[3/4]">
-                        <img 
-                          src={transformation.beforeImage} 
-                          alt="Before" 
-                          className="w-full h-full object-cover object-top"
-                        />
-                        
-                        {/* Emoji Mask */}
-                        {transformation.showMask && (
-                          <div className="absolute top-8 left-1/2 -translate-x-1/2 z-10">
-                            <img 
-                              src={emojiMask} 
-                              alt="mask" 
-                              className="w-20 h-20 sm:w-24 sm:h-24 object-contain"
-                            />
-                          </div>
-                        )}
-
-                        {/* Gradient Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-                        
-                        {/* Click for result text */}
-                        {isActive && (
-                          <motion.div 
-                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
-                            animate={{ scale: [1, 1.05, 1] }}
-                            transition={{ duration: 1.5, repeat: Infinity }}
-                          >
-                            <Badge className="px-4 py-2 bg-primary/90 text-white text-sm font-bold shadow-lg">
-                              {isRTL ? '👆 اضغط للنتيجة' : '👆 Click for result'}
-                            </Badge>
-                          </motion.div>
-                        )}
-                        
-                        {/* Duration & Status Badge */}
-                        <div className="absolute bottom-32 right-3 left-3 flex justify-between items-center">
-                          <Badge className="px-3 py-1.5 bg-muted/80 text-white text-xs">
-                            {isRTL ? 'قبل' : 'Before'}
-                          </Badge>
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/60 px-2 py-1 rounded-full">
-                            <Clock className="w-3 h-3" />
-                            {transformation.duration}
-                          </div>
-                        </div>
-
-                        {/* Info at bottom */}
-                        <div className="absolute bottom-0 left-0 right-0 p-4 text-center">
-                          <span className="text-secondary text-xs font-medium">{transformation.category}</span>
-                          <h3 className="text-lg font-bold text-foreground mt-1">{transformation.name}</h3>
-                        </div>
+        <div className="relative max-w-4xl mx-auto px-2 sm:px-8">
+          <AnimatePresence mode="wait">
+            <motion.div key={currentIndex} initial={{
+            opacity: 0,
+            x: 100
+          }} animate={{
+            opacity: 1,
+            x: 0
+          }} exit={{
+            opacity: 0,
+            x: -100
+          }} transition={{
+            duration: 0.5
+          }} className="grid md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
+              {/* Before/After Card */}
+              <Card className="overflow-hidden border-border bg-card">
+                <div className="relative aspect-[4/3]">
+                  <img src={transformations[currentIndex].image} alt="Transformation" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <div className="flex justify-between items-end">
+                      <div>
+                        <Badge className="bg-red-500/20 text-red-400 mb-2">
+                          {isRTL ? 'قبل' : 'Before'}
+                        </Badge>
+                        <div className="text-3xl font-bold">{transformations[currentIndex].before} kg</div>
                       </div>
-                    </Card>
-
-                    {/* Back Side - After */}
-                    <Card 
-                      className={`absolute inset-0 overflow-hidden border-2 ${isActive ? 'border-green-500/50 shadow-2xl shadow-green-500/20' : 'border-border/30'} bg-gradient-to-br from-card via-card to-green-500/5 rounded-2xl`}
-                      style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
-                    >
-                      <div className="relative aspect-[3/4]">
-                        <img 
-                          src={transformation.afterImage} 
-                          alt="After" 
-                          className="w-full h-full object-cover object-top"
-                        />
-                        
-                        {/* Emoji Mask */}
-                        {transformation.showMask && (
-                          <div className="absolute top-8 left-1/2 -translate-x-1/2 z-10">
-                            <motion.img 
-                              src={emojiMask} 
-                              alt="mask" 
-                              className="w-20 h-20 sm:w-24 sm:h-24 object-contain"
-                              animate={{ scale: [1, 1.1, 1] }}
-                              transition={{ duration: 2, repeat: Infinity }}
-                            />
-                          </div>
-                        )}
-
-                        {/* Gradient Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-                        
-                        {/* Duration & Status Badge */}
-                        <div className="absolute bottom-32 right-3 left-3 flex justify-between items-center">
-                          <Badge className="px-3 py-1.5 bg-green-500/90 text-white text-xs">
-                            {isRTL ? 'بعد' : 'After'}
-                          </Badge>
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/60 px-2 py-1 rounded-full">
-                            <Clock className="w-3 h-3" />
-                            {transformation.duration}
-                          </div>
-                        </div>
-
-                        {/* Info at bottom */}
-                        <div className="absolute bottom-0 left-0 right-0 p-4 text-center">
-                          <span className="text-secondary text-xs font-medium">{transformation.category}</span>
-                          <h3 className="text-lg font-bold text-foreground mt-1">{transformation.name}</h3>
-                          
-                          {isActive && (
-                            <motion.div
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              className="mt-3"
-                            >
-                              <p className="text-green-500 font-semibold text-sm">{transformation.program}</p>
-                              <div className="flex items-center justify-center gap-2 mt-2">
-                                <Star className="w-5 h-5 text-green-500" />
-                                <span className="text-muted-foreground text-xs">{isRTL ? 'نتيجة مذهلة!' : 'Amazing result!'}</span>
-                              </div>
-                            </motion.div>
-                          )}
-                        </div>
+                      <div className="text-right">
+                        <Badge className="bg-green-500/20 text-green-400 mb-2">
+                          {isRTL ? 'بعد' : 'After'}
+                        </Badge>
+                        <div className="text-3xl font-bold">{transformations[currentIndex].after} kg</div>
                       </div>
-                    </Card>
-                  </motion.div>
+                    </div>
+                  </div>
                 </div>
-              </motion.div>
-            );
-          })}
-        </div>
+              </Card>
 
-        {/* Navigation Arrows */}
-        <div className="flex justify-center gap-4 mt-4">
-          <button 
-            onClick={() => setCurrentIndex(prev => (prev - 1 + transformations.length) % transformations.length)}
-            className="w-10 h-10 bg-card border border-border rounded-full flex items-center justify-center hover:bg-primary/10 transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button 
-            onClick={() => setCurrentIndex(prev => (prev + 1) % transformations.length)}
-            className="w-10 h-10 bg-card border border-border rounded-full flex items-center justify-center hover:bg-primary/10 transition-colors"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
+              {/* Info Card */}
+              <Card className="border-border bg-card flex flex-col justify-center p-6">
+                <CardContent className="p-0">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
+                      <Star className="h-8 w-8 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold">{transformations[currentIndex].name}</h3>
+                      <p className="text-muted-foreground">
+                        {isRTL ? `خسر ${transformations[currentIndex].before - transformations[currentIndex].after} كجم` : `Lost ${transformations[currentIndex].before - transformations[currentIndex].after} kg`}
+                      </p>
+                    </div>
+                  </div>
 
-        {/* Dots */}
-        <div className="flex justify-center gap-2 mt-4">
-          {transformations.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                currentIndex === index ? 'bg-primary w-6' : 'bg-muted-foreground/30'
-              }`}
-            />
-          ))}
+                  <div className="space-y-4">
+                    <div className="flex justify-between p-3 bg-muted/50 rounded-lg">
+                      <span className="text-muted-foreground">{isRTL ? 'المدة' : 'Duration'}</span>
+                      <span className="font-semibold">{transformations[currentIndex].duration}</span>
+                    </div>
+                    <div className="flex justify-between p-3 bg-muted/50 rounded-lg">
+                      <span className="text-muted-foreground">{isRTL ? 'الخسارة' : 'Lost'}</span>
+                      <span className="font-semibold text-green-500">
+                        -{transformations[currentIndex].before - transformations[currentIndex].after} kg
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 mt-6">
+                    {[...Array(5)].map((_, i) => <Star key={i} className="h-5 w-5 fill-yellow-500 text-yellow-500" />)}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Navigation Buttons */}
+          <button onClick={prevSlide} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 sm:-translate-x-4 md:-translate-x-12 w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-card border border-border rounded-full flex items-center justify-center hover:bg-primary/10 transition-colors z-10">
+            <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
+          </button>
+          <button onClick={nextSlide} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 sm:translate-x-4 md:translate-x-12 w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-card border border-border rounded-full flex items-center justify-center hover:bg-primary/10 transition-colors z-10">
+            <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
+          </button>
+
+          {/* Dots */}
+          <div className="flex justify-center gap-2 mt-8">
+            {transformations.map((_, index) => <button key={index} onClick={() => setCurrentIndex(index)} className={`w-3 h-3 rounded-full transition-all ${index === currentIndex ? 'bg-primary w-8' : 'bg-muted-foreground/30'}`} />)}
+          </div>
         </div>
       </div>
     </section>;
@@ -776,7 +602,7 @@ const MissionSection = () => {
             }} whileTap={{
               scale: 0.95
             }} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-secondary rounded-full flex items-center justify-center shadow-lg shadow-secondary/30">
-                <Play className="h-8 w-8 text-secondary-foreground fill-current" />
+                
               </motion.button>
             </div>
 
@@ -807,69 +633,40 @@ const MissionSection = () => {
 };
 
 // Subscription Plans Preview
-// Subscription Plans Component - Full Version
 const SubscriptionPlans = () => {
-  const { isRTL } = useLanguage();
-  const [selectedTypes, setSelectedTypes] = useState<{[key: string]: 'regular' | 'medical'}>({});
-
-  const packages = [{
-    id: '6-weeks',
-    name: isRTL ? 'نظام 6 أسابيع' : '6 Weeks Program',
-    duration: isRTL ? '6 أسابيع' : '6 weeks',
-    regularPrice: 999,
-    medicalPrice: 1499,
-    icon: Zap,
-    features: isRTL 
-      ? ['برنامج تدريبي مخصص', 'نظام غذائي متكامل', 'متابعة أسبوعية', 'دعم عبر الواتساب', 'تحديثات البرنامج']
-      : ['Custom training program', 'Complete nutrition plan', 'Weekly follow-up', 'WhatsApp support', 'Program updates'],
-    popular: false,
-    badge: null
+  const {
+    isRTL
+  } = useLanguage();
+  const plans = [{
+    name: isRTL ? 'الأساسي' : 'Basic',
+    price: 299,
+    period: isRTL ? '/شهر' : '/month',
+    features: [isRTL ? 'برنامج تدريب مخصص' : 'Custom training program', isRTL ? 'نظام غذائي أساسي' : 'Basic nutrition plan', isRTL ? 'متابعة أسبوعية' : 'Weekly follow-up', isRTL ? 'دعم عبر الواتساب' : 'WhatsApp support'],
+    popular: false
   }, {
-    id: '90-days',
-    name: isRTL ? 'تحدي 90 يوم' : '90 Days Challenge',
-    duration: isRTL ? '90 يوم + شهر هدية' : '90 days + 1 month free',
-    regularPrice: 1699,
-    medicalPrice: 1999,
-    icon: Award,
-    features: isRTL 
-      ? ['برنامج تدريبي مخصص', 'نظام غذائي متكامل', 'متابعة أسبوعية مكثفة', 'دعم عبر الواتساب 24/7', 'شهر إضافي مجاني', 'تقارير تقدم شهرية']
-      : ['Custom training program', 'Complete nutrition plan', 'Intensive weekly follow-up', '24/7 WhatsApp support', 'Extra free month', 'Monthly progress reports'],
-    popular: true,
-    badge: isRTL ? 'الأكثر طلباً' : 'Most Popular'
+    name: isRTL ? 'المميز' : 'Premium',
+    price: 499,
+    period: isRTL ? '/شهر' : '/month',
+    features: [isRTL ? 'كل مميزات الأساسي' : 'All Basic features', isRTL ? 'متابعة يومية' : 'Daily follow-up', isRTL ? 'استشارة طبية' : 'Medical consultation', isRTL ? 'فيديوهات تعليمية' : 'Educational videos', isRTL ? 'تعديلات غير محدودة' : 'Unlimited adjustments'],
+    popular: true
   }, {
-    id: '6-months',
-    name: isRTL ? 'نظام 6 شهور' : '6 Months Program',
-    duration: isRTL ? '6 شهور' : '6 months',
-    regularPrice: 2999,
-    medicalPrice: 4000,
-    icon: Crown,
-    features: isRTL 
-      ? ['كل مميزات تحدي 90 يوم', 'جلسات استشارية شهرية', 'تحديثات غير محدودة', 'أولوية في الدعم', 'خصومات على المكملات']
-      : ['All 90 days features', 'Monthly consultation sessions', 'Unlimited updates', 'Priority support', 'Supplement discounts'],
-    popular: false,
-    badge: null
-  }, {
-    id: '1-year',
-    name: isRTL ? 'نظام سنة كاملة' : 'Full Year Program',
-    duration: isRTL ? '12 شهر' : '12 months',
-    regularPrice: 5999,
-    medicalPrice: 8000,
-    icon: Star,
-    features: isRTL 
-      ? ['كل مميزات 6 شهور', 'تحول شامل مضمون', 'متابعة VIP مستمرة', 'جلسات فيديو شهرية', 'مكملات مجانية', 'ضمان استرداد المال']
-      : ['All 6 months features', 'Guaranteed complete transformation', 'Continuous VIP follow-up', 'Monthly video sessions', 'Free supplements', 'Money-back guarantee'],
-    popular: false,
-    badge: isRTL ? 'أفضل قيمة' : 'Best Value'
+    name: isRTL ? 'VIP' : 'VIP',
+    price: 999,
+    period: isRTL ? '/شهر' : '/month',
+    features: [isRTL ? 'كل مميزات المميز' : 'All Premium features', isRTL ? 'مكالمات فيديو' : 'Video calls', isRTL ? 'خطة مكملات' : 'Supplements plan', isRTL ? 'أولوية في الرد' : 'Priority response', isRTL ? 'خصومات على المتجر' : 'Store discounts'],
+    popular: false
   }];
-
-  const getSelectedType = (id: string) => selectedTypes[id] || 'regular';
-  const getPrice = (pkg: typeof packages[0]) => {
-    return getSelectedType(pkg.id) === 'medical' ? pkg.medicalPrice : pkg.regularPrice;
-  };
-
   return <section className="py-12 sm:py-16 md:py-20 bg-background">
       <div className="container mx-auto px-4">
-        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-8 sm:mb-12">
+        <motion.div initial={{
+        opacity: 0,
+        y: 30
+      }} whileInView={{
+        opacity: 1,
+        y: 0
+      }} viewport={{
+        once: true
+      }} className="text-center mb-8 sm:mb-12">
           <Badge className="mb-3 sm:mb-4 bg-primary/20 text-primary border-primary/30 text-xs sm:text-sm">
             {isRTL ? '💎 باقاتنا' : '💎 Our Plans'}
           </Badge>
@@ -881,93 +678,57 @@ const SubscriptionPlans = () => {
           </p>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
-          {packages.map((pkg, index) => (
-            <motion.div 
-              key={pkg.id} 
-              initial={{ opacity: 0, y: 30 }} 
-              whileInView={{ opacity: 1, y: 0 }} 
-              viewport={{ once: true }} 
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card className={`relative h-full border-2 ${pkg.popular ? 'border-primary' : 'border-border'}`}>
-                {pkg.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                    <Badge className={`px-4 py-1 ${pkg.popular ? 'bg-primary text-primary-foreground' : 'bg-secondary text-background'}`}>
-                      ✨ {pkg.badge}
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-5xl mx-auto">
+          {plans.map((plan, index) => <motion.div key={index} initial={{
+          opacity: 0,
+          y: 30
+        }} whileInView={{
+          opacity: 1,
+          y: 0
+        }} viewport={{
+          once: true
+        }} transition={{
+          delay: index * 0.1
+        }}>
+              <Card className={`relative h-full border-2 ${plan.popular ? 'border-primary' : 'border-border'}`}>
+                {plan.popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <Badge className="bg-primary text-primary-foreground px-4">
+                      {isRTL ? 'الأكثر طلباً' : 'Most Popular'}
                     </Badge>
-                  </div>
-                )}
-                
-                <CardContent className="p-5">
-                  {/* Icon */}
-                  <div className="flex justify-center mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
-                      <pkg.icon className="w-6 h-6 text-primary" />
-                    </div>
-                  </div>
-
-                  {/* Name & Duration */}
-                  <div className="text-center mb-4">
-                    <h3 className="text-lg font-bold mb-1">{pkg.name}</h3>
-                    <p className="text-sm text-muted-foreground">{pkg.duration}</p>
-                  </div>
-
-                  {/* Type Toggle */}
-                  <div className="flex rounded-lg bg-muted p-1 mb-4">
-                    <button
-                      onClick={() => setSelectedTypes(prev => ({...prev, [pkg.id]: 'regular'}))}
-                      className={`flex-1 py-2 px-3 rounded-md text-xs font-medium transition-all ${
-                        getSelectedType(pkg.id) === 'regular' 
-                          ? 'bg-card text-foreground shadow-sm' 
-                          : 'text-muted-foreground'
-                      }`}
-                    >
-                      {isRTL ? 'عادي' : 'Regular'}
-                    </button>
-                    <button
-                      onClick={() => setSelectedTypes(prev => ({...prev, [pkg.id]: 'medical'}))}
-                      className={`flex-1 py-2 px-3 rounded-md text-xs font-medium transition-all ${
-                        getSelectedType(pkg.id) === 'medical' 
-                          ? 'bg-card text-foreground shadow-sm' 
-                          : 'text-muted-foreground'
-                      }`}
-                    >
-                      {isRTL ? 'متابعة طبية' : 'Medical'}
-                    </button>
-                  </div>
-
-                  {/* Price */}
-                  <div className="text-center mb-4">
+                  </div>}
+                <CardContent className="p-6">
+                  <div className="text-center mb-6">
+                    <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
                     <div className="flex items-baseline justify-center gap-1">
-                      <span className="text-3xl font-bold text-primary">{getPrice(pkg).toLocaleString()}</span>
-                      <span className="text-sm text-muted-foreground">{isRTL ? 'ج.م' : 'EGP'}</span>
+                      <span className="text-4xl font-bold text-primary">{plan.price}</span>
+                      <span className="text-muted-foreground">{isRTL ? 'ر.س' : 'SAR'}{plan.period}</span>
                     </div>
                   </div>
 
-                  {/* Features */}
-                  <ul className="space-y-2 mb-6">
-                    {pkg.features.map((feature, i) => (
-                      <li key={i} className="flex items-center gap-2 text-sm">
-                        <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                        <span className="text-muted-foreground">{feature}</span>
-                      </li>
-                    ))}
+                  <ul className="space-y-3 mb-6">
+                    {plan.features.map((feature, i) => <li key={i} className="flex items-center gap-2">
+                        <Check className="h-5 w-5 text-primary flex-shrink-0" />
+                        <span className="text-sm">{feature}</span>
+                      </li>)}
                   </ul>
 
-                  {/* CTA Button */}
                   <Link to="/register">
-                    <Button 
-                      className={`w-full ${pkg.popular ? 'bg-primary' : ''}`} 
-                      variant={pkg.popular ? 'default' : 'outline'}
-                    >
+                    <Button className={`w-full ${plan.popular ? 'bg-primary' : ''}`} variant={plan.popular ? 'default' : 'outline'}>
                       {isRTL ? 'اشترك الآن' : 'Subscribe Now'}
                     </Button>
                   </Link>
                 </CardContent>
               </Card>
-            </motion.div>
-          ))}
+            </motion.div>)}
+        </div>
+
+        <div className="text-center mt-8">
+          <Link to="/packages">
+            <Button variant="link" className="text-primary gap-2">
+              {isRTL ? 'عرض جميع الباقات' : 'View All Plans'}
+              <ArrowRight className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>;
@@ -1175,12 +936,12 @@ const FinalCTA = () => {
             <a href="https://wa.me/966500000000" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
               <Button size="lg" className="w-full sm:w-auto gap-2 text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 bg-green-600 hover:bg-green-700">
                 <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
-                {isRTL ? 'ادفع عن طريق الواتساب' : 'Pay via WhatsApp'}
+                {isRTL ? 'تواصل عبر واتساب' : 'Contact via WhatsApp'}
               </Button>
             </a>
             <Link to="/register" className="w-full sm:w-auto">
               <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2 text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 border-primary/50">
-                {isRTL ? 'اشترك الان عبر الدفع الالكتروني' : 'Subscribe via Electronic Payment'}
+                {isRTL ? 'اشترك الآن' : 'Subscribe Now'}
                 <ArrowRight className={`h-4 w-4 sm:h-5 sm:w-5 ${isRTL ? 'rotate-180' : ''}`} />
               </Button>
             </Link>
@@ -1279,8 +1040,8 @@ const FooterSection = () => {
 const Index = () => {
   return <Layout>
       <HeroSection />
-      <TransformationsCarousel />
       <CountdownTimer />
+      <TransformationsCarousel />
       <MissionSection />
       <SubscriptionPlans />
       <SupplementsPreview />
