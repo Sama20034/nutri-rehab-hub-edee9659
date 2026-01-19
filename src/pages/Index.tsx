@@ -185,7 +185,7 @@ const HeroSection = () => {
               className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold mb-3 sm:mb-4 md:mb-6 leading-tight"
             >
               <span className="bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
-                {isRTL ? 'ضمان فورمة' : 'Lifetime Fitness'}
+                {isRTL ? 'ضمان يكمل معاك للابد' : 'Lifetime Fitness'}
               </span>
               <br />
               <span className="text-foreground">
