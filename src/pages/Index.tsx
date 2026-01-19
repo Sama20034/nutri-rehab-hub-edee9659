@@ -167,7 +167,7 @@ const HeroSection = () => {
           x: 0
         }} transition={{
           duration: 0.8
-        }} className="text-right order-1 lg:order-2">
+        }} className="text-center order-1 lg:order-2">
             {/* Badge */}
             <motion.div initial={{
             opacity: 0,
@@ -177,7 +177,7 @@ const HeroSection = () => {
             scale: 1
           }} transition={{
             delay: 0.2
-          }} className="mb-6 flex justify-start">
+          }} className="mb-6 flex justify-center">
               <Badge className="px-4 py-2 text-sm bg-secondary/20 text-secondary border-secondary/30 font-bold">
                 {isRTL ? '🔥 Alligator Fit - القوة والصحة' : '🔥 Alligator Fit - Power & Health'}
               </Badge>
