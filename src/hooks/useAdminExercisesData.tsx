@@ -137,6 +137,43 @@ export const useAdminExercisesData = () => {
     }
   };
 
+  // Assign diet plan to multiple clients
+  const assignDietPlanToClients = async (dietPlanId: string, clientIds: string[], assignedBy: string) => {
+    try {
+      const assignments = clientIds.map(clientId => ({
+        diet_plan_id: dietPlanId,
+        client_id: clientId,
+        assigned_by: assignedBy,
+        status: 'active',
+        start_date: new Date().toISOString().split('T')[0]
+      }));
+      
+      const { error } = await supabase.from('client_diet_plans').insert(assignments);
+      if (error) throw error;
+      return { error: null };
+    } catch (err) {
+      return { error: err as Error };
+    }
+  };
+
+  // Assign exercise to multiple clients
+  const assignExerciseToClients = async (exerciseId: string, clientIds: string[], assignedBy: string) => {
+    try {
+      const assignments = clientIds.map(clientId => ({
+        exercise_id: exerciseId,
+        client_id: clientId,
+        assigned_by: assignedBy,
+        completed: false
+      }));
+      
+      const { error } = await supabase.from('client_exercises').insert(assignments);
+      if (error) throw error;
+      return { error: null };
+    } catch (err) {
+      return { error: err as Error };
+    }
+  };
+
   return {
     exercises,
     dietPlans,
@@ -148,6 +185,8 @@ export const useAdminExercisesData = () => {
     deleteExercise,
     addDietPlan,
     updateDietPlan,
-    deleteDietPlan
+    deleteDietPlan,
+    assignDietPlanToClients,
+    assignExerciseToClients
   };
 };

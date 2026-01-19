@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Plus, Edit, Trash2, Utensils } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Edit, Trash2, Utensils, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -9,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { MultiSelect } from '@/components/ui/multi-select';
 import {
   Table,
   TableBody,
@@ -20,13 +20,21 @@ import {
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { DietPlan } from '@/hooks/useAdminExercisesData';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+
+interface Client {
+  id: string;
+  user_id: string;
+  full_name: string;
+}
 
 interface DietPlansSectionProps {
   dietPlans: DietPlan[];
   onAdd: (plan: Omit<DietPlan, 'id' | 'created_at'>) => Promise<{ error: Error | null }>;
   onUpdate: (id: string, updates: Partial<DietPlan>) => Promise<{ error: Error | null }>;
   onDelete: (id: string) => Promise<{ error: Error | null }>;
+  onAssignToClients?: (dietPlanId: string, clientIds: string[], assignedBy: string) => Promise<{ error: Error | null }>;
 }
 
 const goals = ['تخسيس', 'زيادة الوزن', 'بناء العضلات', 'صحة عامة'];
@@ -36,12 +44,15 @@ export const DietPlansSection = ({
   dietPlans,
   onAdd,
   onUpdate,
-  onDelete
+  onDelete,
+  onAssignToClients
 }: DietPlansSectionProps) => {
   const { isRTL } = useLanguage();
   const { user } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<DietPlan | null>(null);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [selectedClients, setSelectedClients] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -52,6 +63,33 @@ export const DietPlansSection = ({
     status: 'active',
     description: ''
   });
+
+  // Fetch clients
+  useEffect(() => {
+    const fetchClients = async () => {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, user_id, full_name')
+        .eq('status', 'approved');
+      
+      const { data: roles } = await supabase
+        .from('user_roles')
+        .select('user_id, role')
+        .eq('role', 'client');
+      
+      if (profiles && roles) {
+        const clientUserIds = roles.map(r => r.user_id);
+        const clientProfiles = profiles.filter(p => clientUserIds.includes(p.user_id));
+        setClients(clientProfiles as Client[]);
+      }
+    };
+    fetchClients();
+  }, []);
+
+  const clientOptions = clients.map(c => ({
+    value: c.user_id,
+    label: c.full_name || 'بدون اسم'
+  }));
 
   const resetForm = () => {
     setFormData({
@@ -64,6 +102,7 @@ export const DietPlansSection = ({
       description: ''
     });
     setEditingPlan(null);
+    setSelectedClients([]);
   };
 
   const handleSubmit = async () => {
@@ -86,6 +125,16 @@ export const DietPlansSection = ({
     let result;
     if (editingPlan) {
       result = await onUpdate(editingPlan.id, planData);
+      
+      // Assign to new clients if any selected
+      if (!result.error && selectedClients.length > 0 && onAssignToClients && user) {
+        const assignResult = await onAssignToClients(editingPlan.id, selectedClients, user.id);
+        if (assignResult.error) {
+          toast.error(isRTL ? 'تم تحديث النظام لكن فشل التعيين للعملاء' : 'Plan updated but failed to assign to clients');
+        } else {
+          toast.success(isRTL ? `تم تعيين النظام لـ ${selectedClients.length} عميل` : `Assigned to ${selectedClients.length} clients`);
+        }
+      }
     } else {
       result = await onAdd(planData);
     }
@@ -110,6 +159,7 @@ export const DietPlansSection = ({
       description: plan.description || ''
     });
     setEditingPlan(plan);
+    setSelectedClients([]);
     setIsDialogOpen(true);
   };
 
@@ -198,7 +248,7 @@ export const DietPlansSection = ({
 
       {/* Add/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) resetForm(); }}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingPlan ? (isRTL ? 'تعديل النظام الغذائي' : 'Edit Diet Plan') : (isRTL ? 'إضافة نظام غذائي جديد' : 'Add New Diet Plan')}
@@ -276,13 +326,36 @@ export const DietPlansSection = ({
                 placeholder={isRTL ? 'وصف النظام...' : 'Plan description...'}
               />
             </div>
+
+            {/* Client Assignment - Only show when editing */}
+            {editingPlan && onAssignToClients && (
+              <div className="border-t pt-4 mt-4">
+                <Label className="flex items-center gap-2 mb-2">
+                  <Users className="h-4 w-4" />
+                  {isRTL ? 'تعيين النظام للعملاء' : 'Assign to Clients'}
+                </Label>
+                <MultiSelect
+                  options={clientOptions}
+                  selected={selectedClients}
+                  onChange={setSelectedClients}
+                  placeholder={isRTL ? 'اختر العملاء...' : 'Select clients...'}
+                  searchPlaceholder={isRTL ? 'بحث عن عميل...' : 'Search clients...'}
+                  emptyText={isRTL ? 'لا يوجد عملاء' : 'No clients found'}
+                />
+                {selectedClients.length > 0 && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    {isRTL ? `سيتم تعيين النظام لـ ${selectedClients.length} عميل` : `Will assign to ${selectedClients.length} client(s)`}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
           <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               {isRTL ? 'إلغاء' : 'Cancel'}
             </Button>
             <Button onClick={handleSubmit}>
-              {isRTL ? 'إضافة' : 'Add'}
+              {editingPlan ? (isRTL ? 'تحديث' : 'Update') : (isRTL ? 'إضافة' : 'Add')}
             </Button>
           </DialogFooter>
         </DialogContent>

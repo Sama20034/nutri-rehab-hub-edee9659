@@ -40,7 +40,8 @@ const AdminDashboard = () => {
     exercises, dietPlans,
     loading: exercisesLoading,
     addExercise, updateExercise, deleteExercise,
-    addDietPlan, updateDietPlan, deleteDietPlan
+    addDietPlan, updateDietPlan, deleteDietPlan,
+    assignDietPlanToClients, assignExerciseToClients
   } = useAdminExercisesData();
   
   const { 
@@ -193,6 +194,7 @@ const AdminDashboard = () => {
             onAddExercise={addExercise}
             onUpdateExercise={updateExercise}
             onDeleteExercise={deleteExercise}
+            onAssignToClients={assignExerciseToClients}
           />
         );
       case 'diets':
@@ -202,6 +204,7 @@ const AdminDashboard = () => {
             onAdd={addDietPlan}
             onUpdate={updateDietPlan}
             onDelete={deleteDietPlan}
+            onAssignToClients={assignDietPlanToClients}
           />
         );
       case 'articles':

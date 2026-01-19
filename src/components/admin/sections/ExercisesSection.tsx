@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Plus, Search, Edit, Trash2, Dumbbell } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Search, Edit, Trash2, Dumbbell, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
+import { MultiSelect } from '@/components/ui/multi-select';
 import {
   Table,
   TableBody,
@@ -20,13 +20,21 @@ import {
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { Exercise } from '@/hooks/useAdminExercisesData';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+
+interface Client {
+  id: string;
+  user_id: string;
+  full_name: string;
+}
 
 interface ExercisesSectionProps {
   exercises: Exercise[];
   onAddExercise: (exercise: Omit<Exercise, 'id' | 'created_at'>) => Promise<{ error: Error | null }>;
   onUpdateExercise: (id: string, updates: Partial<Exercise>) => Promise<{ error: Error | null }>;
   onDeleteExercise: (id: string) => Promise<{ error: Error | null }>;
+  onAssignToClients?: (exerciseId: string, clientIds: string[], assignedBy: string) => Promise<{ error: Error | null }>;
 }
 
 const difficulties = ['beginner', 'intermediate', 'advanced'];
@@ -36,11 +44,14 @@ export const ExercisesSection = ({
   exercises,
   onAddExercise,
   onUpdateExercise,
-  onDeleteExercise
+  onDeleteExercise,
+  onAssignToClients
 }: ExercisesSectionProps) => {
   const { isRTL } = useLanguage();
   const { user } = useAuth();
   const [search, setSearch] = useState('');
+  const [clients, setClients] = useState<Client[]>([]);
+  const [selectedClients, setSelectedClients] = useState<string[]>([]);
 
   // Exercise dialog state
   const [isExerciseDialogOpen, setIsExerciseDialogOpen] = useState(false);
@@ -55,6 +66,33 @@ export const ExercisesSection = ({
     duration_minutes: ''
   });
 
+  // Fetch clients
+  useEffect(() => {
+    const fetchClients = async () => {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, user_id, full_name')
+        .eq('status', 'approved');
+      
+      const { data: roles } = await supabase
+        .from('user_roles')
+        .select('user_id, role')
+        .eq('role', 'client');
+      
+      if (profiles && roles) {
+        const clientUserIds = roles.map(r => r.user_id);
+        const clientProfiles = profiles.filter(p => clientUserIds.includes(p.user_id));
+        setClients(clientProfiles as Client[]);
+      }
+    };
+    fetchClients();
+  }, []);
+
+  const clientOptions = clients.map(c => ({
+    value: c.user_id,
+    label: c.full_name || 'بدون اسم'
+  }));
+
   // Exercise handlers
   const resetExerciseForm = () => {
     setExerciseForm({
@@ -67,6 +105,7 @@ export const ExercisesSection = ({
       duration_minutes: ''
     });
     setEditingExercise(null);
+    setSelectedClients([]);
   };
 
   const handleExerciseSubmit = async () => {
@@ -84,12 +123,24 @@ export const ExercisesSection = ({
       difficulty: exerciseForm.difficulty || null,
       duration_minutes: exerciseForm.duration_minutes ? parseInt(exerciseForm.duration_minutes) : null
     };
+    
     const result = editingExercise
       ? await onUpdateExercise(editingExercise.id, data)
       : await onAddExercise(data);
+    
     if (result.error) {
       toast.error(result.error.message);
     } else {
+      // Assign to clients if editing and clients selected
+      if (editingExercise && selectedClients.length > 0 && onAssignToClients && user) {
+        const assignResult = await onAssignToClients(editingExercise.id, selectedClients, user.id);
+        if (assignResult.error) {
+          toast.error(isRTL ? 'تم تحديث التمرين لكن فشل التعيين للعملاء' : 'Exercise updated but failed to assign to clients');
+        } else {
+          toast.success(isRTL ? `تم تعيين التمرين لـ ${selectedClients.length} عميل` : `Assigned to ${selectedClients.length} clients`);
+        }
+      }
+      
       toast.success(isRTL ? (editingExercise ? 'تم التحديث' : 'تمت الإضافة') : (editingExercise ? 'Updated' : 'Added'));
       setIsExerciseDialogOpen(false);
       resetExerciseForm();
@@ -107,6 +158,7 @@ export const ExercisesSection = ({
       duration_minutes: exercise.duration_minutes?.toString() || ''
     });
     setEditingExercise(exercise);
+    setSelectedClients([]);
     setIsExerciseDialogOpen(true);
   };
 
@@ -202,7 +254,7 @@ export const ExercisesSection = ({
 
       {/* Add/Edit Exercise Dialog */}
       <Dialog open={isExerciseDialogOpen} onOpenChange={(open) => { setIsExerciseDialogOpen(open); if (!open) resetExerciseForm(); }}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingExercise ? (isRTL ? 'تعديل التمرين' : 'Edit Exercise') : (isRTL ? 'إضافة تمرين جديد' : 'Add New Exercise')}
@@ -271,6 +323,29 @@ export const ExercisesSection = ({
                 onChange={(e) => setExerciseForm({ ...exerciseForm, description: e.target.value })}
               />
             </div>
+
+            {/* Client Assignment - Only show when editing */}
+            {editingExercise && onAssignToClients && (
+              <div className="border-t pt-4 mt-4">
+                <Label className="flex items-center gap-2 mb-2">
+                  <Users className="h-4 w-4" />
+                  {isRTL ? 'تعيين التمرين للعملاء' : 'Assign to Clients'}
+                </Label>
+                <MultiSelect
+                  options={clientOptions}
+                  selected={selectedClients}
+                  onChange={setSelectedClients}
+                  placeholder={isRTL ? 'اختر العملاء...' : 'Select clients...'}
+                  searchPlaceholder={isRTL ? 'بحث عن عميل...' : 'Search clients...'}
+                  emptyText={isRTL ? 'لا يوجد عملاء' : 'No clients found'}
+                />
+                {selectedClients.length > 0 && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    {isRTL ? `سيتم تعيين التمرين لـ ${selectedClients.length} عميل` : `Will assign to ${selectedClients.length} client(s)`}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
           <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setIsExerciseDialogOpen(false)}>
