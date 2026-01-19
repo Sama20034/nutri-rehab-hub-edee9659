@@ -22,6 +22,7 @@ import transformation5Before from '@/assets/transformation5-before.png';
 import transformation5After from '@/assets/transformation5-after.png';
 import transformation6Before from '@/assets/transformation6-before.png';
 import transformation6After from '@/assets/transformation6-after.png';
+import transformation7Combined from '@/assets/transformation7-combined.png';
 import emojiMask from '@/assets/emoji-mask.png';
 
 // Hero Section Component
@@ -428,6 +429,14 @@ const TransformationsCarousel = () => {
     beforeImage: transformation6Before,
     afterImage: transformation6After,
     duration: '',
+    category: '',
+    showMask: false,
+    program: ''
+  }, {
+    name: isRTL ? 'في أقل من شهر 💪✨' : 'In Less Than a Month 💪✨',
+    beforeImage: transformation7Combined,
+    afterImage: transformation7Combined,
+    duration: isRTL ? 'أقل من شهر' : 'Less than a month',
     category: '',
     showMask: false,
     program: ''
