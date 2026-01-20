@@ -1312,7 +1312,7 @@ const SubscriptionPlans = () => {
                         <Switch
                           checked={isMedical}
                           onCheckedChange={() => toggleMedical(index)}
-                          className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground"
+                          className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground [&>span]:rtl:data-[state=checked]:translate-x-5"
                         />
                         <span className={`text-xs ${isMedical ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
                           {isRTL ? 'طبي' : 'Medical'}
