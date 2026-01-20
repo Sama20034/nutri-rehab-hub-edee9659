@@ -203,22 +203,33 @@ const HeroTransformationCard = () => {
         </div>
       </motion.div>
 
-      {/* Dots Indicator */}
-      <div className="flex justify-center gap-2 mt-4 relative z-20">
-        {transformations.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => {
-              setIsFlipped(false);
-              setCurrentIndex(index);
-            }}
-            className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full transition-all duration-300 ${
-              index === currentIndex 
-                ? 'bg-primary w-6 sm:w-8' 
-                : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
-            }`}
-          />
-        ))}
+      {/* Navigation Arrows */}
+      <div className="flex justify-center items-center gap-4 mt-4 relative z-20">
+        <button
+          onClick={() => {
+            setIsFlipped(false);
+            setCurrentIndex(prev => prev === 0 ? transformations.length - 1 : prev - 1);
+          }}
+          className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-card/80 backdrop-blur-sm border border-border hover:bg-primary/20 hover:border-primary transition-all duration-300 flex items-center justify-center group"
+        >
+          <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground group-hover:text-primary transition-colors" />
+        </button>
+        
+        <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-card/80 backdrop-blur-sm border border-border">
+          <span className="text-primary font-bold text-sm">{currentIndex + 1}</span>
+          <span className="text-muted-foreground text-sm">/</span>
+          <span className="text-muted-foreground text-sm">{transformations.length}</span>
+        </div>
+
+        <button
+          onClick={() => {
+            setIsFlipped(false);
+            setCurrentIndex(prev => (prev + 1) % transformations.length);
+          }}
+          className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-card/80 backdrop-blur-sm border border-border hover:bg-primary/20 hover:border-primary transition-all duration-300 flex items-center justify-center group"
+        >
+          <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground group-hover:text-primary transition-colors" />
+        </button>
       </div>
 
       {/* Floating Elements */}
