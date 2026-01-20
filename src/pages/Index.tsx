@@ -1291,7 +1291,7 @@ const SubscriptionPlans = () => {
                       <h3 className="text-lg sm:text-xl font-bold mb-3">{plan.name}</h3>
                       
                       {/* Medical Toggle */}
-                      <div className="flex items-center justify-center gap-2 mb-4">
+                      <div className={`flex items-center justify-center gap-2 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <span className={`text-xs ${!isMedical ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
                           {isRTL ? 'عادي' : 'Regular'}
                         </span>
