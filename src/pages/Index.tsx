@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Layout from '@/components/layout/Layout';
 import { supabase } from '@/integrations/supabase/client';
@@ -998,39 +999,80 @@ const MissionSection = () => {
 
 // Subscription Plans Preview
 const SubscriptionPlans = () => {
-  const {
-    isRTL
-  } = useLanguage();
-  const plans = [{
-    name: isRTL ? 'الأساسي' : 'Basic',
-    price: 299,
-    period: isRTL ? '/شهر' : '/month',
-    features: [isRTL ? 'برنامج تدريب مخصص' : 'Custom training program', isRTL ? 'نظام غذائي أساسي' : 'Basic nutrition plan', isRTL ? 'متابعة أسبوعية' : 'Weekly follow-up', isRTL ? 'دعم عبر الواتساب' : 'WhatsApp support'],
-    popular: false
-  }, {
-    name: isRTL ? 'المميز' : 'Premium',
-    price: 499,
-    period: isRTL ? '/شهر' : '/month',
-    features: [isRTL ? 'كل مميزات الأساسي' : 'All Basic features', isRTL ? 'متابعة يومية' : 'Daily follow-up', isRTL ? 'استشارة طبية' : 'Medical consultation', isRTL ? 'فيديوهات تعليمية' : 'Educational videos', isRTL ? 'تعديلات غير محدودة' : 'Unlimited adjustments'],
-    popular: true
-  }, {
-    name: isRTL ? 'VIP' : 'VIP',
-    price: 999,
-    period: isRTL ? '/شهر' : '/month',
-    features: [isRTL ? 'كل مميزات المميز' : 'All Premium features', isRTL ? 'مكالمات فيديو' : 'Video calls', isRTL ? 'خطة مكملات' : 'Supplements plan', isRTL ? 'أولوية في الرد' : 'Priority response', isRTL ? 'خصومات على المتجر' : 'Store discounts'],
-    popular: false
-  }];
-  return <section className="py-12 sm:py-16 md:py-20 bg-background">
+  const { isRTL } = useLanguage();
+  
+  const plans = [
+    {
+      name: isRTL ? '6 أسابيع' : '6 Weeks',
+      regularPrice: 999,
+      medicalPrice: 1499,
+      features: [
+        isRTL ? 'برنامج تدريب مخصص' : 'Custom training program',
+        isRTL ? 'نظام غذائي شخصي' : 'Personalized diet plan',
+        isRTL ? 'متابعة أسبوعية' : 'Weekly follow-up',
+        isRTL ? 'دعم عبر الواتساب' : 'WhatsApp support'
+      ],
+      popular: false,
+      bestValue: false
+    },
+    {
+      name: isRTL ? 'تحدي 90 يوم' : '90 Days Challenge',
+      regularPrice: 1699,
+      medicalPrice: 1999,
+      features: [
+        isRTL ? 'كل مميزات 6 أسابيع' : 'All 6 Weeks features',
+        isRTL ? 'متابعة يومية' : 'Daily follow-up',
+        isRTL ? 'فيديوهات تعليمية' : 'Educational videos',
+        isRTL ? 'تعديلات غير محدودة' : 'Unlimited adjustments'
+      ],
+      popular: true,
+      bestValue: false
+    },
+    {
+      name: isRTL ? '6 شهور' : '6 Months',
+      regularPrice: 2999,
+      medicalPrice: 4000,
+      features: [
+        isRTL ? 'كل مميزات 90 يوم' : 'All 90 Days features',
+        isRTL ? 'مكالمات فيديو شهرية' : 'Monthly video calls',
+        isRTL ? 'خطة مكملات' : 'Supplements plan',
+        isRTL ? 'أولوية في الرد' : 'Priority response'
+      ],
+      popular: false,
+      bestValue: false
+    },
+    {
+      name: isRTL ? 'سنة كاملة' : 'Full Year',
+      regularPrice: 5999,
+      medicalPrice: 8000,
+      features: [
+        isRTL ? 'كل مميزات 6 شهور' : 'All 6 Months features',
+        isRTL ? 'مكالمات فيديو أسبوعية' : 'Weekly video calls',
+        isRTL ? 'خصومات حصرية' : 'Exclusive discounts',
+        isRTL ? 'دعم VIP' : 'VIP support'
+      ],
+      popular: false,
+      bestValue: true
+    }
+  ];
+
+  const [medicalToggles, setMedicalToggles] = useState<boolean[]>(plans.map(() => false));
+
+  const toggleMedical = (index: number) => {
+    const newToggles = [...medicalToggles];
+    newToggles[index] = !newToggles[index];
+    setMedicalToggles(newToggles);
+  };
+
+  return (
+    <section className="py-12 sm:py-16 md:py-20 bg-background">
       <div className="container mx-auto px-4">
-        <motion.div initial={{
-        opacity: 0,
-        y: 30
-      }} whileInView={{
-        opacity: 1,
-        y: 0
-      }} viewport={{
-        once: true
-      }} className="text-center mb-8 sm:mb-12">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-8 sm:mb-12"
+        >
           <Badge className="mb-3 sm:mb-4 bg-primary/20 text-primary border-primary/30 text-xs sm:text-sm">
             {isRTL ? '💎 باقاتنا' : '💎 Our Plans'}
           </Badge>
@@ -1042,60 +1084,100 @@ const SubscriptionPlans = () => {
           </p>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-5xl mx-auto">
-          {plans.map((plan, index) => <motion.div key={index} initial={{
-          opacity: 0,
-          y: 30
-        }} whileInView={{
-          opacity: 1,
-          y: 0
-        }} viewport={{
-          once: true
-        }} transition={{
-          delay: index * 0.1
-        }}>
-              <Card className={`relative h-full border-2 ${plan.popular ? 'border-primary' : 'border-border'}`}>
-                {plan.popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground px-4">
-                      {isRTL ? 'الأكثر طلباً' : 'Most Popular'}
-                    </Badge>
-                  </div>}
-                <CardContent className="p-6">
-                  <div className="text-center mb-6">
-                    <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-                    <div className="flex items-baseline justify-center gap-1">
-                      <span className="text-4xl font-bold text-primary">{plan.price}</span>
-                      <span className="text-muted-foreground">{isRTL ? 'ر.س' : 'SAR'}{plan.period}</span>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
+          {plans.map((plan, index) => {
+            const isMedical = medicalToggles[index];
+            const currentPrice = isMedical ? plan.medicalPrice : plan.regularPrice;
+            
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="relative"
+              >
+                <Card className={`relative h-full border-2 bg-card/50 backdrop-blur-sm ${
+                  plan.popular ? 'border-primary shadow-lg shadow-primary/20' : 'border-border'
+                }`}>
+                  {plan.popular && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                      <Badge className="bg-primary text-primary-foreground px-4 whitespace-nowrap">
+                        {isRTL ? 'الأكثر طلباً' : 'Most Popular'}
+                      </Badge>
                     </div>
-                  </div>
+                  )}
+                  {plan.bestValue && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                      <Badge className="bg-amber-500 text-white px-4 whitespace-nowrap">
+                        {isRTL ? 'أفضل قيمة' : 'Best Value'}
+                      </Badge>
+                    </div>
+                  )}
+                  
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="text-center mb-4 sm:mb-6">
+                      <h3 className="text-lg sm:text-xl font-bold mb-3">{plan.name}</h3>
+                      
+                      {/* Medical Toggle */}
+                      <div className="flex items-center justify-center gap-2 mb-4">
+                        <span className={`text-xs ${!isMedical ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
+                          {isRTL ? 'عادي' : 'Regular'}
+                        </span>
+                        <Switch
+                          checked={isMedical}
+                          onCheckedChange={() => toggleMedical(index)}
+                          className="data-[state=checked]:bg-primary"
+                        />
+                        <span className={`text-xs ${isMedical ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
+                          {isRTL ? 'طبي' : 'Medical'}
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-baseline justify-center gap-1">
+                        <span className="text-3xl sm:text-4xl font-bold text-primary">{currentPrice}</span>
+                        <span className="text-muted-foreground text-sm">
+                          {isRTL ? 'ج.م' : 'EGP'}
+                        </span>
+                      </div>
+                    </div>
 
-                  <ul className="space-y-3 mb-6">
-                    {plan.features.map((feature, i) => <li key={i} className="flex items-center gap-2">
-                        <Check className="h-5 w-5 text-primary flex-shrink-0" />
-                        <span className="text-sm">{feature}</span>
-                      </li>)}
-                  </ul>
+                    <ul className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
+                      {plan.features.map((feature, i) => (
+                        <li key={i} className="flex items-center gap-2">
+                          <Check className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
+                          <span className="text-xs sm:text-sm">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
 
-                  <Link to="/register">
-                    <Button className={`w-full ${plan.popular ? 'bg-primary' : ''}`} variant={plan.popular ? 'default' : 'outline'}>
-                      {isRTL ? 'اشترك الآن' : 'Subscribe Now'}
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            </motion.div>)}
+                    <Link to="/register">
+                      <Button 
+                        className={`w-full text-sm ${plan.popular ? 'bg-primary hover:bg-primary/90' : ''}`} 
+                        variant={plan.popular ? 'default' : 'outline'}
+                      >
+                        {isRTL ? 'اشترك الآن' : 'Subscribe Now'}
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            );
+          })}
         </div>
 
         <div className="text-center mt-8">
           <Link to="/packages">
             <Button variant="link" className="text-primary gap-2">
-              {isRTL ? 'عرض جميع الباقات' : 'View All Plans'}
+              {isRTL ? 'عرض تفاصيل الباقات' : 'View Plan Details'}
               <ArrowRight className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />
             </Button>
           </Link>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
 
 // Supplements Store Preview
