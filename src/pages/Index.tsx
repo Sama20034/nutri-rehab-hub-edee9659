@@ -347,6 +347,37 @@ const HeroSection = () => {
           }} className="text-sm sm:text-base md:text-lg text-muted-foreground mt-4 sm:mt-6 text-center max-w-xs sm:max-w-md mx-auto px-2">
               {isRTL ? 'مع د. محمود الريقي وفريق طبي متخصص - تقييم طبي ، تدريب رياضي، ومتابعة شخصية.' : 'With Dr. Mahmoud Al-Reaky and specialized medical team - therapeutic nutrition, sports training, and personal follow-up.'}
             </motion.p>
+
+            {/* Stats - Mobile/Tablet Only (below image) */}
+            <motion.div initial={{
+            opacity: 0
+          }} animate={{
+            opacity: 1
+          }} transition={{
+            delay: 0.7
+          }} className="mt-6 sm:mt-8 grid grid-cols-3 gap-2 sm:gap-3 lg:hidden">
+              {[{
+              value: '+10',
+              label: isRTL ? 'سنوات' : 'Years',
+              icon: Clock
+            }, {
+              value: '98%',
+              label: isRTL ? 'نجاح' : 'Success',
+              icon: Award
+            }, {
+              value: '16K',
+              label: isRTL ? 'مستفيد' : 'Members',
+              icon: Users
+            }].map((stat, index) => <div key={index} className="flex flex-col items-center gap-1 p-2 sm:p-3 rounded-lg sm:rounded-xl bg-card/50 border border-border/50">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
+                    <stat.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-secondary" />
+                  </div>
+                  <div className="text-center">
+                    <div className="font-bold text-base sm:text-lg text-foreground">{stat.value}</div>
+                    <div className="text-xs text-muted-foreground">{stat.label}</div>
+                  </div>
+                </div>)}
+            </motion.div>
           </motion.div>
 
           {/* Content - Right on desktop */}
@@ -393,14 +424,14 @@ const HeroSection = () => {
 
 
 
-            {/* Stats */}
+            {/* Stats - Desktop Only */}
             <motion.div initial={{
             opacity: 0
           }} animate={{
             opacity: 1
           }} transition={{
             delay: 0.7
-          }} className="mt-6 sm:mt-8 md:mt-12 grid grid-cols-3 gap-2 sm:gap-3 md:gap-6">
+          }} className="mt-6 sm:mt-8 md:mt-12 hidden lg:grid grid-cols-3 gap-2 sm:gap-3 md:gap-6">
               {[{
               value: '16K',
               label: isRTL ? 'مستفيد' : 'Members',
