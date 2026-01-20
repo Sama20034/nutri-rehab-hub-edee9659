@@ -1128,8 +1128,8 @@ const MissionSection = () => {
             }} transition={{
               delay: index * 0.1
             }} className="flex items-start gap-3 p-4 bg-card rounded-xl border border-border">
-                  <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
-                    <feature.icon className="h-5 w-5 text-primary" />
+                  <div className="w-10 h-10 rounded-lg bg-secondary/20 flex items-center justify-center flex-shrink-0">
+                    <feature.icon className="h-5 w-5 text-secondary" />
                   </div>
                   <div>
                     <h4 className="font-semibold">{feature.title}</h4>
