@@ -104,7 +104,7 @@ const About = () => {
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed">
-              د. محمود ريجي وفريق <span className="text-primary font-bold">Alligator Fit Team</span>
+              د. محمود ريقي وفريق <span className="text-primary font-bold">Alligator Fit Team</span>
             </p>
             
             <p className="text-lg text-muted-foreground mt-6 max-w-3xl mx-auto leading-relaxed">
