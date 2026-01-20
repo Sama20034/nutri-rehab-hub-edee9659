@@ -335,38 +335,7 @@ const HeroSection = () => {
         }} className="relative order-2 lg:order-1">
             <HeroTransformationCard />
 
-            {/* Stats - Below transformation card */}
-            <motion.div initial={{
-            opacity: 0
-          }} animate={{
-            opacity: 1
-          }} transition={{
-            delay: 0.7
-          }} className="mt-6 sm:mt-8 grid grid-cols-3 gap-2 sm:gap-3 md:gap-6 max-w-md mx-auto">
-              {[{
-              value: '16K',
-              label: isRTL ? 'مستفيد' : 'Members',
-              icon: Users
-            }, {
-              value: '98%',
-              label: isRTL ? 'نجاح' : 'Success',
-              icon: Award
-            }, {
-              value: '+10',
-              label: isRTL ? 'سنوات' : 'Years',
-              icon: Clock
-            }].map((stat, index) => <div key={index} className="flex flex-col items-center gap-1 p-2 sm:p-3 rounded-lg sm:rounded-xl bg-card/50 border border-border/50">
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
-                    <stat.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-secondary" />
-                  </div>
-                  <div className="text-center">
-                    <div className="text-base sm:text-lg md:text-xl font-bold text-foreground">{stat.value}</div>
-                    <div className="text-[10px] sm:text-xs text-muted-foreground">{stat.label}</div>
-                  </div>
-                </div>)}
-            </motion.div>
-
-            {/* Description - Below stats */}
+            {/* Description - Below image */}
             <motion.p initial={{
             opacity: 0,
             y: 20
@@ -421,6 +390,39 @@ const HeroSection = () => {
               <br />
               
             </motion.h1>
+
+
+
+            {/* Stats */}
+            <motion.div initial={{
+            opacity: 0
+          }} animate={{
+            opacity: 1
+          }} transition={{
+            delay: 0.7
+          }} className="mt-6 sm:mt-8 md:mt-12 grid grid-cols-3 gap-2 sm:gap-3 md:gap-6">
+              {[{
+              value: '16K',
+              label: isRTL ? 'مستفيد' : 'Members',
+              icon: Users
+            }, {
+              value: '98%',
+              label: isRTL ? 'نجاح' : 'Success',
+              icon: Award
+            }, {
+              value: '+10',
+              label: isRTL ? 'سنوات' : 'Years',
+              icon: Clock
+            }].map((stat, index) => <div key={index} className="flex flex-col items-center gap-1 p-2 sm:p-3 rounded-lg sm:rounded-xl bg-card/50 border border-border/50">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
+                    <stat.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-secondary" />
+                  </div>
+                  <div className="text-center">
+                    <div className="text-base sm:text-lg md:text-xl font-bold text-foreground">{stat.value}</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground">{stat.label}</div>
+                  </div>
+                </div>)}
+            </motion.div>
           </motion.div>
         </div>
       </div>
