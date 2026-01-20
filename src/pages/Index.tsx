@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, MessageCircle, Phone, Star, Check, ChevronLeft, ChevronRight, ShoppingBag, Target, Users, Award, Zap, Clock, Shield, Instagram, Facebook, Twitter, Youtube, Dumbbell, Heart } from 'lucide-react';
+import { ArrowRight, MessageCircle, Phone, Star, Check, ChevronLeft, ChevronRight, ShoppingBag, Target, Users, Award, Zap, Clock, Shield, Instagram, Facebook, Twitter, Youtube, Dumbbell, Heart, Crown, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -1248,8 +1248,19 @@ const SubscriptionPlans = () => {
     setMedicalToggles(newToggles);
   };
 
+  // Plan icons mapping
+  const planIcons = [Zap, Award, Crown, Star];
+  
+  // Plan durations
+  const planDurations = [
+    isRTL ? '6 أسابيع' : '6 weeks',
+    isRTL ? '90 يوم + شهر هدية' : '90 days + free month',
+    isRTL ? '6 شهور' : '6 months',
+    isRTL ? '12 شهر' : '12 months'
+  ];
+
   return (
-    <section className="py-12 sm:py-16 md:py-20 bg-background">
+    <section className="py-12 sm:py-16 md:py-20 bg-[#0a1a0f]">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -1260,10 +1271,10 @@ const SubscriptionPlans = () => {
           <Badge className="mb-3 sm:mb-4 bg-primary/20 text-primary border-primary/30 text-xs sm:text-sm">
             {isRTL ? '💎 باقاتنا' : '💎 Our Plans'}
           </Badge>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-white">
             {isRTL ? 'اختر الباقة المناسبة لك' : 'Choose Your Perfect Plan'}
           </h2>
-          <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
+          <p className="text-sm sm:text-base text-gray-400 max-w-2xl mx-auto px-2">
             {isRTL ? 'باقات مرنة تناسب جميع الاحتياجات والميزانيات' : 'Flexible plans that suit all needs and budgets'}
           </p>
         </motion.div>
@@ -1272,6 +1283,7 @@ const SubscriptionPlans = () => {
           {plans.map((plan, index) => {
             const isMedical = medicalToggles[index];
             const currentPrice = isMedical ? plan.medicalPrice : plan.regularPrice;
+            const IconComponent = planIcons[index];
             
             return (
               <motion.div
@@ -1282,70 +1294,88 @@ const SubscriptionPlans = () => {
                 transition={{ delay: index * 0.1 }}
                 className="relative"
               >
-                <Card className={`relative h-full border-2 bg-card/50 backdrop-blur-sm ${
-                  plan.popular ? 'border-primary shadow-lg shadow-primary/20' : 'border-border'
+                {/* Badge for popular/best value */}
+                {plan.popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                    <Badge className="bg-primary text-primary-foreground px-4 py-1 whitespace-nowrap flex items-center gap-1">
+                      <Sparkles className="h-3 w-3" />
+                      {isRTL ? 'الأكثر طلباً' : 'Most Popular'}
+                    </Badge>
+                  </div>
+                )}
+                {plan.bestValue && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                    <Badge className="bg-secondary text-secondary-foreground px-4 py-1 whitespace-nowrap flex items-center gap-1">
+                      <Sparkles className="h-3 w-3" />
+                      {isRTL ? 'أفضل قيمة' : 'Best Value'}
+                    </Badge>
+                  </div>
+                )}
+
+                <div className={`relative h-full rounded-2xl border-2 bg-[#111b14] overflow-hidden ${
+                  plan.popular ? 'border-primary shadow-lg shadow-primary/20' : 'border-[#1a2e1f]'
                 }`}>
-                  {plan.popular && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                      <Badge className="bg-primary text-primary-foreground px-4 whitespace-nowrap">
-                        {isRTL ? 'الأكثر طلباً' : 'Most Popular'}
-                      </Badge>
-                    </div>
-                  )}
-                  {plan.bestValue && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                      <Badge className="bg-amber-500 text-white px-4 whitespace-nowrap">
-                        {isRTL ? 'أفضل قيمة' : 'Best Value'}
-                      </Badge>
-                    </div>
-                  )}
-                  
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="text-center mb-4 sm:mb-6">
-                      <h3 className="text-lg sm:text-xl font-bold mb-3">{plan.name}</h3>
-                      
-                      {/* Medical Toggle */}
-                      <div className={`flex items-center justify-center gap-2 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                        <span className={`text-xs ${!isMedical ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
-                          {isRTL ? 'عادي' : 'Regular'}
-                        </span>
-                        <Switch
-                          checked={isMedical}
-                          onCheckedChange={() => toggleMedical(index)}
-                          className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground [&>span]:rtl:data-[state=checked]:translate-x-5"
-                        />
-                        <span className={`text-xs ${isMedical ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
-                          {isRTL ? 'طبي' : 'Medical'}
-                        </span>
-                      </div>
-                      
-                      <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-3xl sm:text-4xl font-bold text-primary">{currentPrice}</span>
-                        <span className="text-muted-foreground text-sm">
-                          {isRTL ? 'ج.م' : 'EGP'}
-                        </span>
-                      </div>
+                  <div className="p-5 sm:p-6">
+                    {/* Icon */}
+                    <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-5 ${
+                      plan.popular ? 'bg-primary/20' : 'bg-[#1a2e1f]'
+                    }`}>
+                      <IconComponent className={`h-7 w-7 ${plan.popular ? 'text-primary' : 'text-primary'}`} />
                     </div>
 
-                    <ul className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
+                    {/* Title & Duration */}
+                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">{plan.name}</h3>
+                    <p className="text-gray-400 text-sm mb-5">{planDurations[index]}</p>
+                    
+                    {/* Medical Toggle */}
+                    <div className={`flex items-center gap-3 mb-5 bg-[#1a2e1f] rounded-full px-4 py-2 w-fit ${isRTL ? 'flex-row-reverse' : ''}`}>
+                      <span className={`text-xs ${isMedical ? 'text-gray-400' : 'text-primary font-medium'}`}>
+                        {isRTL ? 'عادي' : 'Regular'}
+                      </span>
+                      <Switch
+                        checked={isMedical}
+                        onCheckedChange={() => toggleMedical(index)}
+                        className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-600 [&>span]:rtl:data-[state=checked]:translate-x-5"
+                      />
+                      <span className={`text-xs ${isMedical ? 'text-primary font-medium' : 'text-gray-400'}`}>
+                        {isRTL ? 'متابعة طبية' : 'Medical'}
+                      </span>
+                    </div>
+                    
+                    {/* Price */}
+                    <div className={`flex items-baseline gap-2 mb-6 ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
+                      <span className="text-4xl sm:text-5xl font-bold text-white">{currentPrice.toLocaleString()}</span>
+                      <span className="text-gray-400 text-lg">
+                        {isRTL ? 'ج.م' : 'EGP'}
+                      </span>
+                    </div>
+
+                    {/* Features */}
+                    <ul className="space-y-3 mb-6">
                       {plan.features.map((feature, i) => (
-                        <li key={i} className="flex items-center gap-2">
-                          <Check className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
-                          <span className="text-xs sm:text-sm">{feature}</span>
+                        <li key={i} className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse text-right' : ''}`}>
+                          <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                            <Check className="h-3 w-3 text-primary" />
+                          </div>
+                          <span className="text-sm text-gray-300">{feature}</span>
                         </li>
                       ))}
                     </ul>
 
+                    {/* CTA Button */}
                     <Link to="/register">
                       <Button 
-                        className={`w-full text-sm ${plan.popular ? 'bg-primary hover:bg-primary/90' : ''}`} 
-                        variant={plan.popular ? 'default' : 'outline'}
+                        className={`w-full py-6 text-base font-semibold rounded-xl ${
+                          plan.popular 
+                            ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
+                            : 'bg-transparent border-2 border-primary text-primary hover:bg-primary/10'
+                        }`}
                       >
                         {isRTL ? 'اشترك الآن' : 'Subscribe Now'}
                       </Button>
                     </Link>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </motion.div>
             );
           })}
