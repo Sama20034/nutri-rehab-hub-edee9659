@@ -1103,6 +1103,19 @@ const MissionSection = () => {
               {isRTL ? 'نؤمن بأن كل شخص يستحق جسماً صحياً وفورمة مثالية. هدفنا هو تقديم برامج مخصصة تناسب احتياجاتك مع متابعة مستمرة لضمان تحقيق أهدافك.' : 'We believe everyone deserves a healthy body and ideal physique. Our goal is to provide customized programs that suit your needs with continuous follow-up to ensure you achieve your goals.'}
             </p>
 
+            {/* Doctor Image - Mobile/Tablet Only */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="lg:hidden mb-6"
+            >
+              <div className="relative rounded-2xl overflow-hidden">
+                <img src={drMahmoud2} alt="Dr. Mahmoud Al-Reaky" className="w-full h-[350px] sm:h-[400px] object-cover object-top" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+              </div>
+            </motion.div>
+
             <div className="grid sm:grid-cols-2 gap-4">
               {features.map((feature, index) => <motion.div key={index} initial={{
               opacity: 0,
@@ -1126,6 +1139,7 @@ const MissionSection = () => {
             </div>
           </motion.div>
 
+          {/* Desktop Only - Doctor Image */}
           <motion.div initial={{
           opacity: 0,
           x: 50
@@ -1134,7 +1148,7 @@ const MissionSection = () => {
           x: 0
         }} viewport={{
           once: true
-        }} className="relative">
+        }} className="relative hidden lg:block">
             <div className="relative rounded-2xl overflow-hidden">
               <img src={drMahmoud2} alt="Dr. Mahmoud Regy - Alligator Fit" className="w-full h-[500px] object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
