@@ -55,25 +55,37 @@ const getImageSrc = (url: string | null) => {
 const HeroTransformationCard = () => {
   const { isRTL } = useLanguage();
   const [isFlipped, setIsFlipped] = useState(false);
-  const [transformation, setTransformation] = useState<any>(null);
+  const [transformations, setTransformations] = useState<any[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    const fetchTransformation = async () => {
+    const fetchTransformations = async () => {
       const { data } = await supabase
         .from('transformations')
         .select('*')
         .eq('is_active', true)
-        .order('display_order', { ascending: true })
-        .limit(1);
+        .order('display_order', { ascending: true });
       
       if (data && data.length > 0) {
-        setTransformation(data[0]);
+        setTransformations(data);
       }
     };
-    fetchTransformation();
+    fetchTransformations();
   }, []);
 
-  if (!transformation) {
+  // Auto-rotate every 5 seconds
+  useEffect(() => {
+    if (transformations.length === 0) return;
+    const timer = setInterval(() => {
+      setIsFlipped(false); // Reset flip when changing
+      setTimeout(() => {
+        setCurrentIndex(prev => (prev + 1) % transformations.length);
+      }, 300);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [transformations.length]);
+
+  if (transformations.length === 0) {
     return (
       <div className="relative max-w-[280px] sm:max-w-sm md:max-w-md lg:max-w-lg mx-auto">
         <div className="aspect-[3/4] rounded-2xl bg-card/50 border border-border animate-pulse" />
@@ -81,6 +93,7 @@ const HeroTransformationCard = () => {
     );
   }
 
+  const transformation = transformations[currentIndex];
   const beforeImage = getImageSrc(transformation.before_image_url);
   const afterImage = getImageSrc(transformation.after_image_url);
   const isCombined = transformation.is_combined_image;
@@ -190,6 +203,24 @@ const HeroTransformationCard = () => {
         </div>
       </motion.div>
 
+      {/* Dots Indicator */}
+      <div className="flex justify-center gap-2 mt-4 relative z-20">
+        {transformations.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => {
+              setIsFlipped(false);
+              setCurrentIndex(index);
+            }}
+            className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full transition-all duration-300 ${
+              index === currentIndex 
+                ? 'bg-primary w-6 sm:w-8' 
+                : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+            }`}
+          />
+        ))}
+      </div>
+
       {/* Floating Elements */}
       <motion.div
         initial={{ opacity: 0, scale: 0 }}
@@ -207,7 +238,7 @@ const HeroTransformationCard = () => {
         initial={{ opacity: 0, scale: 0 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 1 }}
-        className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-card/90 backdrop-blur-sm p-2 sm:p-3 rounded-lg sm:rounded-xl border border-border shadow-xl z-20"
+        className="absolute bottom-16 left-3 sm:bottom-20 sm:left-4 bg-card/90 backdrop-blur-sm p-2 sm:p-3 rounded-lg sm:rounded-xl border border-border shadow-xl z-20"
       >
         <div className="flex items-center gap-1 sm:gap-2">
           <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
