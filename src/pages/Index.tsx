@@ -1671,7 +1671,6 @@ const Index = () => {
   return <Layout>
       <HeroSection />
       <CountdownTimer />
-      <BeforeAfterFlipCards />
       <TransformationsCarousel />
       <MissionSection />
       <SubscriptionPlans />
