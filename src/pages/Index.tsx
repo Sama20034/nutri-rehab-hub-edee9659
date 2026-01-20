@@ -226,33 +226,6 @@ const HeroSection = () => {
             </motion.h1>
 
 
-            {/* CTA Buttons */}
-            <motion.div initial={{
-            opacity: 0,
-            y: 30
-          }} animate={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            delay: 0.5
-          }} className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 sm:justify-start">
-              
-              {/* WhatsApp Button */}
-              <a href="https://wa.me/201016111733" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto order-1">
-                <Button size="lg" className="w-full sm:w-auto gap-2 text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 bg-[#25D366] hover:bg-[#20BD5A] shadow-lg shadow-[#25D366]/30 font-bold">
-                  <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
-                  {isRTL ? 'ادفع عن طريق الواتساب' : 'Pay via WhatsApp'}
-                </Button>
-              </a>
-
-              {/* Subscribe Button */}
-              <Link to="/payment" className="w-full sm:w-auto order-2">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2 text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 border-2 border-primary/50 font-bold">
-                  {isRTL ? 'اشترك الان عبر الدفع الالكتروني' : 'Subscribe via Electronic Payment'}
-                  <ArrowRight className={`h-4 w-4 sm:h-5 sm:w-5 ${isRTL ? 'rotate-180' : ''}`} />
-                </Button>
-              </Link>
-            </motion.div>
 
             {/* Stats */}
             <motion.div initial={{
