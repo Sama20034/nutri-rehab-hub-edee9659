@@ -400,7 +400,154 @@ const CountdownTimer = () => {
     </section>;
 };
 
-// Transformations Carousel Component
+// Before/After Flip Cards Section Component
+const BeforeAfterFlipCards = () => {
+  const { isRTL } = useLanguage();
+  const [transformations, setTransformations] = useState<any[]>([]);
+  const [flippedCards, setFlippedCards] = useState<Record<number, boolean>>({});
+
+  useEffect(() => {
+    const fetchTransformations = async () => {
+      const { data } = await supabase
+        .from('transformations')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+      
+      if (data && data.length > 0) {
+        setTransformations(data);
+      }
+    };
+    fetchTransformations();
+  }, []);
+
+  const toggleFlip = (index: number) => {
+    setFlippedCards(prev => ({ ...prev, [index]: !prev[index] }));
+  };
+
+  if (transformations.length === 0) return null;
+
+  return (
+    <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-background to-muted/20">
+      <div className="container mx-auto px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-8 sm:mb-12"
+        >
+          <Badge className="mb-3 sm:mb-4 bg-secondary/20 text-secondary border-secondary/30 text-xs sm:text-sm">
+            {isRTL ? '🔥 تحولات مذهلة' : '🔥 Amazing Transformations'}
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
+            {isRTL ? 'شاهد الفرق بنفسك' : 'See The Difference Yourself'}
+          </h2>
+          <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
+            {isRTL ? 'اضغط على الصورة لمشاهدة النتيجة' : 'Click on the image to see the result'}
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {transformations.slice(0, 8).map((item, index) => {
+            const beforeImage = getImageSrc(item.before_image_url);
+            const afterImage = getImageSrc(item.after_image_url);
+            const isFlipped = flippedCards[index];
+            const isCombined = item.is_combined_image;
+
+            return (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="perspective-1000"
+              >
+                <div
+                  onClick={() => !isCombined && toggleFlip(index)}
+                  className={`relative aspect-[3/4] cursor-pointer transition-transform duration-700 ${
+                    isFlipped ? '[transform:rotateY(180deg)]' : ''
+                  }`}
+                  style={{ transformStyle: 'preserve-3d' }}
+                >
+                  {/* Front - Before */}
+                  <div
+                    className="absolute inset-0 rounded-xl overflow-hidden border-2 border-border shadow-lg"
+                    style={{ backfaceVisibility: 'hidden' }}
+                  >
+                    <img
+                      src={beforeImage}
+                      alt="Before"
+                      className="w-full h-full object-cover object-top"
+                    />
+                    {item.use_emoji_mask && (
+                      <img
+                        src={emojiMask}
+                        alt=""
+                        className="absolute top-4 left-1/2 -translate-x-1/2 w-16 h-16 object-contain"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+                      {isCombined ? (
+                        <Badge className="bg-primary/80 text-primary-foreground text-xs">
+                          {isRTL ? 'قبل وبعد' : 'Before & After'}
+                        </Badge>
+                      ) : (
+                        <>
+                          <Badge className="bg-destructive/80 text-destructive-foreground text-xs mb-2">
+                            {isRTL ? 'قبل' : 'Before'}
+                          </Badge>
+                          <p className="text-primary-foreground text-xs sm:text-sm font-medium">
+                            {isRTL ? 'اضغط للنتيجة ←' : 'Click for result →'}
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Back - After */}
+                  {!isCombined && afterImage && (
+                    <div
+                      className="absolute inset-0 rounded-xl overflow-hidden border-2 border-primary shadow-lg [transform:rotateY(180deg)]"
+                      style={{ backfaceVisibility: 'hidden' }}
+                    >
+                      <img
+                        src={afterImage}
+                        alt="After"
+                        className="w-full h-full object-cover object-top"
+                      />
+                      {item.use_emoji_mask && (
+                        <img
+                          src={emojiMask}
+                          alt=""
+                          className="absolute top-4 left-1/2 -translate-x-1/2 w-16 h-16 object-contain"
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+                        <Badge className="bg-primary text-primary-foreground text-xs mb-2">
+                          {isRTL ? 'بعد' : 'After'}
+                        </Badge>
+                        {item.weight_before && item.weight_after && (
+                          <p className="text-primary-foreground text-xs sm:text-sm font-bold">
+                            -{item.weight_before - item.weight_after} kg 🎉
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// Transformations Carousel Component (Success Stories)
 const TransformationsCarousel = () => {
   const { isRTL } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -1152,6 +1299,7 @@ const Index = () => {
   return <Layout>
       <HeroSection />
       <CountdownTimer />
+      <BeforeAfterFlipCards />
       <TransformationsCarousel />
       <MissionSection />
       <SubscriptionPlans />
