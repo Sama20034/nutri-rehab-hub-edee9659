@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Shield, Play, Sparkles, Crown, Zap, Award, Star } from "lucide-react";
+import { Check, Shield, Sparkles, Crown, Zap, Award, Star, MessageCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Layout from "@/components/layout/Layout";
 
@@ -16,11 +16,10 @@ interface Package {
   regularPrice: number;
   medicalPrice: number;
   popular?: boolean;
+  bestValue?: boolean;
   icon: React.ReactNode;
   features: string[];
   featuresEn: string[];
-  badge?: string;
-  badgeEn?: string;
 }
 
 const packages: Package[] = [
@@ -58,8 +57,6 @@ const packages: Package[] = [
     medicalPrice: 1999,
     popular: true,
     icon: <Award className="w-6 h-6" />,
-    badge: "الأكثر طلباً",
-    badgeEn: "Most Popular",
     features: [
       "برنامج تدريبي مخصص",
       "نظام غذائي متكامل",
@@ -109,9 +106,8 @@ const packages: Package[] = [
     durationEn: "12 months",
     regularPrice: 5999,
     medicalPrice: 8000,
+    bestValue: true,
     icon: <Star className="w-6 h-6" />,
-    badge: "أفضل قيمة",
-    badgeEn: "Best Value",
     features: [
       "كل مميزات 6 شهور",
       "تحول شامل مضمون",
@@ -149,122 +145,140 @@ const PackageCard = ({ pkg, index }: { pkg: Package; index: number }) => {
       className={`relative group h-full ${pkg.popular ? "z-10" : ""}`}
     >
       {/* Popular badge */}
-      {pkg.badge && (
+      {pkg.popular && (
         <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
           <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-4 py-1.5 rounded-full text-sm font-bold shadow-lg flex items-center gap-2">
             <Sparkles className="w-4 h-4" />
-            {isRTL ? pkg.badge : pkg.badgeEn}
+            {isRTL ? "الأكثر طلباً" : "Most Popular"}
+          </div>
+        </div>
+      )}
+
+      {/* Best Value badge */}
+      {pkg.bestValue && (
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
+          <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-lg flex items-center gap-2">
+            <Sparkles className="w-4 h-4" />
+            {isRTL ? "أفضل قيمة" : "Best Value"}
           </div>
         </div>
       )}
 
       <div
-        className={`relative h-full rounded-2xl p-6 transition-all duration-500 ${
+        className={`relative h-full rounded-2xl overflow-hidden transition-all duration-500 ${
           pkg.popular
-            ? "bg-gradient-to-br from-primary/10 via-card to-primary/5 border-2 border-primary shadow-xl shadow-primary/10 scale-105"
-            : "bg-card border border-border hover:border-primary/50 hover:shadow-lg"
+            ? "bg-gradient-to-b from-primary/20 via-primary/10 to-card border-2 border-primary shadow-2xl shadow-primary/20 scale-[1.02] lg:scale-105"
+            : "bg-card border border-border hover:border-primary/50 hover:shadow-xl"
         }`}
       >
-        {/* Header */}
-        <div className="text-center mb-6">
-          <div
-            className={`w-14 h-14 mx-auto mb-4 rounded-xl flex items-center justify-center ${
-              pkg.popular
-                ? "bg-primary text-primary-foreground"
-                : "bg-primary/10 text-primary"
-            }`}
-          >
-            {pkg.icon}
+        {/* Card Content */}
+        <div className="p-6 lg:p-8">
+          {/* Header */}
+          <div className="text-center mb-6">
+            <div
+              className={`w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                pkg.popular
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+                  : "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground"
+              }`}
+            >
+              {pkg.icon}
+            </div>
+            <h3 className="text-xl lg:text-2xl font-bold text-foreground mb-2">
+              {isRTL ? pkg.name : pkg.nameEn}
+            </h3>
+            <p className="text-muted-foreground text-sm">
+              {isRTL ? pkg.duration : pkg.durationEn}
+            </p>
           </div>
-          <h3 className="text-xl font-bold text-foreground mb-1">
-            {isRTL ? pkg.name : pkg.nameEn}
-          </h3>
-          <p className="text-muted-foreground text-sm">
-            {isRTL ? pkg.duration : pkg.durationEn}
-          </p>
-        </div>
 
-        {/* Toggle */}
-        <div className="flex items-center justify-center gap-3 mb-6 p-3 bg-muted/50 rounded-xl">
-          <span
-            className={`text-sm transition-colors ${
-              !isMedical ? "text-foreground font-semibold" : "text-muted-foreground"
+          {/* Toggle */}
+          <div className="flex items-center justify-center gap-3 mb-6 p-3 bg-muted/50 rounded-xl border border-border/50">
+            <span
+              className={`text-sm transition-colors ${
+                !isMedical ? "text-primary font-bold" : "text-muted-foreground"
+              }`}
+            >
+              {isRTL ? "عادي" : "Regular"}
+            </span>
+            <Switch
+              checked={isMedical}
+              onCheckedChange={setIsMedical}
+              className="data-[state=checked]:bg-primary"
+            />
+            <span
+              className={`text-sm transition-colors ${
+                isMedical ? "text-primary font-bold" : "text-muted-foreground"
+              }`}
+            >
+              {isRTL ? "متابعة طبية" : "Medical"}
+            </span>
+          </div>
+
+          {/* Price */}
+          <div className="text-center mb-6">
+            <motion.div
+              key={currentPrice}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="flex items-baseline justify-center gap-2"
+            >
+              <span className="text-4xl lg:text-5xl font-bold text-foreground">
+                {currentPrice.toLocaleString()}
+              </span>
+              <span className="text-lg text-muted-foreground">
+                {isRTL ? "ج.م" : "EGP"}
+              </span>
+            </motion.div>
+            {isMedical && (
+              <motion.p
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-xs text-primary mt-2 flex items-center justify-center gap-1"
+              >
+                <Shield className="w-3 h-3" />
+                {isRTL ? "يشمل متابعة طبية متخصصة" : "Includes specialized medical follow-up"}
+              </motion.p>
+            )}
+          </div>
+
+          {/* Divider */}
+          <div className="w-full h-px bg-border mb-6" />
+
+          {/* Features */}
+          <ul className="space-y-3 mb-8">
+            {features.map((feature, i) => (
+              <motion.li
+                key={i}
+                initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05 }}
+                className="flex items-center gap-3 text-sm"
+              >
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
+                  pkg.popular ? "bg-primary/20" : "bg-primary/10"
+                }`}>
+                  <Check className="w-3 h-3 text-primary" />
+                </div>
+                <span className="text-foreground/80">{feature}</span>
+              </motion.li>
+            ))}
+          </ul>
+
+          {/* CTA Button */}
+          <Button
+            onClick={() => navigate("/payment")}
+            className={`w-full py-6 text-lg font-bold transition-all duration-300 rounded-xl ${
+              pkg.popular
+                ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25"
+                : "bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
             }`}
           >
-            {isRTL ? "عادي" : "Regular"}
-          </span>
-          <Switch
-            checked={isMedical}
-            onCheckedChange={setIsMedical}
-            className="data-[state=checked]:bg-primary"
-          />
-          <span
-            className={`text-sm transition-colors ${
-              isMedical ? "text-foreground font-semibold" : "text-muted-foreground"
-            }`}
-          >
-            {isRTL ? "متابعة طبية" : "Medical"}
-          </span>
+            {isRTL ? "اشترك الآن" : "Subscribe Now"}
+          </Button>
         </div>
-
-        {/* Price */}
-        <div className="text-center mb-6">
-          <motion.div
-            key={currentPrice}
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="flex items-baseline justify-center gap-1"
-          >
-            <span className="text-4xl font-bold text-foreground">
-              {currentPrice.toLocaleString()}
-            </span>
-            <span className="text-lg text-muted-foreground">
-              {isRTL ? "ج.م" : "EGP"}
-            </span>
-          </motion.div>
-          {isMedical && (
-            <motion.p
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-xs text-primary mt-2 flex items-center justify-center gap-1"
-            >
-              <Shield className="w-3 h-3" />
-              {isRTL ? "يشمل متابعة طبية متخصصة" : "Includes specialized medical follow-up"}
-            </motion.p>
-          )}
-        </div>
-
-        {/* Features */}
-        <ul className="space-y-3 mb-6">
-          {features.map((feature, i) => (
-            <motion.li
-              key={i}
-              initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.05 }}
-              className="flex items-center gap-3 text-sm"
-            >
-              <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Check className="w-3 h-3 text-primary" />
-              </div>
-              <span className="text-muted-foreground">{feature}</span>
-            </motion.li>
-          ))}
-        </ul>
-
-        {/* CTA Button */}
-        <Button
-          onClick={() => navigate("/register")}
-          className={`w-full py-6 text-lg font-bold transition-all duration-300 ${
-            pkg.popular
-              ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25"
-              : "bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground"
-          }`}
-        >
-          {isRTL ? "اشترك الآن" : "Subscribe Now"}
-        </Button>
       </div>
     </motion.div>
   );
@@ -278,28 +292,46 @@ const Packages = () => {
     <Layout>
       <div className="min-h-screen bg-background" dir={isRTL ? "rtl" : "ltr"}>
         {/* Hero Section */}
-        <section className="relative py-20 overflow-hidden">
+        <section className="relative py-16 lg:py-24 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
+          
+          {/* Background decorations */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-20 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
+            <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+          </div>
+
           <div className="container mx-auto px-4 relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-center max-w-3xl mx-auto"
             >
-              <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-                {isRTL ? "اختر خطتك نحو التحول" : "Choose Your Transformation Plan"}
+              {/* Badge */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.1 }}
+                className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6"
+              >
+                <span className="text-lg">💎</span>
+                {isRTL ? "باقاتنا" : "Our Packages"}
+              </motion.div>
+
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+                {isRTL ? "اختر الباقة المناسبة لك" : "Choose the Right Package for You"}
               </h1>
               <p className="text-lg text-muted-foreground">
                 {isRTL
-                  ? "باقات مصممة لتناسب أهدافك مع ضمان النتائج"
-                  : "Plans designed to fit your goals with guaranteed results"}
+                  ? "باقات مرنة تناسب جميع الاحتياجات والميزانيات"
+                  : "Flexible packages to suit all needs and budgets"}
               </p>
             </motion.div>
           </div>
         </section>
 
         {/* Packages Grid */}
-        <section className="py-12 pb-20">
+        <section className="py-8 pb-20">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-4 items-stretch">
               {packages.map((pkg, index) => (
@@ -339,61 +371,6 @@ const Packages = () => {
           </div>
         </section>
 
-        {/* Video Explanation Section */}
-        <section className="py-20">
-          <div className="container mx-auto px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center max-w-3xl mx-auto mb-12"
-            >
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                {isRTL ? "شاهد كيف نعمل" : "See How We Work"}
-              </h2>
-              <p className="text-muted-foreground">
-                {isRTL
-                  ? "فيديو توضيحي عن طريقة عمل البرامج ونظام المتابعة"
-                  : "Explanatory video about how our programs and follow-up system work"}
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              className="max-w-4xl mx-auto"
-            >
-              <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-muted to-muted/50 aspect-video group cursor-pointer">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                
-                {/* Placeholder for video */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="w-20 h-20 rounded-full bg-primary flex items-center justify-center mb-4 mx-auto shadow-xl shadow-primary/30 group-hover:shadow-primary/50 transition-shadow"
-                    >
-                      <Play className="w-8 h-8 text-primary-foreground fill-primary-foreground ml-1" />
-                    </motion.div>
-                    <p className="text-white font-semibold">
-                      {isRTL ? "شاهد الفيديو التوضيحي" : "Watch Explainer Video"}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Background pattern */}
-                <div className="absolute inset-0 opacity-10">
-                  <div className="absolute top-10 left-10 w-20 h-20 border-2 border-primary rounded-full" />
-                  <div className="absolute bottom-20 right-20 w-32 h-32 border-2 border-primary rounded-full" />
-                  <div className="absolute top-1/2 left-1/4 w-16 h-16 border-2 border-primary rounded-full" />
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
         {/* Final CTA */}
         <section className="py-16 bg-gradient-to-br from-primary via-primary/90 to-primary/80">
           <div className="container mx-auto px-4">
@@ -412,21 +389,25 @@ const Packages = () => {
                   : "Contact us now and get a free consultation"}
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button
-                  size="lg"
-                  className="bg-white text-primary hover:bg-white/90 px-8 py-6 text-lg font-bold"
-                  onClick={() => window.open("https://wa.me/966500000000", "_blank")}
-                >
-                  {isRTL ? "تواصل عبر واتساب" : "Contact via WhatsApp"}
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-2 border-white text-white hover:bg-white/10 px-8 py-6 text-lg font-bold"
-                  onClick={() => (window.location.href = "/register")}
-                >
-                  {isRTL ? "اشترك الآن" : "Subscribe Now"}
-                </Button>
+                <a href="https://wa.me/201016111733" target="_blank" rel="noopener noreferrer">
+                  <Button
+                    size="lg"
+                    className="bg-white text-primary hover:bg-white/90 px-8 py-6 text-lg font-bold gap-2"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    {isRTL ? "ادفع عن طريق الواتساب" : "Pay via WhatsApp"}
+                  </Button>
+                </a>
+                <Link to="/payment">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-2 border-white text-white hover:bg-white/10 px-8 py-6 text-lg font-bold gap-2"
+                  >
+                    {isRTL ? "اشترك الان عبر الدفع الالكتروني" : "Subscribe via Electronic Payment"}
+                    <ArrowRight className={`w-5 h-5 ${isRTL ? "rotate-180" : ""}`} />
+                  </Button>
+                </Link>
               </div>
             </motion.div>
           </div>
