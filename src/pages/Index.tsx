@@ -50,6 +50,174 @@ const getImageSrc = (url: string | null) => {
   if (!url) return '';
   return assetMap[url] || url;
 };
+
+// Hero Transformation Card Component
+const HeroTransformationCard = () => {
+  const { isRTL } = useLanguage();
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [transformation, setTransformation] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchTransformation = async () => {
+      const { data } = await supabase
+        .from('transformations')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true })
+        .limit(1);
+      
+      if (data && data.length > 0) {
+        setTransformation(data[0]);
+      }
+    };
+    fetchTransformation();
+  }, []);
+
+  if (!transformation) {
+    return (
+      <div className="relative max-w-[280px] sm:max-w-sm md:max-w-md lg:max-w-lg mx-auto">
+        <div className="aspect-[3/4] rounded-2xl bg-card/50 border border-border animate-pulse" />
+      </div>
+    );
+  }
+
+  const beforeImage = getImageSrc(transformation.before_image_url);
+  const afterImage = getImageSrc(transformation.after_image_url);
+  const isCombined = transformation.is_combined_image;
+
+  return (
+    <div className="relative">
+      {/* Glow Effect */}
+      <div className="absolute inset-0 bg-gradient-to-t from-primary/30 via-transparent to-secondary/20 rounded-3xl blur-3xl" />
+      
+      <motion.div
+        animate={{ y: [0, -10, 0] }}
+        transition={{ duration: 6, repeat: Infinity }}
+        className="relative z-10 max-w-[280px] sm:max-w-sm md:max-w-md mx-auto perspective-1000"
+      >
+        <div
+          onClick={() => !isCombined && setIsFlipped(!isFlipped)}
+          className={`relative aspect-[3/4] cursor-pointer transition-transform duration-700 ${
+            isFlipped ? '[transform:rotateY(180deg)]' : ''
+          }`}
+          style={{ transformStyle: 'preserve-3d' }}
+        >
+          {/* Front - Before */}
+          <div
+            className="absolute inset-0 rounded-2xl overflow-hidden shadow-2xl border-4 border-primary/50"
+            style={{ backfaceVisibility: 'hidden' }}
+          >
+            <img
+              src={beforeImage}
+              alt="Before"
+              className="w-full h-full object-cover object-top"
+            />
+            
+            {/* Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+            
+            {/* Duration Badge - Top Left */}
+            {transformation.duration_text && (
+              <div className="absolute top-4 left-4 flex items-center gap-1 text-white/90 text-xs sm:text-sm">
+                <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span>{transformation.duration_text}</span>
+              </div>
+            )}
+
+            {/* Before Label - Top Right */}
+            <div className="absolute top-4 right-4 bg-card/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs sm:text-sm font-bold">
+              {isRTL ? 'قبل' : 'Before'}
+            </div>
+
+            {/* Click for Result Button */}
+            {!isCombined && (
+              <div className="absolute bottom-16 left-1/2 -translate-x-1/2">
+                <motion.div
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="bg-primary text-primary-foreground px-4 py-2 rounded-full text-xs sm:text-sm font-bold flex items-center gap-2"
+                >
+                  👆 {isRTL ? 'اضغط للنتيجة' : 'Click for result'}
+                </motion.div>
+              </div>
+            )}
+
+            {/* Client Info */}
+            <div className="absolute bottom-4 left-4 right-4">
+              <div className="text-white/70 text-xs">{isRTL ? 'خسارة الوزن' : 'Weight Loss'}</div>
+              <div className="text-white font-bold text-sm sm:text-base">{transformation.client_name}</div>
+            </div>
+          </div>
+
+          {/* Back - After */}
+          {!isCombined && (
+            <div
+              className="absolute inset-0 rounded-2xl overflow-hidden shadow-2xl border-4 border-secondary/50 [transform:rotateY(180deg)]"
+              style={{ backfaceVisibility: 'hidden' }}
+            >
+              <img
+                src={afterImage}
+                alt="After"
+                className="w-full h-full object-cover object-top"
+              />
+              
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+
+              {/* After Label */}
+              <div className="absolute top-4 right-4 bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-xs sm:text-sm font-bold">
+                {isRTL ? 'بعد' : 'After'}
+              </div>
+
+              {/* Weight Loss Badge */}
+              {transformation.weight_before && transformation.weight_after && (
+                <div className="absolute top-4 left-4 bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs sm:text-sm font-bold">
+                  -{transformation.weight_before - transformation.weight_after} kg
+                </div>
+              )}
+
+              {/* Client Info */}
+              <div className="absolute bottom-4 left-4 right-4 text-center">
+                <div className="text-white font-bold text-sm sm:text-base">{transformation.client_name}</div>
+                <div className="flex justify-center gap-1 mt-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-3 h-3 sm:w-4 sm:h-4 fill-secondary text-secondary" />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </motion.div>
+
+      {/* Floating Elements */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.8 }}
+        className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-card/90 backdrop-blur-sm p-2 sm:p-3 rounded-lg sm:rounded-xl border border-border shadow-xl z-20"
+      >
+        <div className="flex items-center gap-1 sm:gap-2">
+          <Dumbbell className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
+          <span className="font-bold text-xs sm:text-sm">{isRTL ? 'تدريب احترافي' : 'Pro Training'}</span>
+        </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 1 }}
+        className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-card/90 backdrop-blur-sm p-2 sm:p-3 rounded-lg sm:rounded-xl border border-border shadow-xl z-20"
+      >
+        <div className="flex items-center gap-1 sm:gap-2">
+          <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+          <span className="font-bold text-xs sm:text-sm">{isRTL ? 'صحة مضمونة' : 'Guaranteed Health'}</span>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
 // Hero Section Component
 const HeroSection = () => {
   const {
@@ -123,51 +291,7 @@ const HeroSection = () => {
           duration: 0.8,
           delay: 0.2
         }} className="relative order-2 lg:order-1">
-            <div className="relative">
-              {/* Glow Effect */}
-              <div className="absolute inset-0 bg-gradient-to-t from-primary/30 via-transparent to-secondary/20 rounded-3xl blur-3xl" />
-              
-              {/* Main Image */}
-              <motion.div animate={{
-              y: [0, -10, 0]
-            }} transition={{
-              duration: 6,
-              repeat: Infinity
-            }} className="relative z-10 max-w-[280px] sm:max-w-sm md:max-w-md lg:max-w-lg mx-auto">
-                <img src={drMahmoud1} alt="Dr. Mahmoud Regy - Alligator Fit" className="w-full rounded-xl sm:rounded-2xl md:rounded-3xl shadow-2xl shadow-primary/20" />
-                
-                {/* Floating Elements - Inside image container */}
-                <motion.div initial={{
-                opacity: 0,
-                scale: 0
-              }} animate={{
-                opacity: 1,
-                scale: 1
-              }} transition={{
-                delay: 0.8
-              }} className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-card/90 backdrop-blur-sm p-2 sm:p-3 rounded-lg sm:rounded-xl border border-border shadow-xl z-20">
-                  <div className="flex items-center gap-1 sm:gap-2">
-                    <Dumbbell className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
-                    <span className="font-bold text-xs sm:text-sm">{isRTL ? 'تدريب احترافي' : 'Pro Training'}</span>
-                  </div>
-                </motion.div>
-
-                <motion.div initial={{
-                opacity: 0,
-                scale: 0
-              }} animate={{
-                opacity: 1,
-                scale: 1
-              }} transition={{
-                delay: 1
-              }} className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-card/90 backdrop-blur-sm p-2 sm:p-3 rounded-lg sm:rounded-xl border border-border shadow-xl z-20">
-                  <div className="flex items-center gap-1 sm:gap-2">
-                    <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                    <span className="font-bold text-xs sm:text-sm">{isRTL ? 'صحة مضمونة' : 'Guaranteed Health'}</span>
-                  </div>
-                </motion.div>
-              </motion.div>
-            </div>
+            <HeroTransformationCard />
 
             {/* Description - Below image */}
             <motion.p initial={{
