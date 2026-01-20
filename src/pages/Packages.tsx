@@ -204,7 +204,7 @@ const PackageCard = ({ pkg, index }: { pkg: Package; index: number }) => {
             <Switch
               checked={isMedical}
               onCheckedChange={setIsMedical}
-              className="data-[state=checked]:bg-primary"
+              className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground"
             />
             <span
               className={`text-sm transition-colors ${
