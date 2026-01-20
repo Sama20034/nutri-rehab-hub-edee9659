@@ -9,46 +9,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import Layout from '@/components/layout/Layout';
 import { supabase } from '@/integrations/supabase/client';
 import drMahmoud1 from '@/assets/dr-mahmoud-1.png';
-import drMahmoud2 from '@/assets/dr-mahmoud-new.jpg';
+import drMahmoud2 from '@/assets/dr-mahmoud-2.png';
 import alligatorFitLogo from '@/assets/alligator-fit-logo.png';
 
-// Import transformation images
-import transformBefore1 from '@/assets/transformation-before.png';
-import transformAfter1 from '@/assets/transformation-after.png';
-import transformBefore2 from '@/assets/transformation2-before.png';
-import transformAfter2 from '@/assets/transformation2-after.png';
-import transformBefore3 from '@/assets/transformation3-before.png';
-import transformAfter3 from '@/assets/transformation3-after.png';
-import transformBefore4 from '@/assets/transformation4-before.png';
-import transformAfter4 from '@/assets/transformation4-after.png';
-import transformBefore5 from '@/assets/transformation5-before.png';
-import transformAfter5 from '@/assets/transformation5-after.png';
-import transformBefore6 from '@/assets/transformation6-before.png';
-import transformAfter6 from '@/assets/transformation6-after.png';
-import transformCombined7 from '@/assets/transformation7-combined.png';
-import emojiMask from '@/assets/emoji-mask.png';
-
-// Map for local assets
-const assetMap: Record<string, string> = {
-  '/assets/transformation-before.png': transformBefore1,
-  '/assets/transformation-after.png': transformAfter1,
-  '/assets/transformation2-before.png': transformBefore2,
-  '/assets/transformation2-after.png': transformAfter2,
-  '/assets/transformation3-before.png': transformBefore3,
-  '/assets/transformation3-after.png': transformAfter3,
-  '/assets/transformation4-before.png': transformBefore4,
-  '/assets/transformation4-after.png': transformAfter4,
-  '/assets/transformation5-before.png': transformBefore5,
-  '/assets/transformation5-after.png': transformAfter5,
-  '/assets/transformation6-before.png': transformBefore6,
-  '/assets/transformation6-after.png': transformAfter6,
-  '/assets/transformation7-combined.png': transformCombined7,
-};
-
-const getImageSrc = (url: string | null) => {
-  if (!url) return '';
-  return assetMap[url] || url;
-};
 // Hero Section Component
 const HeroSection = () => {
   const {
@@ -400,317 +363,86 @@ const CountdownTimer = () => {
     </section>;
 };
 
-// Before/After Flip Cards Section Component - Original Design
-const BeforeAfterFlipCards = () => {
-  const { isRTL } = useLanguage();
-  const [transformations, setTransformations] = useState<any[]>([]);
-  const [flippedCards, setFlippedCards] = useState<Record<number, boolean>>({});
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    const fetchTransformations = async () => {
-      const { data } = await supabase
-        .from('transformations')
-        .select('*')
-        .eq('is_active', true)
-        .order('display_order', { ascending: true });
-      
-      if (data && data.length > 0) {
-        setTransformations(data);
-      }
-    };
-    fetchTransformations();
-  }, []);
-
-  // Auto-slide every 5 seconds
-  useEffect(() => {
-    if (transformations.length === 0) return;
-    const timer = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % transformations.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [transformations.length]);
-
-  const toggleFlip = (index: number) => {
-    setFlippedCards(prev => ({ ...prev, [index]: !prev[index] }));
-  };
-
-  const getCategoryLabel = (category: string) => {
-    const categories: Record<string, { ar: string; en: string }> = {
-      'weight_loss': { ar: 'خسارة الوزن', en: 'Weight Loss' },
-      'muscle_building': { ar: 'بناء عضلات', en: 'Muscle Building' },
-      'body_transformation': { ar: 'تحول كامل', en: 'Body Transformation' },
-      'health_improvement': { ar: 'تحسين الصحة', en: 'Health Improvement' },
-    };
-    return categories[category] ? (isRTL ? categories[category].ar : categories[category].en) : category;
-  };
-
-  if (transformations.length === 0) return null;
-
-  // Get visible cards for carousel (show 3 at a time on desktop)
-  const getVisibleCards = () => {
-    const cards = [];
-    for (let i = 0; i < Math.min(3, transformations.length); i++) {
-      const index = (currentIndex + i) % transformations.length;
-      cards.push({ ...transformations[index], originalIndex: index });
-    }
-    return cards;
-  };
-
-  const visibleCards = getVisibleCards();
-
-  return (
-    <section className="py-12 sm:py-16 md:py-20 bg-background overflow-hidden">
-      <div className="container mx-auto px-4">
-        {/* Header Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-8 sm:mb-12"
-        >
-          <Badge className="px-6 py-2 text-base sm:text-lg bg-secondary text-secondary-foreground border-secondary font-bold">
-            ⭐ {isRTL ? 'تم التحول!' : 'Transformed!'}
-          </Badge>
-        </motion.div>
-
-        {/* Carousel Container */}
-        <div className="relative max-w-5xl mx-auto">
-          <div className="flex justify-center items-center gap-4 md:gap-6">
-            <AnimatePresence mode="popLayout">
-              {visibleCards.map((item, displayIndex) => {
-                const beforeImage = getImageSrc(item.before_image_url);
-                const afterImage = getImageSrc(item.after_image_url);
-                const isFlipped = flippedCards[item.originalIndex];
-                const isCombined = item.is_combined_image;
-                const isCenter = displayIndex === 0;
-
-                return (
-                  <motion.div
-                    key={item.id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.8, x: 100 }}
-                    animate={{ 
-                      opacity: isCenter ? 1 : 0.6, 
-                      scale: isCenter ? 1 : 0.85,
-                      x: 0,
-                      zIndex: isCenter ? 10 : 5 - displayIndex
-                    }}
-                    exit={{ opacity: 0, scale: 0.8, x: -100 }}
-                    transition={{ duration: 0.5 }}
-                    className={`perspective-1000 ${isCenter ? 'w-72 sm:w-80 md:w-96' : 'hidden md:block w-64 md:w-72'}`}
-                  >
-                    <div
-                      onClick={() => !isCombined && toggleFlip(item.originalIndex)}
-                      className={`relative aspect-[3/4] cursor-pointer transition-transform duration-700 ${
-                        isFlipped ? '[transform:rotateY(180deg)]' : ''
-                      }`}
-                      style={{ transformStyle: 'preserve-3d' }}
-                    >
-                      {/* Front - Before */}
-                      <div
-                        className={`absolute inset-0 rounded-2xl overflow-hidden shadow-2xl ${
-                          isCenter ? 'border-4 border-primary/50' : 'border-2 border-border'
-                        }`}
-                        style={{ backfaceVisibility: 'hidden' }}
-                      >
-                        <img
-                          src={beforeImage}
-                          alt="Before"
-                          className="w-full h-full object-cover object-top"
-                        />
-                        
-                        {/* Emoji Mask */}
-                        {item.use_emoji_mask && (
-                          <img
-                            src={emojiMask}
-                            alt=""
-                            className="absolute top-8 left-1/2 -translate-x-1/2 w-20 h-20 sm:w-24 sm:h-24 object-contain z-10"
-                          />
-                        )}
-                        
-                        {/* Gradient Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-                        
-                        {/* Duration Badge - Top Left */}
-                        {item.duration_text && (
-                          <div className="absolute top-4 left-4 flex items-center gap-1 text-white/90 text-xs sm:text-sm">
-                            <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-                            <span>{item.duration_text}</span>
-                          </div>
-                        )}
-                        
-                        {/* Before Badge - Top Right */}
-                        <Badge className="absolute top-4 right-4 bg-card/90 text-foreground text-xs px-3 py-1">
-                          {isRTL ? 'قبل' : 'Before'}
-                        </Badge>
-                        
-                        {/* Green CTA Button */}
-                        {!isCombined && (
-                          <motion.div 
-                            className="absolute right-4 bottom-24 sm:bottom-28"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            <Button 
-                              className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-4 py-2 rounded-full shadow-lg"
-                              size="sm"
-                            >
-                              {isRTL ? 'اضغط للنتيجة' : 'Click for result'} 👆
-                            </Button>
-                          </motion.div>
-                        )}
-                        
-                        {/* Bottom Info */}
-                        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
-                          {/* Category */}
-                          {item.category && (
-                            <p className="text-primary text-xs sm:text-sm font-medium mb-1">
-                              {getCategoryLabel(item.category)}
-                            </p>
-                          )}
-                          {/* Client Name */}
-                          <h3 className="text-white text-lg sm:text-xl font-bold">
-                            {item.client_name || item.title}
-                          </h3>
-                        </div>
-                      </div>
-
-                      {/* Back - After */}
-                      {!isCombined && afterImage && (
-                        <div
-                          className="absolute inset-0 rounded-2xl overflow-hidden border-4 border-primary shadow-2xl [transform:rotateY(180deg)]"
-                          style={{ backfaceVisibility: 'hidden' }}
-                        >
-                          <img
-                            src={afterImage}
-                            alt="After"
-                            className="w-full h-full object-cover object-top"
-                          />
-                          
-                          {/* Emoji Mask on After */}
-                          {item.use_emoji_mask && (
-                            <img
-                              src={emojiMask}
-                              alt=""
-                              className="absolute top-8 left-1/2 -translate-x-1/2 w-20 h-20 sm:w-24 sm:h-24 object-contain z-10"
-                            />
-                          )}
-                          
-                          {/* Gradient Overlay */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-                          
-                          {/* After Badge */}
-                          <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground text-xs px-3 py-1">
-                            {isRTL ? 'بعد' : 'After'}
-                          </Badge>
-                          
-                          {/* Result Stats */}
-                          <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
-                            {item.weight_before && item.weight_after && (
-                              <div className="flex items-center gap-2 mb-2">
-                                <Badge className="bg-primary/90 text-primary-foreground">
-                                  -{item.weight_before - item.weight_after} kg 🎉
-                                </Badge>
-                              </div>
-                            )}
-                            <h3 className="text-white text-lg sm:text-xl font-bold">
-                              {item.client_name || item.title}
-                            </h3>
-                            {item.duration_text && (
-                              <p className="text-primary text-sm mt-1">
-                                {isRTL ? `في ${item.duration_text}` : `In ${item.duration_text}`}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
-
-          {/* Carousel Dots */}
-          <div className="flex justify-center gap-2 mt-8">
-            {transformations.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  index === currentIndex 
-                    ? 'bg-primary w-8' 
-                    : 'bg-muted-foreground/30'
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-// Transformations Carousel Component (Success Stories)
+// Transformations Carousel Component
 const TransformationsCarousel = () => {
-  const { isRTL } = useLanguage();
+  const {
+    isRTL
+  } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [transformations, setTransformations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Fallback data in case database is empty
+  const fallbackData = [{
+    client_name: 'أحمد محمد',
+    weight_before: 95,
+    weight_after: 72,
+    duration_text: '3 أشهر',
+    before_image_url: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400',
+    rating: 5
+  }, {
+    client_name: 'سارة علي',
+    weight_before: 85,
+    weight_after: 62,
+    duration_text: '4 أشهر',
+    before_image_url: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400',
+    rating: 5
+  }, {
+    client_name: 'محمد خالد',
+    weight_before: 110,
+    weight_after: 82,
+    duration_text: '6 أشهر',
+    before_image_url: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400',
+    rating: 5
+  }, {
+    client_name: 'نور حسن',
+    weight_before: 78,
+    weight_after: 58,
+    duration_text: '3 أشهر',
+    before_image_url: 'https://images.unsplash.com/photo-1550345332-09e3ac987658?w=400',
+    rating: 5
+  }];
+
   // Fetch transformations from database
   useEffect(() => {
     const fetchTransformations = async () => {
-      const { data, error } = await supabase
-        .from('transformations')
-        .select('*')
-        .eq('is_active', true)
-        .order('display_order', { ascending: true });
-      
-      if (!error && data && data.length > 0) {
+      const {
+        data,
+        error
+      } = await supabase.from('transformations').select('*').eq('is_active', true).order('display_order', {
+        ascending: true
+      });
+      if (error || !data || data.length === 0) {
+        setTransformations(fallbackData);
+      } else {
         setTransformations(data);
       }
       setLoading(false);
     };
-    
     fetchTransformations();
   }, []);
-
-  const nextSlide = () => setCurrentIndex(prev => (prev + 1) % transformations.length);
-  const prevSlide = () => setCurrentIndex(prev => (prev - 1 + transformations.length) % transformations.length);
-  
+  const dataToShow = transformations.length > 0 ? transformations : fallbackData;
+  const nextSlide = () => setCurrentIndex(prev => (prev + 1) % dataToShow.length);
+  const prevSlide = () => setCurrentIndex(prev => (prev - 1 + dataToShow.length) % dataToShow.length);
   useEffect(() => {
-    if (transformations.length === 0) return;
+    if (dataToShow.length === 0) return;
     const timer = setInterval(nextSlide, 5000);
     return () => clearInterval(timer);
-  }, [transformations.length]);
-
-  if (loading) {
-    return (
-      <section className="py-12 sm:py-16 md:py-20 bg-background">
+  }, [dataToShow.length]);
+  if (loading || dataToShow.length === 0) {
+    return <section className="py-12 sm:py-16 md:py-20 bg-background">
         <div className="container mx-auto px-4 text-center">
           <div className="animate-pulse h-64 bg-muted rounded-lg"></div>
         </div>
-      </section>
-    );
+      </section>;
   }
-
-  if (transformations.length === 0) {
-    return null;
-  }
-
-  const current = transformations[currentIndex];
-  const weightBefore = current.weight_before || 0;
-  const weightAfter = current.weight_after || 0;
-  const clientName = current.client_name || '';
-  const duration = current.duration_text || '';
-  const beforeImage = getImageSrc(current.before_image_url);
-  const afterImage = getImageSrc(current.after_image_url);
+  const current = dataToShow[currentIndex];
+  const weightBefore = current.weight_before || current.before || 0;
+  const weightAfter = current.weight_after || current.after || 0;
+  const clientName = current.client_name || current.name || '';
+  const duration = current.duration_text || current.duration || '';
+  const image = current.before_image_url || current.image || '';
   const rating = current.rating || 5;
-  const isCombined = current.is_combined_image;
-  const useEmojiMask = current.use_emoji_mask;
-
   return <section className="py-12 sm:py-16 md:py-20 bg-background">
       <div className="container mx-auto px-4">
         <motion.div initial={{
@@ -747,69 +479,28 @@ const TransformationsCarousel = () => {
           }} transition={{
             duration: 0.5
           }} className="grid md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
-              
-              {/* Before/After Images Card */}
+              {/* Before/After Card */}
               <Card className="overflow-hidden border-border bg-card">
-                {isCombined ? (
-                  // Combined image (before & after in one)
-                  <div className="relative aspect-[4/3]">
-                    <img src={beforeImage} alt="Before & After" className="w-full h-full object-cover" />
-                    {useEmojiMask && (
-                      <img 
-                        src={emojiMask} 
-                        alt="" 
-                        className="absolute top-4 left-1/2 -translate-x-1/2 w-16 h-16 object-contain"
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent" />
-                    <div className="absolute bottom-4 left-4 right-4">
-                      <div className="flex justify-between items-end">
-                        <div>
-                          <Badge className="bg-red-500/20 text-red-400 mb-2">
-                            {isRTL ? 'قبل' : 'Before'}
-                          </Badge>
-                          <div className="text-2xl font-bold">{weightBefore} kg</div>
-                        </div>
-                        <div className="text-right">
-                          <Badge className="bg-green-500/20 text-green-400 mb-2">
-                            {isRTL ? 'بعد' : 'After'}
-                          </Badge>
-                          <div className="text-2xl font-bold">{weightAfter} kg</div>
-                        </div>
+                <div className="relative aspect-[4/3]">
+                  <img src={image} alt="Transformation" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <div className="flex justify-between items-end">
+                      <div>
+                        <Badge className="bg-red-500/20 text-red-400 mb-2">
+                          {isRTL ? 'قبل' : 'Before'}
+                        </Badge>
+                        <div className="text-3xl font-bold">{weightBefore} kg</div>
+                      </div>
+                      <div className="text-right">
+                        <Badge className="bg-green-500/20 text-green-400 mb-2">
+                          {isRTL ? 'بعد' : 'After'}
+                        </Badge>
+                        <div className="text-3xl font-bold">{weightAfter} kg</div>
                       </div>
                     </div>
                   </div>
-                ) : (
-                  // Separate before and after images
-                  <div className="relative aspect-[4/3] grid grid-cols-2 gap-1">
-                    <div className="relative">
-                      <img src={beforeImage} alt="Before" className="w-full h-full object-cover" />
-                      {useEmojiMask && (
-                        <img 
-                          src={emojiMask} 
-                          alt="" 
-                          className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-12 object-contain"
-                        />
-                      )}
-                      <Badge className="absolute bottom-2 left-2 bg-red-500/80 text-white">
-                        {isRTL ? 'قبل' : 'Before'}
-                      </Badge>
-                    </div>
-                    <div className="relative">
-                      <img src={afterImage} alt="After" className="w-full h-full object-cover" />
-                      {useEmojiMask && (
-                        <img 
-                          src={emojiMask} 
-                          alt="" 
-                          className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-12 object-contain"
-                        />
-                      )}
-                      <Badge className="absolute bottom-2 right-2 bg-green-500/80 text-white">
-                        {isRTL ? 'بعد' : 'After'}
-                      </Badge>
-                    </div>
-                  </div>
-                )}
+                </div>
               </Card>
 
               {/* Info Card */}
@@ -829,29 +520,19 @@ const TransformationsCarousel = () => {
 
                   <div className="space-y-4">
                     <div className="flex justify-between p-3 bg-muted/50 rounded-lg">
-                      <span className="text-muted-foreground">{isRTL ? 'الوزن قبل' : 'Weight Before'}</span>
-                      <span className="font-semibold text-red-400">{weightBefore} kg</span>
-                    </div>
-                    <div className="flex justify-between p-3 bg-muted/50 rounded-lg">
-                      <span className="text-muted-foreground">{isRTL ? 'الوزن بعد' : 'Weight After'}</span>
-                      <span className="font-semibold text-green-400">{weightAfter} kg</span>
-                    </div>
-                    <div className="flex justify-between p-3 bg-muted/50 rounded-lg">
                       <span className="text-muted-foreground">{isRTL ? 'المدة' : 'Duration'}</span>
                       <span className="font-semibold">{duration}</span>
                     </div>
-                    <div className="flex justify-between p-3 bg-primary/10 rounded-lg">
+                    <div className="flex justify-between p-3 bg-muted/50 rounded-lg">
                       <span className="text-muted-foreground">{isRTL ? 'الخسارة' : 'Lost'}</span>
-                      <span className="font-semibold text-primary">
-                        -{weightBefore - weightAfter} kg 🎉
+                      <span className="font-semibold text-green-500">
+                        -{weightBefore - weightAfter} kg
                       </span>
                     </div>
                   </div>
 
                   <div className="flex gap-2 mt-6">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`h-5 w-5 ${i < rating ? 'fill-yellow-500 text-yellow-500' : 'text-muted-foreground'}`} />
-                    ))}
+                    {[...Array(5)].map((_, i) => <Star key={i} className={`h-5 w-5 ${i < rating ? 'fill-yellow-500 text-yellow-500' : 'text-muted-foreground'}`} />)}
                   </div>
                 </CardContent>
               </Card>
@@ -868,7 +549,7 @@ const TransformationsCarousel = () => {
 
           {/* Dots */}
           <div className="flex justify-center gap-2 mt-8">
-            {transformations.map((_, index) => <button key={index} onClick={() => setCurrentIndex(index)} className={`w-3 h-3 rounded-full transition-all ${index === currentIndex ? 'bg-primary w-8' : 'bg-muted-foreground/30'}`} />)}
+            {dataToShow.map((_, index) => <button key={index} onClick={() => setCurrentIndex(index)} className={`w-3 h-3 rounded-full transition-all ${index === currentIndex ? 'bg-primary w-8' : 'bg-muted-foreground/30'}`} />)}
           </div>
         </div>
       </div>
@@ -1270,12 +951,7 @@ const FinalCTA = () => {
         duration: 6,
         repeat: Infinity
       }} />
-        <motion.div className="absolute bottom-1/4 right-1/4 w-32 sm:w-48 md:w-64 h-32 sm:h-48 md:h-64 bg-accent/20 rounded-full blur-[60px] sm:blur-[80px] md:blur-[100px]" animate={{
-        scale: [1.2, 1, 1.2]
-      }} transition={{
-        duration: 6,
-        repeat: Infinity
-      }} />
+        
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
@@ -1404,7 +1080,6 @@ const Index = () => {
   return <Layout>
       <HeroSection />
       <CountdownTimer />
-      <BeforeAfterFlipCards />
       <TransformationsCarousel />
       <MissionSection />
       <SubscriptionPlans />
