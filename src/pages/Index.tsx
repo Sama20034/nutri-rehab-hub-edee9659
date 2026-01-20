@@ -1430,17 +1430,17 @@ const FAQPreview = () => {
   } = useLanguage();
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const faqs = [{
-    q: isRTL ? 'ما هي مدة البرنامج؟' : 'What is the program duration?',
-    a: isRTL ? 'البرامج تبدأ من شهر واحد ويمكن تجديدها حسب احتياجاتك وأهدافك.' : 'Programs start from one month and can be renewed according to your needs and goals.'
+    q: isRTL ? 'إزاي الأونلاين أحسن من الكوتش اللي معايا في الجيم؟' : 'How is online coaching better than the gym coach?',
+    a: isRTL ? 'انت بتعتمد اعتماد كلي على الكوتش اللي معاك ودة خطأ في أوقات كتير، مش كل المعلومات متوفرة ولا الكوتش موجود كل مرة وفيه غيرك معاه. ميزة الأونلاين إنك بتاخد الأداء العالي والثابت كل تمرين والشرح والنظام الغذائي والمتابعة مع فريق كامل ومع د. محمود الريقي شخصياً. دة كله عاوز تقارنه بشخص واحد؟ مستحيل طبعاً!' : 'With online coaching, you get consistent high performance every session, video explanations, diet plans, and follow-up with a complete team plus Dr. Mahmoud personally. This is incomparable to a single gym coach who may not always be available.'
   }, {
-    q: isRTL ? 'هل يمكنني التواصل مع المدرب مباشرة؟' : 'Can I communicate with the coach directly?',
-    a: isRTL ? 'نعم، جميع الباقات تتضمن تواصل مباشر عبر الواتساب مع فريقنا المتخصص.' : 'Yes, all packages include direct communication via WhatsApp with our specialized team.'
+    q: isRTL ? 'إيه اللي بيفرقكم عن أي حد تاني؟' : 'What makes you different from others?',
+    a: isRTL ? 'اشتراك مدى الحياة على مدرسة الكورسات - قناة بينزل عليها أحدث المواضيع الرياضية والطبية والصحية عشان تفهم جسمك أحسن من أي حد. تخيل يكون عندك خلفية رياضية وطبية وغذائية كمان! مش هتحتاج حد تاني بعد ما تشترك معانا. كمان تقدر تلحق العرض وتشترك دلوقتي وتبدأ بعدين.' : 'Lifetime subscription to our courses platform with the latest sports, medical, and health content. You\'ll understand your body better than anyone else. You won\'t need anyone after subscribing with us!'
   }, {
-    q: isRTL ? 'هل النظام مناسب للمبتدئين؟' : 'Is the system suitable for beginners?',
-    a: isRTL ? 'بالتأكيد! نصمم برامج مخصصة تناسب جميع المستويات من المبتدئين إلى المحترفين.' : 'Absolutely! We design custom programs that suit all levels from beginners to professionals.'
+    q: isRTL ? 'إزاي ممكن أكون ضحية الاشتراكات؟' : 'How can I be a victim of subscriptions?',
+    a: isRTL ? 'صحتك أولوية وواجب عليك، والمدربين وبعض الأطباء بتستغل دة بكورسات واشتراكات بغض النظر عن القيمة. هدفي معاك المتابعة المباشرة من خلال النظام وإني أعلمك كل حاجة عن جسمك عشان بعد ما نوصل للهدف متحتاجش لأي حد تاني بإذن الله.' : 'Your health is a priority, but some trainers and doctors exploit this with subscriptions regardless of value. My goal is direct follow-up and teaching you everything about your body so you won\'t need anyone else after reaching your goal.'
   }, {
-    q: isRTL ? 'ماذا لو لم أحقق النتائج المرجوة؟' : 'What if I don\'t achieve the desired results?',
-    a: isRTL ? 'نضمن لك النتائج مع الالتزام بالبرنامج، وفي حال عدم تحقيقها نقدم فترة إضافية مجانية.' : 'We guarantee results with program commitment, and if not achieved, we offer a free additional period.'
+    q: isRTL ? 'إحنا بنقدم إيه عشان نحل كل المشاكل دي؟' : 'What do we offer to solve all these problems?',
+    a: isRTL ? 'بفضل الله ليا سنين بجمع فريق يشتغل لعدد كبير من الناس عشان نوفر قيمة مقابل سعر. الكورس المدى الحياة هيخليك في شهرين مثلاً تفهم كل حاجة عن جسمك. أما الأنظمة فبتاخد الكورس مجاناً + الخطة الغذائية والتدريبية والتقييم الصحي وأنا بنفسي بإذن الله بتابع معاك يومياً. من تمرينة واحدة لو مشوفتش فرق في جسمك هرجعلك المبلغ كامل!' : 'We\'ve built a team over years to provide value for money. The lifetime course helps you understand your body in 2 months. With our plans, you get free course access + diet, training, health assessment, and my personal daily follow-up. If you don\'t see a difference from the first workout, full refund guaranteed!'
   }];
   return <section className="py-12 sm:py-16 md:py-20 bg-background">
       <div className="container mx-auto px-4 max-w-3xl">
