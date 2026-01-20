@@ -400,11 +400,12 @@ const CountdownTimer = () => {
     </section>;
 };
 
-// Before/After Flip Cards Section Component
+// Before/After Flip Cards Section Component - Original Design
 const BeforeAfterFlipCards = () => {
   const { isRTL } = useLanguage();
   const [transformations, setTransformations] = useState<any[]>([]);
   const [flippedCards, setFlippedCards] = useState<Record<number, boolean>>({});
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     const fetchTransformations = async () => {
@@ -421,126 +422,230 @@ const BeforeAfterFlipCards = () => {
     fetchTransformations();
   }, []);
 
+  // Auto-slide every 5 seconds
+  useEffect(() => {
+    if (transformations.length === 0) return;
+    const timer = setInterval(() => {
+      setCurrentIndex(prev => (prev + 1) % transformations.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [transformations.length]);
+
   const toggleFlip = (index: number) => {
     setFlippedCards(prev => ({ ...prev, [index]: !prev[index] }));
   };
 
+  const getCategoryLabel = (category: string) => {
+    const categories: Record<string, { ar: string; en: string }> = {
+      'weight_loss': { ar: 'خسارة الوزن', en: 'Weight Loss' },
+      'muscle_building': { ar: 'بناء عضلات', en: 'Muscle Building' },
+      'body_transformation': { ar: 'تحول كامل', en: 'Body Transformation' },
+      'health_improvement': { ar: 'تحسين الصحة', en: 'Health Improvement' },
+    };
+    return categories[category] ? (isRTL ? categories[category].ar : categories[category].en) : category;
+  };
+
   if (transformations.length === 0) return null;
 
+  // Get visible cards for carousel (show 3 at a time on desktop)
+  const getVisibleCards = () => {
+    const cards = [];
+    for (let i = 0; i < Math.min(3, transformations.length); i++) {
+      const index = (currentIndex + i) % transformations.length;
+      cards.push({ ...transformations[index], originalIndex: index });
+    }
+    return cards;
+  };
+
+  const visibleCards = getVisibleCards();
+
   return (
-    <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-background to-muted/20">
+    <section className="py-12 sm:py-16 md:py-20 bg-background overflow-hidden">
       <div className="container mx-auto px-4">
+        {/* Header Badge */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="text-center mb-8 sm:mb-12"
         >
-          <Badge className="mb-3 sm:mb-4 bg-secondary/20 text-secondary border-secondary/30 text-xs sm:text-sm">
-            {isRTL ? '🔥 تحولات مذهلة' : '🔥 Amazing Transformations'}
+          <Badge className="px-6 py-2 text-base sm:text-lg bg-secondary text-secondary-foreground border-secondary font-bold">
+            ⭐ {isRTL ? 'تم التحول!' : 'Transformed!'}
           </Badge>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
-            {isRTL ? 'شاهد الفرق بنفسك' : 'See The Difference Yourself'}
-          </h2>
-          <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
-            {isRTL ? 'اضغط على الصورة لمشاهدة النتيجة' : 'Click on the image to see the result'}
-          </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-          {transformations.slice(0, 8).map((item, index) => {
-            const beforeImage = getImageSrc(item.before_image_url);
-            const afterImage = getImageSrc(item.after_image_url);
-            const isFlipped = flippedCards[index];
-            const isCombined = item.is_combined_image;
+        {/* Carousel Container */}
+        <div className="relative max-w-5xl mx-auto">
+          <div className="flex justify-center items-center gap-4 md:gap-6">
+            <AnimatePresence mode="popLayout">
+              {visibleCards.map((item, displayIndex) => {
+                const beforeImage = getImageSrc(item.before_image_url);
+                const afterImage = getImageSrc(item.after_image_url);
+                const isFlipped = flippedCards[item.originalIndex];
+                const isCombined = item.is_combined_image;
+                const isCenter = displayIndex === 0;
 
-            return (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="perspective-1000"
-              >
-                <div
-                  onClick={() => !isCombined && toggleFlip(index)}
-                  className={`relative aspect-[3/4] cursor-pointer transition-transform duration-700 ${
-                    isFlipped ? '[transform:rotateY(180deg)]' : ''
-                  }`}
-                  style={{ transformStyle: 'preserve-3d' }}
-                >
-                  {/* Front - Before */}
-                  <div
-                    className="absolute inset-0 rounded-xl overflow-hidden border-2 border-border shadow-lg"
-                    style={{ backfaceVisibility: 'hidden' }}
+                return (
+                  <motion.div
+                    key={item.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.8, x: 100 }}
+                    animate={{ 
+                      opacity: isCenter ? 1 : 0.6, 
+                      scale: isCenter ? 1 : 0.85,
+                      x: 0,
+                      zIndex: isCenter ? 10 : 5 - displayIndex
+                    }}
+                    exit={{ opacity: 0, scale: 0.8, x: -100 }}
+                    transition={{ duration: 0.5 }}
+                    className={`perspective-1000 ${isCenter ? 'w-72 sm:w-80 md:w-96' : 'hidden md:block w-64 md:w-72'}`}
                   >
-                    <img
-                      src={beforeImage}
-                      alt="Before"
-                      className="w-full h-full object-cover object-top"
-                    />
-                    {item.use_emoji_mask && (
-                      <img
-                        src={emojiMask}
-                        alt=""
-                        className="absolute top-4 left-1/2 -translate-x-1/2 w-16 h-16 object-contain"
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
-                      {isCombined ? (
-                        <Badge className="bg-primary/80 text-primary-foreground text-xs">
-                          {isRTL ? 'قبل وبعد' : 'Before & After'}
-                        </Badge>
-                      ) : (
-                        <>
-                          <Badge className="bg-destructive/80 text-destructive-foreground text-xs mb-2">
-                            {isRTL ? 'قبل' : 'Before'}
-                          </Badge>
-                          <p className="text-primary-foreground text-xs sm:text-sm font-medium">
-                            {isRTL ? 'اضغط للنتيجة ←' : 'Click for result →'}
-                          </p>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Back - After */}
-                  {!isCombined && afterImage && (
                     <div
-                      className="absolute inset-0 rounded-xl overflow-hidden border-2 border-primary shadow-lg [transform:rotateY(180deg)]"
-                      style={{ backfaceVisibility: 'hidden' }}
+                      onClick={() => !isCombined && toggleFlip(item.originalIndex)}
+                      className={`relative aspect-[3/4] cursor-pointer transition-transform duration-700 ${
+                        isFlipped ? '[transform:rotateY(180deg)]' : ''
+                      }`}
+                      style={{ transformStyle: 'preserve-3d' }}
                     >
-                      <img
-                        src={afterImage}
-                        alt="After"
-                        className="w-full h-full object-cover object-top"
-                      />
-                      {item.use_emoji_mask && (
+                      {/* Front - Before */}
+                      <div
+                        className={`absolute inset-0 rounded-2xl overflow-hidden shadow-2xl ${
+                          isCenter ? 'border-4 border-primary/50' : 'border-2 border-border'
+                        }`}
+                        style={{ backfaceVisibility: 'hidden' }}
+                      >
                         <img
-                          src={emojiMask}
-                          alt=""
-                          className="absolute top-4 left-1/2 -translate-x-1/2 w-16 h-16 object-contain"
+                          src={beforeImage}
+                          alt="Before"
+                          className="w-full h-full object-cover object-top"
                         />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
-                        <Badge className="bg-primary text-primary-foreground text-xs mb-2">
-                          {isRTL ? 'بعد' : 'After'}
-                        </Badge>
-                        {item.weight_before && item.weight_after && (
-                          <p className="text-primary-foreground text-xs sm:text-sm font-bold">
-                            -{item.weight_before - item.weight_after} kg 🎉
-                          </p>
+                        
+                        {/* Emoji Mask */}
+                        {item.use_emoji_mask && (
+                          <img
+                            src={emojiMask}
+                            alt=""
+                            className="absolute top-8 left-1/2 -translate-x-1/2 w-20 h-20 sm:w-24 sm:h-24 object-contain z-10"
+                          />
                         )}
+                        
+                        {/* Gradient Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                        
+                        {/* Duration Badge - Top Left */}
+                        {item.duration_text && (
+                          <div className="absolute top-4 left-4 flex items-center gap-1 text-white/90 text-xs sm:text-sm">
+                            <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <span>{item.duration_text}</span>
+                          </div>
+                        )}
+                        
+                        {/* Before Badge - Top Right */}
+                        <Badge className="absolute top-4 right-4 bg-card/90 text-foreground text-xs px-3 py-1">
+                          {isRTL ? 'قبل' : 'Before'}
+                        </Badge>
+                        
+                        {/* Green CTA Button */}
+                        {!isCombined && (
+                          <motion.div 
+                            className="absolute right-4 bottom-24 sm:bottom-28"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <Button 
+                              className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-4 py-2 rounded-full shadow-lg"
+                              size="sm"
+                            >
+                              {isRTL ? 'اضغط للنتيجة' : 'Click for result'} 👆
+                            </Button>
+                          </motion.div>
+                        )}
+                        
+                        {/* Bottom Info */}
+                        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
+                          {/* Category */}
+                          {item.category && (
+                            <p className="text-primary text-xs sm:text-sm font-medium mb-1">
+                              {getCategoryLabel(item.category)}
+                            </p>
+                          )}
+                          {/* Client Name */}
+                          <h3 className="text-white text-lg sm:text-xl font-bold">
+                            {item.client_name || item.title}
+                          </h3>
+                        </div>
                       </div>
+
+                      {/* Back - After */}
+                      {!isCombined && afterImage && (
+                        <div
+                          className="absolute inset-0 rounded-2xl overflow-hidden border-4 border-primary shadow-2xl [transform:rotateY(180deg)]"
+                          style={{ backfaceVisibility: 'hidden' }}
+                        >
+                          <img
+                            src={afterImage}
+                            alt="After"
+                            className="w-full h-full object-cover object-top"
+                          />
+                          
+                          {/* Emoji Mask on After */}
+                          {item.use_emoji_mask && (
+                            <img
+                              src={emojiMask}
+                              alt=""
+                              className="absolute top-8 left-1/2 -translate-x-1/2 w-20 h-20 sm:w-24 sm:h-24 object-contain z-10"
+                            />
+                          )}
+                          
+                          {/* Gradient Overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                          
+                          {/* After Badge */}
+                          <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground text-xs px-3 py-1">
+                            {isRTL ? 'بعد' : 'After'}
+                          </Badge>
+                          
+                          {/* Result Stats */}
+                          <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
+                            {item.weight_before && item.weight_after && (
+                              <div className="flex items-center gap-2 mb-2">
+                                <Badge className="bg-primary/90 text-primary-foreground">
+                                  -{item.weight_before - item.weight_after} kg 🎉
+                                </Badge>
+                              </div>
+                            )}
+                            <h3 className="text-white text-lg sm:text-xl font-bold">
+                              {item.client_name || item.title}
+                            </h3>
+                            {item.duration_text && (
+                              <p className="text-primary text-sm mt-1">
+                                {isRTL ? `في ${item.duration_text}` : `In ${item.duration_text}`}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </motion.div>
-            );
-          })}
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+
+          {/* Carousel Dots */}
+          <div className="flex justify-center gap-2 mt-8">
+            {transformations.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-3 h-3 rounded-full transition-all ${
+                  index === currentIndex 
+                    ? 'bg-primary w-8' 
+                    : 'bg-muted-foreground/30'
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
