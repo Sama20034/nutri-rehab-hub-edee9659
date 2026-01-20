@@ -1177,10 +1177,10 @@ const SubscriptionPlans = () => {
       regularPrice: 999,
       medicalPrice: 1499,
       features: [
-        isRTL ? 'برنامج تدريب مخصص' : 'Custom training program',
-        isRTL ? 'نظام غذائي شخصي' : 'Personalized diet plan',
-        isRTL ? 'متابعة أسبوعية' : 'Weekly follow-up',
-        isRTL ? 'دعم عبر الواتساب' : 'WhatsApp support'
+        isRTL ? 'نظام غذائي مخصص لهدفك' : 'Custom diet plan for your goal',
+        isRTL ? 'نظام تدريبي مشروح بالفيديو مع المتابعة' : 'Video-explained training with follow-up',
+        isRTL ? 'متابعة أسبوعية من الفريق' : 'Weekly follow-up from the team',
+        isRTL ? 'صفحة خاصة بك وبهدفك وحالتك على الموقع' : 'Personal page with your goals and progress'
       ],
       popular: false,
       bestValue: false
@@ -1190,10 +1190,10 @@ const SubscriptionPlans = () => {
       regularPrice: 1699,
       medicalPrice: 1999,
       features: [
-        isRTL ? 'كل مميزات 6 أسابيع' : 'All 6 Weeks features',
-        isRTL ? 'متابعة يومية' : 'Daily follow-up',
-        isRTL ? 'فيديوهات تعليمية' : 'Educational videos',
-        isRTL ? 'تعديلات غير محدودة' : 'Unlimited adjustments'
+        isRTL ? 'نظام غذائي مخصص لهدفك' : 'Custom diet plan for your goal',
+        isRTL ? 'نظام تدريبي مخصص لهدفك' : 'Custom training plan for your goal',
+        isRTL ? 'متابعة يومية من الفريق على واتساب' : 'Daily WhatsApp follow-up from team',
+        isRTL ? 'وصول كامل لبرامج ومجتمع Alligator التعليمي' : 'Full access to Alligator programs & community'
       ],
       popular: true,
       bestValue: false
@@ -1203,10 +1203,10 @@ const SubscriptionPlans = () => {
       regularPrice: 2999,
       medicalPrice: 4000,
       features: [
-        isRTL ? 'كل مميزات 90 يوم' : 'All 90 Days features',
-        isRTL ? 'مكالمات فيديو شهرية' : 'Monthly video calls',
-        isRTL ? 'خطة مكملات' : 'Supplements plan',
-        isRTL ? 'أولوية في الرد' : 'Priority response'
+        isRTL ? 'متابعة يومية مع د. محمود شخصياً' : 'Daily follow-up with Dr. Mahmoud personally',
+        isRTL ? 'نظامك الغذائي والتدريبي المخصص لهدفك' : 'Your custom diet & training plans',
+        isRTL ? 'تقييم صحي ورياضي شامل' : 'Comprehensive health & fitness assessment',
+        isRTL ? 'وصول لمجتمع Alligator الاحترافي طول المدة' : 'Access to Alligator pro community'
       ],
       popular: false,
       bestValue: false
@@ -1216,10 +1216,10 @@ const SubscriptionPlans = () => {
       regularPrice: 5999,
       medicalPrice: 8000,
       features: [
-        isRTL ? 'كل مميزات 6 شهور' : 'All 6 Months features',
-        isRTL ? 'مكالمات فيديو أسبوعية' : 'Weekly video calls',
-        isRTL ? 'خصومات حصرية' : 'Exclusive discounts',
-        isRTL ? 'دعم VIP' : 'VIP support'
+        isRTL ? 'خصم 5% على منتجات Alligator Store' : '5% discount on Alligator Store products',
+        isRTL ? 'متابعة يومية من د. محمود شخصياً' : 'Daily follow-up from Dr. Mahmoud',
+        isRTL ? 'تقييم صحي أسبوعي + نظامك الكامل' : 'Weekly health assessment + full system',
+        isRTL ? 'فرصة الانضمام لعائلة Alligator' : 'Chance to join Alligator family'
       ],
       popular: false,
       bestValue: true
