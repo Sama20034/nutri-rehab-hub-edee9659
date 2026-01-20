@@ -959,14 +959,6 @@ const MissionSection = () => {
               <img src={drMahmoud2} alt="Dr. Mahmoud Regy - Alligator Fit" className="w-full h-[500px] object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
               
-              {/* Play Button */}
-              <motion.button whileHover={{
-              scale: 1.1
-            }} whileTap={{
-              scale: 0.95
-            }} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-secondary rounded-full flex items-center justify-center shadow-lg shadow-secondary/30">
-                
-              </motion.button>
             </div>
 
             {/* Floating Card */}
