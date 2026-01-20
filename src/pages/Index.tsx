@@ -9,7 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import Layout from '@/components/layout/Layout';
 import { supabase } from '@/integrations/supabase/client';
 import drMahmoud1 from '@/assets/dr-mahmoud-1.png';
-import drMahmoud2 from '@/assets/dr-mahmoud-2.png';
+import drMahmoud2 from '@/assets/dr-mahmoud-new.jpg';
 import alligatorFitLogo from '@/assets/alligator-fit-logo.png';
 
 // Import transformation images
