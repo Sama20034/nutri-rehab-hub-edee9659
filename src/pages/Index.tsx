@@ -179,7 +179,7 @@ const HeroSection = () => {
           }} transition={{
             delay: 0.6
           }} className="text-sm sm:text-base md:text-lg text-muted-foreground mt-4 sm:mt-6 text-center max-w-xs sm:max-w-md mx-auto px-2">
-              {isRTL ? 'مع د. محمود الريقي وفريق طبي متخصص - تقييم طبي ، تدريب رياضي، ومتابعة شخصية.' : 'With Dr. Mahmoud Regy and specialized medical team - therapeutic nutrition, sports training, and personal follow-up.'}
+              {isRTL ? 'مع د. محمود الريقي وفريق طبي متخصص - تقييم طبي ، تدريب رياضي، ومتابعة شخصية.' : 'With Dr. Mahmoud Al-Reaky and specialized medical team - therapeutic nutrition, sports training, and personal follow-up.'}
             </motion.p>
           </motion.div>
 
@@ -897,7 +897,7 @@ const MissionSection = () => {
   }, {
     icon: Users,
     title: isRTL ? 'متابعة شخصية' : 'Personal Follow-up',
-    desc: isRTL ? 'فريق متخصص لك مع متابعه مع د.محمود شخصياً' : 'Dedicated team for you'
+    desc: isRTL ? 'فريق متخصص لك مع متابعه مع د. محمود الريقي شخصياً' : 'Dedicated team for you'
   }, {
     icon: Award,
     title: isRTL ? 'خبرة علمية' : 'Scientific Expertise',

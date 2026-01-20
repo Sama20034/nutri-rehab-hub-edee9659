@@ -66,7 +66,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="space-y-6">
             <Link to="/" className="flex items-center gap-3">
-              <img src={alligatorLogo} alt="Dr. Mahmoud Reaky" className="h-16 w-auto" />
+              <img src={alligatorLogo} alt="Dr. Mahmoud Al-Reaky" className="h-16 w-auto" />
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
               {isRTL 
@@ -250,7 +250,7 @@ const Footer = () => {
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-border text-center">
           <p className="text-muted-foreground text-sm">
-            © {new Date().getFullYear()} Dr. Mahmoud Reaky. {t('footer.rights')}
+            © {new Date().getFullYear()} Dr. Mahmoud Al-Reaky. {t('footer.rights')}
           </p>
         </div>
       </div>

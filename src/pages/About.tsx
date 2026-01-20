@@ -32,7 +32,7 @@ const About = () => {
     {
       icon: Users,
       title: "متابعة شخصية حقيقية",
-      description: "متابعة مباشرة مع د. محمود ريجي شخصياً"
+      description: "متابعة مباشرة مع د. محمود الريقي شخصياً"
     },
     {
       icon: Stethoscope,
@@ -104,7 +104,7 @@ const About = () => {
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed">
-              د. محمود ريقي وفريق <span className="text-primary font-bold">Alligator Fit Team</span>
+              د. محمود الريقي وفريق <span className="text-primary font-bold">Alligator Fit Team</span>
             </p>
             
             <p className="text-lg text-muted-foreground mt-6 max-w-3xl mx-auto leading-relaxed">
@@ -133,7 +133,7 @@ const About = () => {
                 <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur-2xl" />
                 <img 
                   src={drMahmoud1} 
-                  alt="د. محمود ريجي" 
+                  alt="د. محمود الريقي" 
                   className="relative rounded-3xl shadow-2xl w-full max-w-md mx-auto"
                 />
               </div>
