@@ -1328,17 +1328,17 @@ const SubscriptionPlans = () => {
                     <p className="text-gray-400 text-sm mb-5">{planDurations[index]}</p>
                     
                     {/* Medical Toggle */}
-                    <div className={`flex items-center gap-3 mb-5 bg-[#1a2e1f] rounded-full px-4 py-2 w-fit ${isRTL ? 'flex-row-reverse' : ''}`}>
-                      <span className={`text-xs ${isMedical ? 'text-gray-400' : 'text-primary font-medium'}`}>
-                        {isRTL ? 'عادي' : 'Regular'}
+                    <div className="flex items-center gap-3 mb-5 bg-[#1a2e1f] rounded-full px-4 py-2 w-fit">
+                      <span className={`text-xs ${isMedical ? 'text-primary font-medium' : 'text-gray-400'}`}>
+                        {isRTL ? 'متابعة طبية' : 'Medical'}
                       </span>
                       <Switch
                         checked={isMedical}
                         onCheckedChange={() => toggleMedical(index)}
-                        className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-600 [&>span]:rtl:data-[state=checked]:translate-x-5"
+                        className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-600"
                       />
-                      <span className={`text-xs ${isMedical ? 'text-primary font-medium' : 'text-gray-400'}`}>
-                        {isRTL ? 'متابعة طبية' : 'Medical'}
+                      <span className={`text-xs ${isMedical ? 'text-gray-400' : 'text-primary font-medium'}`}>
+                        {isRTL ? 'عادي' : 'Regular'}
                       </span>
                     </div>
                     
