@@ -1338,7 +1338,7 @@ const SubscriptionPlans = () => {
                         className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-600"
                       />
                       <span className={`text-xs ${isMedical ? 'text-gray-400' : 'text-primary font-medium'}`}>
-                        {isRTL ? 'عادي' : 'Regular'}
+                        {isRTL ? 'طبي' : 'Medical'}
                       </span>
                     </div>
                     
