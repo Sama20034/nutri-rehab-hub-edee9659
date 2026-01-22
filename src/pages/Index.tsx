@@ -336,7 +336,7 @@ const HeroSection = () => {
             <HeroTransformationCard />
 
             {/* Description - Below image */}
-            <motion.p initial={{
+          <motion.p initial={{
             opacity: 0,
             y: 20
           }} animate={{
@@ -344,7 +344,7 @@ const HeroSection = () => {
             y: 0
           }} transition={{
             delay: 0.6
-          }} className="text-sm sm:text-base md:text-lg text-muted-foreground mt-4 sm:mt-6 text-center max-w-xs sm:max-w-md mx-auto px-2">
+          }} className="text-base sm:text-lg md:text-xl text-muted-foreground/90 mt-4 sm:mt-6 text-center max-w-xs sm:max-w-md mx-auto px-2">
               {isRTL ? 'مع د. محمود الريقي وفريق طبي متخصص - تقييم طبي ، تدريب رياضي، ومتابعة شخصية.' : 'With Dr. Mahmoud Al-Reaky and specialized medical team - therapeutic nutrition, sports training, and personal follow-up.'}
             </motion.p>
 
@@ -908,7 +908,7 @@ const TransformationsCarousel = () => {
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
             {isRTL ? 'قصص نجاح عملائنا' : 'Our Success Stories'}
           </h2>
-          <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
+          <p className="text-base sm:text-lg text-muted-foreground/90 max-w-2xl mx-auto px-2">
             {isRTL ? 'شاهد تحولات حقيقية لأشخاص حققوا أهدافهم معنا' : 'See real transformations from people who achieved their goals with us'}
           </p>
         </motion.div>
@@ -1099,7 +1099,7 @@ const MissionSection = () => {
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6">
               {isRTL ? 'ضمان نتائج حقيقية مبنية على العلم' : 'Guaranteed Real Results Based on Science'}
             </h2>
-            <p className="text-sm sm:text-base md:text-lg text-muted-foreground mb-6 sm:mb-8">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground/90 mb-6 sm:mb-8">
               {isRTL ? 'نؤمن بأن كل شخص يستحق جسماً صحياً وفورمة مثالية. هدفنا هو تقديم برامج مخصصة تناسب احتياجاتك مع متابعة مستمرة لضمان تحقيق أهدافك.' : 'We believe everyone deserves a healthy body and ideal physique. Our goal is to provide customized programs that suit your needs with continuous follow-up to ensure you achieve your goals.'}
             </p>
 
@@ -1274,7 +1274,7 @@ const SubscriptionPlans = () => {
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-white">
             {isRTL ? 'اختر الباقة المناسبة لك' : 'Choose Your Perfect Plan'}
           </h2>
-          <p className="text-sm sm:text-base text-gray-400 max-w-2xl mx-auto px-2">
+          <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto px-2">
             {isRTL ? 'باقات مرنة تناسب جميع الاحتياجات والميزانيات' : 'Flexible plans that suit all needs and budgets'}
           </p>
         </motion.div>
@@ -1430,7 +1430,7 @@ const SupplementsPreview = () => {
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
               {isRTL ? 'مكملات بإرشاد طبي ورياضي حقيقي' : 'Supplements with Real Medical & Sports Guidance'}
             </h2>
-            <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
+            <p className="text-base sm:text-lg text-muted-foreground/90 mb-4 sm:mb-6">
               {isRTL ? 'نختار لك أفضل المكملات المناسبة لأهدافك مع إرشادات طبية ورياضية متخصصة لضمان أفضل النتائج بأمان.' : 'We select the best supplements suited to your goals with specialized medical and sports guidance to ensure the best results safely.'}
             </p>
             <Button className="gap-2 text-sm sm:text-base">
