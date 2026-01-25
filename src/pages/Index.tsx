@@ -914,129 +914,143 @@ const TransformationsCarousel = () => {
         </motion.div>
 
         <div className="relative max-w-4xl mx-auto px-2 sm:px-8">
-          <AnimatePresence mode="wait">
-            <motion.div key={currentIndex} initial={{
-            opacity: 0,
-            x: 100
-          }} animate={{
-            opacity: 1,
-            x: 0
-          }} exit={{
-            opacity: 0,
-            x: -100
-          }} transition={{
-            duration: 0.5
-          }} className="grid md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
-              
-              {/* Before/After Images Card */}
-              <Card className="overflow-hidden border-border bg-card">
-                {isCombined ? (
-                  // Combined image (before & after in one)
-                  <div className="relative aspect-[4/3]">
-                    <img src={beforeImage} alt="Before & After" className="w-full h-full object-cover" />
-                    {useEmojiMask && (
+          {/* Fixed height container to prevent layout shift */}
+          <div className="relative min-h-[400px] sm:min-h-[450px] md:min-h-[400px]">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div 
+                key={currentIndex} 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="absolute inset-0 grid md:grid-cols-2 gap-4 sm:gap-6 md:gap-8"
+              >
+                
+                {/* Before/After Images Card */}
+                <Card className="overflow-hidden border-border bg-card h-full">
+                  {isCombined ? (
+                    // Combined image (before & after in one)
+                    <div className="relative h-full min-h-[280px] sm:min-h-[320px]">
                       <img 
-                        src={emojiMask} 
-                        alt="" 
-                        className="absolute top-4 left-1/2 -translate-x-1/2 w-16 h-16 object-contain"
+                        src={beforeImage} 
+                        alt="Before & After" 
+                        className="absolute inset-0 w-full h-full object-cover object-top"
+                        loading="eager"
                       />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent" />
-                    <div className="absolute bottom-4 left-4 right-4">
-                      <div className="flex justify-between items-end">
-                        <div>
-                          <Badge className="bg-red-500/20 text-red-400 mb-2">
-                            {isRTL ? 'قبل' : 'Before'}
-                          </Badge>
-                          <div className="text-2xl font-bold">{weightBefore} kg</div>
-                        </div>
-                        <div className="text-right">
-                          <Badge className="bg-green-500/20 text-green-400 mb-2">
-                            {isRTL ? 'بعد' : 'After'}
-                          </Badge>
-                          <div className="text-2xl font-bold">{weightAfter} kg</div>
+                      {useEmojiMask && (
+                        <img 
+                          src={emojiMask} 
+                          alt="" 
+                          className="absolute top-4 left-1/2 -translate-x-1/2 w-16 h-16 object-contain"
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent" />
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <div className="flex justify-between items-end">
+                          <div>
+                            <Badge className="bg-red-500/20 text-red-400 mb-2">
+                              {isRTL ? 'قبل' : 'Before'}
+                            </Badge>
+                            <div className="text-2xl font-bold">{weightBefore} kg</div>
+                          </div>
+                          <div className="text-right">
+                            <Badge className="bg-green-500/20 text-green-400 mb-2">
+                              {isRTL ? 'بعد' : 'After'}
+                            </Badge>
+                            <div className="text-2xl font-bold">{weightAfter} kg</div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ) : (
-                  // Separate before and after images
-                  <div className="relative aspect-[4/3] grid grid-cols-2 gap-1">
-                    <div className="relative">
-                      <img src={beforeImage} alt="Before" className="w-full h-full object-cover" />
-                      {useEmojiMask && (
+                  ) : (
+                    // Separate before and after images
+                    <div className="relative h-full min-h-[280px] sm:min-h-[320px] grid grid-cols-2 gap-1">
+                      <div className="relative overflow-hidden">
                         <img 
-                          src={emojiMask} 
-                          alt="" 
-                          className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-12 object-contain"
+                          src={beforeImage} 
+                          alt="Before" 
+                          className="absolute inset-0 w-full h-full object-cover object-top"
+                          loading="eager"
                         />
-                      )}
-                      <Badge className="absolute bottom-2 left-2 bg-red-500/80 text-white">
-                        {isRTL ? 'قبل' : 'Before'}
-                      </Badge>
-                    </div>
-                    <div className="relative">
-                      <img src={afterImage} alt="After" className="w-full h-full object-cover" />
-                      {useEmojiMask && (
+                        {useEmojiMask && (
+                          <img 
+                            src={emojiMask} 
+                            alt="" 
+                            className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-12 object-contain"
+                          />
+                        )}
+                        <Badge className="absolute bottom-2 left-2 bg-red-500/80 text-white">
+                          {isRTL ? 'قبل' : 'Before'}
+                        </Badge>
+                      </div>
+                      <div className="relative overflow-hidden">
                         <img 
-                          src={emojiMask} 
-                          alt="" 
-                          className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-12 object-contain"
+                          src={afterImage} 
+                          alt="After" 
+                          className="absolute inset-0 w-full h-full object-cover object-top"
+                          loading="eager"
                         />
-                      )}
-                      <Badge className="absolute bottom-2 right-2 bg-green-500/80 text-white">
-                        {isRTL ? 'بعد' : 'After'}
-                      </Badge>
+                        {useEmojiMask && (
+                          <img 
+                            src={emojiMask} 
+                            alt="" 
+                            className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-12 object-contain"
+                          />
+                        )}
+                        <Badge className="absolute bottom-2 right-2 bg-green-500/80 text-white">
+                          {isRTL ? 'بعد' : 'After'}
+                        </Badge>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </Card>
+                  )}
+                </Card>
 
-              {/* Info Card */}
-              <Card className="border-border bg-card flex flex-col justify-center p-6">
-                <CardContent className="p-0">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
-                      <Star className="h-8 w-8 text-primary" />
+                {/* Info Card */}
+                <Card className="border-border bg-card flex flex-col justify-center p-6 h-full">
+                  <CardContent className="p-0">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                        <Star className="h-8 w-8 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold">{clientName}</h3>
+                        <p className="text-muted-foreground">
+                          {isRTL ? `خسر ${weightBefore - weightAfter} كجم` : `Lost ${weightBefore - weightAfter} kg`}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-xl font-bold">{clientName}</h3>
-                      <p className="text-muted-foreground">
-                        {isRTL ? `خسر ${weightBefore - weightAfter} كجم` : `Lost ${weightBefore - weightAfter} kg`}
-                      </p>
-                    </div>
-                  </div>
 
-                  <div className="space-y-4">
-                    <div className="flex justify-between p-3 bg-muted/50 rounded-lg">
-                      <span className="text-muted-foreground">{isRTL ? 'الوزن قبل' : 'Weight Before'}</span>
-                      <span className="font-semibold text-red-400">{weightBefore} kg</span>
+                    <div className="space-y-4">
+                      <div className="flex justify-between p-3 bg-muted/50 rounded-lg">
+                        <span className="text-muted-foreground">{isRTL ? 'الوزن قبل' : 'Weight Before'}</span>
+                        <span className="font-semibold text-red-400">{weightBefore} kg</span>
+                      </div>
+                      <div className="flex justify-between p-3 bg-muted/50 rounded-lg">
+                        <span className="text-muted-foreground">{isRTL ? 'الوزن بعد' : 'Weight After'}</span>
+                        <span className="font-semibold text-green-400">{weightAfter} kg</span>
+                      </div>
+                      <div className="flex justify-between p-3 bg-muted/50 rounded-lg">
+                        <span className="text-muted-foreground">{isRTL ? 'المدة' : 'Duration'}</span>
+                        <span className="font-semibold">{duration}</span>
+                      </div>
+                      <div className="flex justify-between p-3 bg-primary/10 rounded-lg">
+                        <span className="text-muted-foreground">{isRTL ? 'الخسارة' : 'Lost'}</span>
+                        <span className="font-semibold text-primary">
+                          -{weightBefore - weightAfter} kg 🎉
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex justify-between p-3 bg-muted/50 rounded-lg">
-                      <span className="text-muted-foreground">{isRTL ? 'الوزن بعد' : 'Weight After'}</span>
-                      <span className="font-semibold text-green-400">{weightAfter} kg</span>
-                    </div>
-                    <div className="flex justify-between p-3 bg-muted/50 rounded-lg">
-                      <span className="text-muted-foreground">{isRTL ? 'المدة' : 'Duration'}</span>
-                      <span className="font-semibold">{duration}</span>
-                    </div>
-                    <div className="flex justify-between p-3 bg-primary/10 rounded-lg">
-                      <span className="text-muted-foreground">{isRTL ? 'الخسارة' : 'Lost'}</span>
-                      <span className="font-semibold text-primary">
-                        -{weightBefore - weightAfter} kg 🎉
-                      </span>
-                    </div>
-                  </div>
 
-                  <div className="flex gap-2 mt-6">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`h-5 w-5 ${i < rating ? 'fill-yellow-500 text-yellow-500' : 'text-muted-foreground'}`} />
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </AnimatePresence>
+                    <div className="flex gap-2 mt-6">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className={`h-5 w-5 ${i < rating ? 'fill-yellow-500 text-yellow-500' : 'text-muted-foreground'}`} />
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
           {/* Navigation Buttons */}
           <button onClick={prevSlide} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 sm:-translate-x-4 md:-translate-x-12 w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-card border border-border rounded-full flex items-center justify-center hover:bg-primary/10 transition-colors z-10">
