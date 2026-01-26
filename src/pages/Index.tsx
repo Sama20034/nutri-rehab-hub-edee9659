@@ -1447,10 +1447,12 @@ const SupplementsPreview = () => {
             <p className="text-base sm:text-lg text-muted-foreground/90 mb-4 sm:mb-6">
               {isRTL ? 'نختار لك أفضل المكملات المناسبة لأهدافك مع إرشادات طبية ورياضية متخصصة لضمان أفضل النتائج بأمان.' : 'We select the best supplements suited to your goals with specialized medical and sports guidance to ensure the best results safely.'}
             </p>
-            <Button className="gap-2 text-sm sm:text-base">
-              <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5" />
-              {isRTL ? 'تصفح المتجر' : 'Browse Store'}
-            </Button>
+            <Link to="/store">
+              <Button className="gap-2 text-sm sm:text-base">
+                <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5" />
+                {isRTL ? 'تصفح المتجر' : 'Browse Store'}
+              </Button>
+            </Link>
           </motion.div>
 
           <motion.div initial={{
