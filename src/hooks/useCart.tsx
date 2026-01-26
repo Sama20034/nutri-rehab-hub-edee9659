@@ -34,37 +34,64 @@ export interface GuestCartItem {
 
 const CART_STORAGE_KEY = 'guest_cart';
 
+// Helper functions to work with localStorage directly
+const getStoredCart = (): GuestCartItem[] => {
+  try {
+    const savedCart = localStorage.getItem(CART_STORAGE_KEY);
+    if (savedCart) {
+      return JSON.parse(savedCart);
+    }
+  } catch {
+    localStorage.removeItem(CART_STORAGE_KEY);
+  }
+  return [];
+};
+
+const saveCartToStorage = (cart: GuestCartItem[]) => {
+  if (cart.length > 0) {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+  } else {
+    localStorage.removeItem(CART_STORAGE_KEY);
+  }
+};
+
 export const useCart = () => {
   const { user } = useAuth();
   const { language } = useLanguage();
   const queryClient = useQueryClient();
   const isRTL = language === 'ar';
   
-  const [guestCart, setGuestCart] = useState<GuestCartItem[]>([]);
+  // Initialize state from localStorage immediately
+  const [guestCart, setGuestCart] = useState<GuestCartItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      return getStoredCart();
+    }
+    return [];
+  });
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Load guest cart from localStorage on mount
+  // Load guest cart from localStorage on mount (only once)
   useEffect(() => {
-    if (!user) {
-      const savedCart = localStorage.getItem(CART_STORAGE_KEY);
-      if (savedCart) {
-        try {
-          setGuestCart(JSON.parse(savedCart));
-        } catch {
-          localStorage.removeItem(CART_STORAGE_KEY);
-        }
+    if (!user && !isInitialized) {
+      const savedCart = getStoredCart();
+      if (savedCart.length > 0) {
+        setGuestCart(savedCart);
       }
+      setIsInitialized(true);
+    } else if (user) {
+      // Clear guest cart state when user logs in (they should use DB cart)
+      setGuestCart([]);
+      setIsInitialized(true);
     }
-  }, [user]);
+  }, [user, isInitialized]);
 
-  // Save guest cart to localStorage whenever it changes
+  // Save guest cart to localStorage whenever it changes (but only after initialization)
   useEffect(() => {
-    if (!user && guestCart.length > 0) {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(guestCart));
-    } else if (!user && guestCart.length === 0) {
-      localStorage.removeItem(CART_STORAGE_KEY);
+    if (!user && isInitialized) {
+      saveCartToStorage(guestCart);
     }
-  }, [guestCart, user]);
+  }, [guestCart, user, isInitialized]);
 
   // Add to cart (works for both guest and logged-in users)
   const addToCart = useCallback(async (product: Product) => {
@@ -78,7 +105,7 @@ export const useCart = () => {
           .select('id, quantity')
           .eq('user_id', user.id)
           .eq('product_id', product.id)
-          .single();
+          .maybeSingle();
 
         if (existing) {
           const { error } = await supabase
@@ -98,20 +125,24 @@ export const useCart = () => {
         // Guest user: use localStorage
         setGuestCart(prev => {
           const existing = prev.find(item => item.product_id === product.id);
+          let newCart;
           if (existing) {
-            return prev.map(item => 
+            newCart = prev.map(item => 
               item.product_id === product.id 
                 ? { ...item, quantity: item.quantity + 1 }
                 : item
             );
           } else {
-            return [...prev, {
+            newCart = [...prev, {
               id: `guest_${Date.now()}`,
               product_id: product.id,
               quantity: 1,
               product
             }];
           }
+          // Save immediately to ensure persistence
+          saveCartToStorage(newCart);
+          return newCart;
         });
       }
       
@@ -138,13 +169,18 @@ export const useCart = () => {
         }
         queryClient.invalidateQueries({ queryKey: ['cart'] });
       } else {
-        if (quantity <= 0) {
-          setGuestCart(prev => prev.filter(item => item.id !== itemId));
-        } else {
-          setGuestCart(prev => prev.map(item => 
-            item.id === itemId ? { ...item, quantity } : item
-          ));
-        }
+        setGuestCart(prev => {
+          let newCart;
+          if (quantity <= 0) {
+            newCart = prev.filter(item => item.id !== itemId);
+          } else {
+            newCart = prev.map(item => 
+              item.id === itemId ? { ...item, quantity } : item
+            );
+          }
+          saveCartToStorage(newCart);
+          return newCart;
+        });
       }
     } catch (error: any) {
       toast.error(error.message || (isRTL ? 'حدث خطأ' : 'An error occurred'));
@@ -163,7 +199,11 @@ export const useCart = () => {
         if (error) throw error;
         queryClient.invalidateQueries({ queryKey: ['cart'] });
       } else {
-        setGuestCart(prev => prev.filter(item => item.id !== itemId));
+        setGuestCart(prev => {
+          const newCart = prev.filter(item => item.id !== itemId);
+          saveCartToStorage(newCart);
+          return newCart;
+        });
       }
       
       toast.success(isRTL ? 'تم الحذف من السلة' : 'Removed from cart');
