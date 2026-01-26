@@ -672,6 +672,8 @@ export type Database = {
         Row: {
           created_at: string
           grants_content_access: boolean | null
+          guest_email: string | null
+          guest_name: string | null
           id: string
           notes: string | null
           phone: string | null
@@ -679,11 +681,13 @@ export type Database = {
           status: string | null
           total_amount: number
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
           grants_content_access?: boolean | null
+          guest_email?: string | null
+          guest_name?: string | null
           id?: string
           notes?: string | null
           phone?: string | null
@@ -691,11 +695,13 @@ export type Database = {
           status?: string | null
           total_amount?: number
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
           grants_content_access?: boolean | null
+          guest_email?: string | null
+          guest_name?: string | null
           id?: string
           notes?: string | null
           phone?: string | null
@@ -703,7 +709,7 @@ export type Database = {
           status?: string | null
           total_amount?: number
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
