@@ -288,33 +288,33 @@ const Checkout = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-4xl">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-4 sm:mb-8"
         >
           <Button
             variant="ghost"
             onClick={() => step === 'payment' ? setStep('details') : navigate('/store')}
-            className="mb-4"
+            className="mb-3 sm:mb-4 h-10 text-sm"
           >
-            <BackIcon className="h-4 w-4 mr-2" />
+            <BackIcon className="h-4 w-4 mr-1 sm:mr-2" />
             {step === 'payment' 
               ? (isRTL ? 'العودة للبيانات' : 'Back to Details')
               : (isRTL ? 'العودة للمتجر' : 'Back to Store')}
           </Button>
           
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-primary/10 rounded-full">
-              <CreditCard className="h-6 w-6 text-primary" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="p-2 sm:p-3 bg-primary/10 rounded-full">
+              <CreditCard className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
                 {isRTL ? 'إتمام الطلب' : 'Checkout'}
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 {step === 'details'
                   ? (isRTL ? 'الخطوة 1: أدخل بياناتك' : 'Step 1: Enter your details')
                   : (isRTL ? 'الخطوة 2: اختر طريقة الدفع' : 'Step 2: Choose payment method')}
@@ -323,41 +323,41 @@ const Checkout = () => {
           </div>
 
           {/* Step Indicator */}
-          <div className="flex items-center justify-center gap-4 mt-6">
-            <div className={`flex items-center gap-2 ${step === 'details' ? 'text-primary' : 'text-muted-foreground'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step === 'details' ? 'bg-primary text-primary-foreground' : 'bg-primary/20 text-primary'}`}>
-                {step === 'payment' ? <CheckCircle2 className="h-5 w-5" /> : '1'}
+          <div className="flex items-center justify-center gap-2 sm:gap-4 mt-4 sm:mt-6">
+            <div className={`flex items-center gap-1 sm:gap-2 ${step === 'details' ? 'text-primary' : 'text-muted-foreground'}`}>
+              <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold ${step === 'details' ? 'bg-primary text-primary-foreground' : 'bg-primary/20 text-primary'}`}>
+                {step === 'payment' ? <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" /> : '1'}
               </div>
-              <span className="hidden sm:inline font-medium">{isRTL ? 'البيانات' : 'Details'}</span>
+              <span className="text-xs sm:text-sm font-medium">{isRTL ? 'البيانات' : 'Details'}</span>
             </div>
-            <div className="w-12 h-0.5 bg-muted" />
-            <div className={`flex items-center gap-2 ${step === 'payment' ? 'text-primary' : 'text-muted-foreground'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step === 'payment' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+            <div className="w-8 sm:w-12 h-0.5 bg-muted" />
+            <div className={`flex items-center gap-1 sm:gap-2 ${step === 'payment' ? 'text-primary' : 'text-muted-foreground'}`}>
+              <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold ${step === 'payment' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
                 2
               </div>
-              <span className="hidden sm:inline font-medium">{isRTL ? 'الدفع' : 'Payment'}</span>
+              <span className="text-xs sm:text-sm font-medium">{isRTL ? 'الدفع' : 'Payment'}</span>
             </div>
           </div>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
           {/* Order Summary */}
           <motion.div
             initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ShoppingBag className="h-5 w-5" />
+            <Card className="shadow-sm">
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5" />
                   {isRTL ? 'ملخص الطلب' : 'Order Summary'}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-3 sm:space-y-4">
                 {cartItems.map((item) => (
-                  <div key={item.id} className="flex gap-4">
-                    <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                  <div key={item.id} className="flex gap-2 sm:gap-4">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
                       {item.product.image_url ? (
                         <img
                           src={item.product.image_url}
@@ -366,20 +366,20 @@ const Checkout = () => {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <ShoppingBag className="h-6 w-6 text-muted-foreground" />
+                          <ShoppingBag className="h-4 w-4 sm:h-6 sm:w-6 text-muted-foreground" />
                         </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-foreground truncate">
+                      <h4 className="font-medium text-foreground text-sm sm:text-base truncate">
                         {isRTL ? item.product.name_ar || item.product.name : item.product.name}
                       </h4>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         {isRTL ? 'الكمية:' : 'Qty:'} {item.quantity}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-primary">
+                      <p className="font-semibold text-primary text-sm sm:text-base">
                         {(item.product.price * item.quantity).toLocaleString()} {isRTL ? 'ج.م' : 'EGP'}
                       </p>
                     </div>
@@ -388,9 +388,9 @@ const Checkout = () => {
 
                 <Separator />
 
-                <div className="flex justify-between items-center text-lg">
+                <div className="flex justify-between items-center text-base sm:text-lg">
                   <span className="font-semibold">{isRTL ? 'الإجمالي:' : 'Total:'}</span>
-                  <span className="font-bold text-primary text-xl">
+                  <span className="font-bold text-primary text-lg sm:text-xl">
                     {cartTotal.toLocaleString()} {isRTL ? 'ج.م' : 'EGP'}
                   </span>
                 </div>
@@ -399,15 +399,15 @@ const Checkout = () => {
                   <motion.div
                     initial={{ scale: 0.95, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="p-4 bg-primary/10 border border-primary/30 rounded-xl"
+                    className="p-3 sm:p-4 bg-primary/10 border border-primary/30 rounded-xl"
                   >
-                    <div className="flex items-center gap-3 text-primary">
-                      <Gift className="h-6 w-6 flex-shrink-0" />
+                    <div className="flex items-center gap-2 sm:gap-3 text-primary">
+                      <Gift className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
                       <div>
-                        <p className="font-semibold">
+                        <p className="font-semibold text-sm sm:text-base">
                           {isRTL ? '🎉 هدية مجانية!' : '🎉 Free Gift!'}
                         </p>
-                        <p className="text-sm opacity-90">
+                        <p className="text-xs sm:text-sm opacity-90">
                           {isRTL 
                             ? 'ستحصل على وصول مجاني للمحتوى الغذائي المميز!'
                             : 'You will get FREE access to premium nutritional content!'}
@@ -430,20 +430,20 @@ const Checkout = () => {
                 exit={{ opacity: 0, x: isRTL ? 20 : -20 }}
                 transition={{ delay: 0.2 }}
               >
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <MapPin className="h-5 w-5" />
+                <Card className="shadow-sm">
+                  <CardHeader className="p-4 sm:p-6">
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                      <MapPin className="h-4 w-4 sm:h-5 sm:w-5" />
                       {isRTL ? 'بيانات الشحن' : 'Shipping Details'}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-5">
+                  <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4 sm:space-y-5">
                     {/* Guest fields - only show if not logged in */}
                     {!user && (
                       <>
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                            <User className="h-4 w-4 text-muted-foreground" />
+                        <div className="space-y-1.5 sm:space-y-2">
+                          <label className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1.5 sm:gap-2">
+                            <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
                             {isRTL ? 'الاسم الكامل' : 'Full Name'}
                             <span className="text-destructive">*</span>
                           </label>
@@ -451,16 +451,16 @@ const Checkout = () => {
                             value={checkoutData.full_name}
                             onChange={(e) => setCheckoutData(prev => ({ ...prev, full_name: e.target.value }))}
                             placeholder={isRTL ? 'أدخل اسمك الكامل' : 'Enter your full name'}
-                            className={errors.full_name ? 'border-destructive' : ''}
+                            className={`h-10 sm:h-11 text-sm sm:text-base ${errors.full_name ? 'border-destructive' : ''}`}
                           />
                           {errors.full_name && (
-                            <p className="text-sm text-destructive">{errors.full_name}</p>
+                            <p className="text-xs sm:text-sm text-destructive">{errors.full_name}</p>
                           )}
                         </div>
 
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                            <Mail className="h-4 w-4 text-muted-foreground" />
+                        <div className="space-y-1.5 sm:space-y-2">
+                          <label className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1.5 sm:gap-2">
+                            <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
                             {isRTL ? 'البريد الإلكتروني' : 'Email'}
                             <span className="text-destructive">*</span>
                           </label>
@@ -469,35 +469,35 @@ const Checkout = () => {
                             value={checkoutData.email}
                             onChange={(e) => setCheckoutData(prev => ({ ...prev, email: e.target.value }))}
                             placeholder="example@email.com"
-                            className={errors.email ? 'border-destructive' : ''}
+                            className={`h-10 sm:h-11 text-sm sm:text-base ${errors.email ? 'border-destructive' : ''}`}
                           />
                           {errors.email && (
-                            <p className="text-sm text-destructive">{errors.email}</p>
+                            <p className="text-xs sm:text-sm text-destructive">{errors.email}</p>
                           )}
                         </div>
                       </>
                     )}
 
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <label className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1.5 sm:gap-2">
+                        <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
                         {isRTL ? 'عنوان الشحن' : 'Shipping Address'}
                         <span className="text-destructive">*</span>
                       </label>
                       <Textarea
                         value={checkoutData.shipping_address}
                         onChange={(e) => setCheckoutData(prev => ({ ...prev, shipping_address: e.target.value }))}
-                        placeholder={isRTL ? 'أدخل عنوان الشحن بالتفصيل (المدينة - الحي - الشارع - رقم المبنى)...' : 'Enter detailed shipping address (City - District - Street - Building)...'}
-                        className={`min-h-[100px] ${errors.shipping_address ? 'border-destructive' : ''}`}
+                        placeholder={isRTL ? 'أدخل عنوان الشحن بالتفصيل...' : 'Enter detailed shipping address...'}
+                        className={`min-h-[80px] sm:min-h-[100px] text-sm sm:text-base ${errors.shipping_address ? 'border-destructive' : ''}`}
                       />
                       {errors.shipping_address && (
-                        <p className="text-sm text-destructive">{errors.shipping_address}</p>
+                        <p className="text-xs sm:text-sm text-destructive">{errors.shipping_address}</p>
                       )}
                     </div>
 
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <label className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1.5 sm:gap-2">
+                        <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
                         {isRTL ? 'رقم الهاتف' : 'Phone Number'}
                         <span className="text-destructive">*</span>
                       </label>
@@ -506,34 +506,35 @@ const Checkout = () => {
                         onChange={(e) => setCheckoutData(prev => ({ ...prev, phone: e.target.value }))}
                         placeholder="01xxxxxxxxx"
                         type="tel"
-                        className={errors.phone ? 'border-destructive' : ''}
+                        className={`h-10 sm:h-11 text-sm sm:text-base ${errors.phone ? 'border-destructive' : ''}`}
                       />
                       {errors.phone && (
-                        <p className="text-sm text-destructive">{errors.phone}</p>
+                        <p className="text-xs sm:text-sm text-destructive">{errors.phone}</p>
                       )}
                     </div>
 
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-muted-foreground" />
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <label className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1.5 sm:gap-2">
+                        <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
                         {isRTL ? 'ملاحظات (اختياري)' : 'Notes (optional)'}
                       </label>
                       <Textarea
                         value={checkoutData.notes}
                         onChange={(e) => setCheckoutData(prev => ({ ...prev, notes: e.target.value }))}
-                        placeholder={isRTL ? 'أي ملاحظات إضافية للتوصيل...' : 'Any additional delivery notes...'}
+                        placeholder={isRTL ? 'أي ملاحظات إضافية...' : 'Any additional notes...'}
+                        className="min-h-[60px] sm:min-h-[80px] text-sm sm:text-base"
                       />
                     </div>
 
                     <Separator />
 
                     <Button 
-                      className="w-full h-12 text-base gap-2"
+                      className="w-full h-11 sm:h-12 text-sm sm:text-base gap-2"
                       size="lg"
                       onClick={handleNextStep}
                     >
-                      {isRTL ? 'التالي: اختر طريقة الدفع' : 'Next: Choose Payment Method'}
-                      <NextIcon className="h-5 w-5" />
+                      {isRTL ? 'التالي: اختر طريقة الدفع' : 'Next: Choose Payment'}
+                      <NextIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                     </Button>
                   </CardContent>
                 </Card>
@@ -546,18 +547,18 @@ const Checkout = () => {
                 exit={{ opacity: 0, x: isRTL ? 20 : -20 }}
                 transition={{ delay: 0.2 }}
               >
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Wallet className="h-5 w-5" />
+                <Card className="shadow-sm">
+                  <CardHeader className="p-4 sm:p-6">
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                      <Wallet className="h-4 w-4 sm:h-5 sm:w-5" />
                       {isRTL ? 'طريقة الدفع' : 'Payment Method'}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-5">
+                  <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4 sm:space-y-5">
                     <RadioGroup
                       value={paymentMethod}
                       onValueChange={(value) => setPaymentMethod(value as PaymentMethod)}
-                      className="space-y-4"
+                      className="space-y-3 sm:space-y-4"
                     >
                       {Object.values(PAYMENT_METHODS).map((method) => {
                         const Icon = method.icon;
@@ -565,7 +566,7 @@ const Checkout = () => {
                         return (
                           <div
                             key={method.id}
-                            className={`relative flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                            className={`relative flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-xl border-2 cursor-pointer transition-all ${
                               isSelected 
                                 ? 'border-primary bg-primary/5' 
                                 : 'border-border hover:border-primary/50'
@@ -573,19 +574,19 @@ const Checkout = () => {
                             onClick={() => setPaymentMethod(method.id as PaymentMethod)}
                           >
                             <RadioGroupItem value={method.id} id={method.id} className="sr-only" />
-                            <div className={`p-3 rounded-full bg-muted ${method.color}`}>
-                              <Icon className="h-6 w-6" />
+                            <div className={`p-2 sm:p-3 rounded-full bg-muted ${method.color}`}>
+                              <Icon className="h-4 w-4 sm:h-6 sm:w-6" />
                             </div>
-                            <div className="flex-1">
-                              <Label htmlFor={method.id} className="text-base font-semibold cursor-pointer">
+                            <div className="flex-1 min-w-0">
+                              <Label htmlFor={method.id} className="text-sm sm:text-base font-semibold cursor-pointer">
                                 {isRTL ? method.name_ar : method.name}
                               </Label>
-                              <p className="text-sm text-muted-foreground">
+                              <p className="text-xs sm:text-sm text-muted-foreground truncate">
                                 {isRTL ? method.description_ar : method.description}
                               </p>
                             </div>
                             {isSelected && (
-                              <CheckCircle2 className="h-6 w-6 text-primary" />
+                              <CheckCircle2 className="h-5 w-5 sm:h-6 sm:w-6 text-primary flex-shrink-0" />
                             )}
                           </div>
                         );
@@ -597,25 +598,25 @@ const Checkout = () => {
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
-                        className="p-4 bg-muted/50 rounded-xl border"
+                        className="p-3 sm:p-4 bg-muted/50 rounded-xl border"
                       >
-                        <h4 className="font-semibold text-foreground mb-2">
+                        <h4 className="font-semibold text-foreground text-sm sm:text-base mb-2">
                           {isRTL ? '📝 تعليمات الدفع' : '📝 Payment Instructions'}
                         </h4>
-                        <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
+                        <ol className="text-xs sm:text-sm text-muted-foreground space-y-1.5 sm:space-y-2 list-decimal list-inside">
                           {paymentMethod === 'vodafone_cash' ? (
                             <>
                               <li>{isRTL ? 'افتح تطبيق فودافون كاش' : 'Open Vodafone Cash app'}</li>
-                              <li>{isRTL ? 'حول المبلغ إلى: 01012345678' : 'Transfer amount to: 01012345678'}</li>
+                              <li>{isRTL ? 'حول المبلغ إلى: 01012345678' : 'Transfer to: 01012345678'}</li>
                               <li>{isRTL ? 'احتفظ برقم العملية' : 'Keep the transaction number'}</li>
-                              <li>{isRTL ? 'سنتواصل معك لتأكيد الطلب' : 'We will contact you to confirm'}</li>
+                              <li>{isRTL ? 'سنتواصل معك للتأكيد' : 'We will contact you'}</li>
                             </>
                           ) : (
                             <>
-                              <li>{isRTL ? 'افتح تطبيق البنك الخاص بك' : 'Open your bank app'}</li>
+                              <li>{isRTL ? 'افتح تطبيق البنك' : 'Open your bank app'}</li>
                               <li>{isRTL ? 'اختر InstaPay' : 'Choose InstaPay'}</li>
-                              <li>{isRTL ? 'حول المبلغ إلى: mahmoud.sayed@instapay' : 'Transfer to: mahmoud.sayed@instapay'}</li>
-                              <li>{isRTL ? 'سنتواصل معك لتأكيد الطلب' : 'We will contact you to confirm'}</li>
+                              <li>{isRTL ? 'حول إلى: mahmoud.sayed@instapay' : 'Transfer to: mahmoud.sayed@instapay'}</li>
+                              <li>{isRTL ? 'سنتواصل معك للتأكيد' : 'We will contact you'}</li>
                             </>
                           )}
                         </ol>
@@ -624,31 +625,31 @@ const Checkout = () => {
 
                     <Separator />
 
-                    <div className="flex gap-3">
+                    <div className="flex gap-2 sm:gap-3">
                       <Button 
                         variant="outline"
-                        className="flex-1 h-12"
+                        className="flex-1 h-10 sm:h-12 text-sm sm:text-base"
                         onClick={() => setStep('details')}
                       >
-                        <PrevIcon className="h-5 w-5 mr-2" />
-                        {isRTL ? 'السابق' : 'Previous'}
+                        <PrevIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+                        {isRTL ? 'السابق' : 'Back'}
                       </Button>
                       <Button 
-                        className="flex-1 h-12 text-base"
+                        className="flex-1 h-10 sm:h-12 text-sm sm:text-base"
                         size="lg"
                         onClick={() => placeOrder.mutate()}
                         disabled={placeOrder.isPending}
                       >
                         {placeOrder.isPending 
-                          ? (isRTL ? 'جارٍ إرسال الطلب...' : 'Processing...') 
-                          : (isRTL ? 'تأكيد الطلب' : 'Confirm Order')}
+                          ? (isRTL ? 'جارٍ الإرسال...' : 'Processing...') 
+                          : (isRTL ? 'تأكيد الطلب' : 'Confirm')}
                       </Button>
                     </div>
 
-                    <p className="text-xs text-center text-muted-foreground">
+                    <p className="text-[10px] sm:text-xs text-center text-muted-foreground">
                       {isRTL 
-                        ? 'بالضغط على تأكيد الطلب، ستتلقى اتصالاً لتأكيد الطلب'
-                        : 'By confirming, you will receive a call to confirm the order'}
+                        ? 'بالضغط على تأكيد الطلب، ستتلقى اتصالاً للتأكيد'
+                        : 'By confirming, you will receive a call to confirm'}
                     </p>
                   </CardContent>
                 </Card>
