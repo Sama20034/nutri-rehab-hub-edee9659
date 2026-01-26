@@ -1,16 +1,15 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
+import { useCart, GuestCartItem } from "@/hooks/useCart";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "sonner";
 import { 
   ShoppingCart, 
   Package, 
@@ -55,17 +54,13 @@ interface CartItem {
 const Store = () => {
   const { language } = useLanguage();
   const { user } = useAuth();
-  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const isRTL = language === 'ar';
+  
+  const { guestCart, addToCart, updateQuantity, removeFromCart, isLoading: cartLoading } = useCart();
   
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showCart, setShowCart] = useState(false);
-  const [showCheckout, setShowCheckout] = useState(false);
-  const [checkoutData, setCheckoutData] = useState({
-    shipping_address: '',
-    phone: '',
-    notes: ''
-  });
 
   // Fetch products
   const { data: products = [], isLoading: loadingProducts } = useQuery({
@@ -82,8 +77,8 @@ const Store = () => {
     }
   });
 
-  // Fetch cart items
-  const { data: cartItems = [], isLoading: loadingCart } = useQuery({
+  // Fetch cart items from database for logged-in users
+  const { data: dbCartItems = [], isLoading: loadingDbCart } = useQuery({
     queryKey: ['cart', user?.id],
     queryFn: async () => {
       if (!user) return [];
@@ -101,133 +96,30 @@ const Store = () => {
     enabled: !!user
   });
 
+  // Use database cart for logged-in users, guest cart for guests
+  const cartItems: (CartItem | GuestCartItem)[] = user ? dbCartItems : guestCart;
+  const loadingCart = user ? loadingDbCart : false;
+
   const cartTotal = cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
   const grantsAccess = cartTotal >= 7500;
 
-  // Add to cart mutation
-  const addToCart = useMutation({
-    mutationFn: async (productId: string) => {
-      if (!user) throw new Error('يجب تسجيل الدخول أولاً');
-      
-      const { data: existing } = await supabase
-        .from('cart_items')
-        .select('id, quantity')
-        .eq('user_id', user.id)
-        .eq('product_id', productId)
-        .single();
+  const handleAddToCart = async (product: Product, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    await addToCart(product);
+  };
 
-      if (existing) {
-        const { error } = await supabase
-          .from('cart_items')
-          .update({ quantity: existing.quantity + 1 })
-          .eq('id', existing.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('cart_items')
-          .insert({ user_id: user.id, product_id: productId, quantity: 1 });
-        if (error) throw error;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
-      toast.success(isRTL ? 'تمت الإضافة للسلة' : 'Added to cart');
-    },
-    onError: (error: Error) => {
-      toast.error(error.message);
-    }
-  });
+  const handleUpdateQuantity = async (itemId: string, quantity: number) => {
+    await updateQuantity(itemId, quantity);
+  };
 
-  // Update cart quantity
-  const updateQuantity = useMutation({
-    mutationFn: async ({ itemId, quantity }: { itemId: string; quantity: number }) => {
-      if (quantity <= 0) {
-        const { error } = await supabase.from('cart_items').delete().eq('id', itemId);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from('cart_items').update({ quantity }).eq('id', itemId);
-        if (error) throw error;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
-    }
-  });
+  const handleRemoveFromCart = async (itemId: string) => {
+    await removeFromCart(itemId);
+  };
 
-  // Remove from cart
-  const removeFromCart = useMutation({
-    mutationFn: async (itemId: string) => {
-      const { error } = await supabase.from('cart_items').delete().eq('id', itemId);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
-      toast.success(isRTL ? 'تم الحذف من السلة' : 'Removed from cart');
-    }
-  });
-
-  // Place order
-  const placeOrder = useMutation({
-    mutationFn: async () => {
-      if (!user) throw new Error('يجب تسجيل الدخول');
-      if (cartItems.length === 0) throw new Error('السلة فارغة');
-
-      // Create order
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          user_id: user.id,
-          total_amount: cartTotal,
-          shipping_address: checkoutData.shipping_address,
-          phone: checkoutData.phone,
-          notes: checkoutData.notes,
-          status: 'pending'
-        })
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
-      // Create order items
-      const orderItems = cartItems.map(item => ({
-        order_id: order.id,
-        product_id: item.product_id,
-        quantity: item.quantity,
-        unit_price: item.product.price
-      }));
-
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
-
-      if (itemsError) throw itemsError;
-
-      // Clear cart
-      const { error: clearError } = await supabase
-        .from('cart_items')
-        .delete()
-        .eq('user_id', user.id);
-
-      if (clearError) throw clearError;
-
-      return order;
-    },
-    onSuccess: (order) => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
-      setShowCheckout(false);
-      setShowCart(false);
-      toast.success(
-        isRTL 
-          ? `تم إنشاء الطلب بنجاح! ${order.grants_content_access ? '🎉 حصلت على وصول مجاني للمحتوى الغذائي' : ''}`
-          : `Order placed successfully! ${order.grants_content_access ? '🎉 You got free access to nutritional content' : ''}`
-      );
-    },
-    onError: (error: Error) => {
-      toast.error(error.message);
-    }
-  });
-
-  const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
+  const handleCheckout = () => {
+    setShowCart(false);
+    navigate('/checkout');
+  };
 
   return (
     <Layout>
@@ -245,23 +137,21 @@ const Store = () => {
               </p>
             </div>
 
-            {user && (
-              <Button 
-                onClick={() => setShowCart(true)}
-                variant="outline"
-                className="relative"
-              >
-                <ShoppingCart className="h-5 w-5" />
-                <span className={`${isRTL ? 'mr-2' : 'ml-2'}`}>
-                  {isRTL ? 'السلة' : 'Cart'}
-                </span>
-                {cartItems.length > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs">
-                    {cartItems.length}
-                  </Badge>
-                )}
-              </Button>
-            )}
+            <Button 
+              onClick={() => setShowCart(true)}
+              variant="outline"
+              className="relative"
+            >
+              <ShoppingCart className="h-5 w-5" />
+              <span className={`${isRTL ? 'mr-2' : 'ml-2'}`}>
+                {isRTL ? 'السلة' : 'Cart'}
+              </span>
+              {cartItems.length > 0 && (
+                <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                  {cartItems.length}
+                </Badge>
+              )}
+            </Button>
           </div>
 
           {/* Access Promotion Banner */}
@@ -360,15 +250,8 @@ const Store = () => {
                       </span>
                       <Button 
                         size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (!user) {
-                            toast.error(isRTL ? 'يجب تسجيل الدخول أولاً' : 'Please login first');
-                            return;
-                          }
-                          addToCart.mutate(product.id);
-                        }}
-                        disabled={addToCart.isPending}
+                        onClick={(e) => handleAddToCart(product, e)}
+                        disabled={cartLoading}
                       >
                         <ShoppingCart className="h-4 w-4" />
                       </Button>
@@ -471,14 +354,10 @@ const Store = () => {
                     <Button 
                       size="lg"
                       onClick={() => {
-                        if (!user) {
-                          toast.error(isRTL ? 'يجب تسجيل الدخول أولاً' : 'Please login first');
-                          return;
-                        }
-                        addToCart.mutate(selectedProduct.id);
+                        handleAddToCart(selectedProduct);
                         setSelectedProduct(null);
                       }}
-                      disabled={addToCart.isPending}
+                      disabled={cartLoading}
                       className="gap-2"
                     >
                       <ShoppingCart className="h-5 w-5" />
@@ -536,7 +415,7 @@ const Store = () => {
                         size="icon" 
                         variant="outline" 
                         className="h-8 w-8"
-                        onClick={() => updateQuantity.mutate({ itemId: item.id, quantity: item.quantity - 1 })}
+                        onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
                       >
                         <Minus className="h-4 w-4" />
                       </Button>
@@ -545,7 +424,7 @@ const Store = () => {
                         size="icon" 
                         variant="outline" 
                         className="h-8 w-8"
-                        onClick={() => updateQuantity.mutate({ itemId: item.id, quantity: item.quantity + 1 })}
+                        onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
@@ -553,7 +432,7 @@ const Store = () => {
                         size="icon" 
                         variant="ghost" 
                         className="h-8 w-8 text-destructive"
-                        onClick={() => removeFromCart.mutate(item.id)}
+                        onClick={() => handleRemoveFromCart(item.id)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -590,92 +469,13 @@ const Store = () => {
                   <Button 
                     className="w-full" 
                     size="lg"
-                    onClick={() => {
-                      setShowCart(false);
-                      setShowCheckout(true);
-                    }}
+                    onClick={handleCheckout}
                   >
                     {isRTL ? 'إتمام الطلب' : 'Proceed to Checkout'}
                   </Button>
                 </div>
               </div>
             )}
-          </DialogContent>
-        </Dialog>
-
-        {/* Checkout Dialog */}
-        <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>{isRTL ? 'إتمام الطلب' : 'Checkout'}</DialogTitle>
-            </DialogHeader>
-
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-foreground">
-                  {isRTL ? 'عنوان الشحن' : 'Shipping Address'}
-                </label>
-                <Textarea
-                  value={checkoutData.shipping_address}
-                  onChange={(e) => setCheckoutData(prev => ({ ...prev, shipping_address: e.target.value }))}
-                  placeholder={isRTL ? 'أدخل عنوان الشحن بالتفصيل...' : 'Enter detailed shipping address...'}
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-foreground">
-                  {isRTL ? 'رقم الهاتف' : 'Phone Number'}
-                </label>
-                <Input
-                  value={checkoutData.phone}
-                  onChange={(e) => setCheckoutData(prev => ({ ...prev, phone: e.target.value }))}
-                  placeholder={isRTL ? '01xxxxxxxxx' : '01xxxxxxxxx'}
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-foreground">
-                  {isRTL ? 'ملاحظات (اختياري)' : 'Notes (optional)'}
-                </label>
-                <Textarea
-                  value={checkoutData.notes}
-                  onChange={(e) => setCheckoutData(prev => ({ ...prev, notes: e.target.value }))}
-                  placeholder={isRTL ? 'أي ملاحظات إضافية...' : 'Any additional notes...'}
-                  className="mt-1"
-                />
-              </div>
-
-              <div className="border-t pt-4">
-                <div className="flex justify-between items-center text-lg mb-4">
-                  <span className="font-semibold">{isRTL ? 'الإجمالي:' : 'Total:'}</span>
-                  <span className="font-bold text-primary">{cartTotal.toLocaleString()} {isRTL ? 'ج.م' : 'EGP'}</span>
-                </div>
-
-                {grantsAccess && (
-                  <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg mb-4">
-                    <div className="flex items-center gap-2 text-green-600">
-                      <Gift className="h-5 w-5" />
-                      <span className="font-medium text-sm">
-                        {isRTL ? '🎉 ستحصل على وصول مجاني للمحتوى الغذائي!' : '🎉 You will get FREE access to nutritional content!'}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                <Button 
-                  className="w-full" 
-                  size="lg"
-                  onClick={() => placeOrder.mutate()}
-                  disabled={placeOrder.isPending || !checkoutData.shipping_address || !checkoutData.phone}
-                >
-                  {placeOrder.isPending 
-                    ? (isRTL ? 'جارٍ الإرسال...' : 'Processing...') 
-                    : (isRTL ? 'تأكيد الطلب' : 'Confirm Order')}
-                </Button>
-              </div>
-            </div>
           </DialogContent>
         </Dialog>
       </div>

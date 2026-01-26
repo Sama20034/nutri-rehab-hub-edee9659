@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Gift, ShoppingBag, MapPin, Phone, FileText, CreditCard } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Gift, ShoppingBag, MapPin, Phone, FileText, CreditCard, Mail, User } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { z } from 'zod';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
+import { useCart, GuestCartItem } from '@/hooks/useCart';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Product {
@@ -29,29 +31,34 @@ interface CartItem {
   product: Product;
 }
 
+// Validation schema
+const checkoutSchema = z.object({
+  full_name: z.string().trim().min(2, 'Name must be at least 2 characters').max(100),
+  email: z.string().trim().email('Invalid email address').max(255),
+  shipping_address: z.string().trim().min(10, 'Address must be at least 10 characters').max(500),
+  phone: z.string().trim().regex(/^01[0125][0-9]{8}$/, 'Invalid Egyptian phone number'),
+  notes: z.string().max(500).optional()
+});
+
 const Checkout = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { guestCart, clearCart } = useCart();
   const isRTL = language === 'ar';
 
   const [checkoutData, setCheckoutData] = useState({
+    full_name: '',
+    email: '',
     shipping_address: '',
     phone: '',
     notes: ''
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Redirect if not logged in
-  useEffect(() => {
-    if (!user) {
-      toast.error(isRTL ? 'يجب تسجيل الدخول أولاً' : 'Please login first');
-      navigate('/auth');
-    }
-  }, [user, navigate, isRTL]);
-
-  // Fetch cart items
-  const { data: cartItems = [], isLoading } = useQuery({
+  // Fetch cart items for logged-in users
+  const { data: dbCartItems = [], isLoading: loadingDbCart } = useQuery({
     queryKey: ['cart', user?.id],
     queryFn: async () => {
       if (!user) return [];
@@ -69,35 +76,87 @@ const Checkout = () => {
     enabled: !!user
   });
 
+  // Use database cart for logged-in users, guest cart for guests
+  const cartItems: (CartItem | GuestCartItem)[] = user ? dbCartItems : guestCart;
+  const isLoading = user ? loadingDbCart : false;
+
   const cartTotal = cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
   const grantsAccess = cartTotal >= 7500;
 
   // Redirect if cart is empty
   useEffect(() => {
-    if (!isLoading && cartItems.length === 0 && user) {
+    if (!isLoading && cartItems.length === 0) {
       toast.error(isRTL ? 'السلة فارغة' : 'Cart is empty');
       navigate('/store');
     }
-  }, [cartItems, isLoading, navigate, isRTL, user]);
+  }, [cartItems, isLoading, navigate, isRTL]);
+
+  // Pre-fill user data if logged in
+  useEffect(() => {
+    if (user?.email) {
+      setCheckoutData(prev => ({ ...prev, email: user.email || '' }));
+    }
+  }, [user]);
+
+  // Validate form
+  const validateForm = () => {
+    try {
+      // For logged-in users, email is optional (we have their user_id)
+      const schemaToUse = user 
+        ? checkoutSchema.extend({
+            email: z.string().optional(),
+            full_name: z.string().optional()
+          })
+        : checkoutSchema;
+      
+      schemaToUse.parse(checkoutData);
+      setErrors({});
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const newErrors: Record<string, string> = {};
+        error.errors.forEach(err => {
+          if (err.path[0]) {
+            newErrors[err.path[0] as string] = err.message;
+          }
+        });
+        setErrors(newErrors);
+      }
+      return false;
+    }
+  };
 
   // Place order mutation
   const placeOrder = useMutation({
     mutationFn: async () => {
-      if (!user) throw new Error(isRTL ? 'يجب تسجيل الدخول' : 'Please login');
       if (cartItems.length === 0) throw new Error(isRTL ? 'السلة فارغة' : 'Cart is empty');
+      
+      if (!validateForm()) {
+        throw new Error(isRTL ? 'يرجى تصحيح الأخطاء' : 'Please fix the errors');
+      }
 
-      // Create order
+      // Create order data
+      const orderData: any = {
+        total_amount: cartTotal,
+        shipping_address: checkoutData.shipping_address,
+        phone: checkoutData.phone,
+        notes: checkoutData.notes || null,
+        status: 'pending',
+        grants_content_access: grantsAccess
+      };
+
+      // If user is logged in, include user_id
+      if (user) {
+        orderData.user_id = user.id;
+      } else {
+        // Guest order - store guest info in dedicated columns
+        orderData.guest_name = checkoutData.full_name;
+        orderData.guest_email = checkoutData.email;
+      }
+
       const { data: order, error: orderError } = await supabase
         .from('orders')
-        .insert({
-          user_id: user.id,
-          total_amount: cartTotal,
-          shipping_address: checkoutData.shipping_address,
-          phone: checkoutData.phone,
-          notes: checkoutData.notes,
-          status: 'pending',
-          grants_content_access: grantsAccess
-        })
+        .insert(orderData)
         .select()
         .single();
 
@@ -118,12 +177,16 @@ const Checkout = () => {
       if (itemsError) throw itemsError;
 
       // Clear cart
-      const { error: clearError } = await supabase
-        .from('cart_items')
-        .delete()
-        .eq('user_id', user.id);
+      if (user) {
+        const { error: clearError } = await supabase
+          .from('cart_items')
+          .delete()
+          .eq('user_id', user.id);
 
-      if (clearError) throw clearError;
+        if (clearError) throw clearError;
+      } else {
+        clearCart();
+      }
 
       return order;
     },
@@ -276,6 +339,46 @@ const Checkout = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-5">
+                {/* Guest fields - only show if not logged in */}
+                {!user && (
+                  <>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                        <User className="h-4 w-4 text-muted-foreground" />
+                        {isRTL ? 'الاسم الكامل' : 'Full Name'}
+                        <span className="text-destructive">*</span>
+                      </label>
+                      <Input
+                        value={checkoutData.full_name}
+                        onChange={(e) => setCheckoutData(prev => ({ ...prev, full_name: e.target.value }))}
+                        placeholder={isRTL ? 'أدخل اسمك الكامل' : 'Enter your full name'}
+                        className={errors.full_name ? 'border-destructive' : ''}
+                      />
+                      {errors.full_name && (
+                        <p className="text-sm text-destructive">{errors.full_name}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                        <Mail className="h-4 w-4 text-muted-foreground" />
+                        {isRTL ? 'البريد الإلكتروني' : 'Email'}
+                        <span className="text-destructive">*</span>
+                      </label>
+                      <Input
+                        type="email"
+                        value={checkoutData.email}
+                        onChange={(e) => setCheckoutData(prev => ({ ...prev, email: e.target.value }))}
+                        placeholder="example@email.com"
+                        className={errors.email ? 'border-destructive' : ''}
+                      />
+                      {errors.email && (
+                        <p className="text-sm text-destructive">{errors.email}</p>
+                      )}
+                    </div>
+                  </>
+                )}
+
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-foreground flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -286,8 +389,11 @@ const Checkout = () => {
                     value={checkoutData.shipping_address}
                     onChange={(e) => setCheckoutData(prev => ({ ...prev, shipping_address: e.target.value }))}
                     placeholder={isRTL ? 'أدخل عنوان الشحن بالتفصيل (المدينة - الحي - الشارع - رقم المبنى)...' : 'Enter detailed shipping address (City - District - Street - Building)...'}
-                    className="min-h-[100px]"
+                    className={`min-h-[100px] ${errors.shipping_address ? 'border-destructive' : ''}`}
                   />
+                  {errors.shipping_address && (
+                    <p className="text-sm text-destructive">{errors.shipping_address}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -301,7 +407,11 @@ const Checkout = () => {
                     onChange={(e) => setCheckoutData(prev => ({ ...prev, phone: e.target.value }))}
                     placeholder="01xxxxxxxxx"
                     type="tel"
+                    className={errors.phone ? 'border-destructive' : ''}
                   />
+                  {errors.phone && (
+                    <p className="text-sm text-destructive">{errors.phone}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
