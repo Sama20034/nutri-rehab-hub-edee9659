@@ -136,13 +136,24 @@ const Checkout = () => {
   const cartTotal = cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
   const grantsAccess = cartTotal >= 7500;
 
-  // Redirect if cart is empty
+  // Track if we've done the initial check
+  const [hasCheckedCart, setHasCheckedCart] = useState(false);
+
+  // Redirect if cart is empty (with delay to allow localStorage to load)
   useEffect(() => {
-    if (!isLoading && cartItems.length === 0) {
-      toast.error(isRTL ? 'السلة فارغة' : 'Cart is empty');
-      navigate('/store');
-    }
-  }, [cartItems, isLoading, navigate, isRTL]);
+    // Give localStorage time to load for guest users
+    const timer = setTimeout(() => {
+      if (!isLoading && cartItems.length === 0 && hasCheckedCart) {
+        toast.error(isRTL ? 'السلة فارغة' : 'Cart is empty');
+        navigate('/store');
+      }
+      if (!hasCheckedCart) {
+        setHasCheckedCart(true);
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [cartItems, isLoading, navigate, isRTL, hasCheckedCart]);
 
   // Pre-fill user data if logged in
   useEffect(() => {
