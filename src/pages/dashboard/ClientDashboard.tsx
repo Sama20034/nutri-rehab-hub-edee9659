@@ -13,7 +13,7 @@ import { AppointmentsSection } from '@/components/dashboard/sections/Appointment
 import { PlaceholderSection } from '@/components/dashboard/sections/PlaceholderSection';
 import { ExercisesSection } from '@/components/dashboard/sections/ExercisesSection';
 import { NutritionSection } from '@/components/dashboard/sections/NutritionSection';
-import { ChatSection } from '@/components/dashboard/sections/ChatSection';
+
 import { VideosSection } from '@/components/dashboard/sections/VideosSection';
 import { MedicalFollowupSection } from '@/components/dashboard/sections/MedicalFollowupSection';
 import { ProgressSection } from '@/components/dashboard/sections/ProgressSection';
@@ -139,13 +139,6 @@ const ClientDashboard = () => {
             isRTL={isRTL}
             clientId={user?.id || ''}
             hasMedicalFollowup={profile?.medical_followup || false}
-          />
-        );
-      case 'chat':
-        return (
-          <ChatSection 
-            isRTL={isRTL}
-            clientId={user?.id || ''}
           />
         );
       default:

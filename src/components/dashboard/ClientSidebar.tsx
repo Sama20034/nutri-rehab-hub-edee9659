@@ -9,8 +9,6 @@ import {
   TrendingUp, 
   Video, 
   Stethoscope, 
-   
-  MessageCircle,
   User,
   X,
   LogOut,
@@ -47,7 +45,6 @@ const sidebarItems: SidebarItem[] = [
   { id: 'medical-followup', labelAr: 'المتابعة الطبية', labelEn: 'Medical Follow-up', icon: <Stethoscope className="h-5 w-5" /> },
   { id: 'progress', labelAr: 'متابعة التقدم', labelEn: 'Progress', icon: <TrendingUp className="h-5 w-5" /> },
   { id: 'videos', labelAr: 'الفيديوهات', labelEn: 'Videos', icon: <Video className="h-5 w-5" /> },
-  { id: 'chat', labelAr: 'المحادثات', labelEn: 'Chat', icon: <MessageCircle className="h-5 w-5" /> },
 ];
 
 export const ClientSidebar = ({ 
