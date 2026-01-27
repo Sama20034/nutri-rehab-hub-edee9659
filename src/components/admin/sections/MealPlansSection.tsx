@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, Edit, Trash2, Calendar, Coffee, Sun, Moon, Apple, 
   Clock, Flame, ChefHat, Save, X, Search, Image, Video,
-  ChevronLeft, ChevronRight, Users, Check
+  ChevronLeft, ChevronRight, Users, Check, UserPlus
 } from 'lucide-react';
+import { MultiSelect } from '@/components/ui/multi-select';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -109,6 +110,10 @@ export const MealPlansSection = () => {
   const [activeTab, setActiveTab] = useState('plans');
   const [selectedDay, setSelectedDay] = useState(1);
   
+  // Client assignment states
+  const [clients, setClients] = useState<{ id: string; user_id: string; full_name: string }[]>([]);
+  const [selectedClients, setSelectedClients] = useState<string[]>([]);
+
   // Dialog states
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<MealPlan | null>(null);
@@ -163,9 +168,51 @@ export const MealPlansSection = () => {
     }
   }, []);
 
+  const fetchClients = useCallback(async () => {
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, user_id, full_name')
+      .eq('status', 'approved');
+    
+    const { data: roles } = await supabase
+      .from('user_roles')
+      .select('user_id, role')
+      .eq('role', 'client');
+    
+    if (profiles && roles) {
+      const clientUserIds = roles.map(r => r.user_id);
+      const clientProfiles = profiles.filter(p => clientUserIds.includes(p.user_id));
+      setClients(clientProfiles);
+    }
+  }, []);
+
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+    fetchClients();
+  }, [fetchData, fetchClients]);
+
+  const clientOptions = clients.map(c => ({
+    value: c.user_id,
+    label: c.full_name || 'بدون اسم'
+  }));
+
+  const assignMealPlanToClients = async (mealPlanId: string, clientIds: string[]) => {
+    try {
+      const assignments = clientIds.map(clientId => ({
+        meal_plan_id: mealPlanId,
+        client_id: clientId,
+        assigned_by: user?.id,
+        status: 'active',
+        start_date: new Date().toISOString().split('T')[0]
+      }));
+      
+      const { error } = await supabase.from('client_meal_plans').insert(assignments);
+      if (error) throw error;
+      return { error: null };
+    } catch (err) {
+      return { error: err as Error };
+    }
+  };
 
   const resetPlanForm = () => {
     setPlanFormData({
@@ -179,6 +226,7 @@ export const MealPlansSection = () => {
       snacks: []
     });
     setEditingPlan(null);
+    setSelectedClients([]);
   };
 
   const resetRecipeForm = () => {
@@ -238,15 +286,30 @@ export const MealPlansSection = () => {
     };
 
     try {
+      let newPlanId: string | null = null;
+      
       if (editingPlan) {
         const { error } = await supabase.from('meal_plans').update(planData).eq('id', editingPlan.id);
         if (error) throw error;
+        newPlanId = editingPlan.id;
         toast.success(isRTL ? 'تم تحديث الخطة' : 'Plan updated');
       } else {
-        const { error } = await supabase.from('meal_plans').insert(planData);
+        const { data, error } = await supabase.from('meal_plans').insert(planData).select('id').single();
         if (error) throw error;
+        newPlanId = data?.id || null;
         toast.success(isRTL ? 'تم إضافة الخطة' : 'Plan added');
       }
+
+      // Assign to clients if any selected
+      if (selectedClients.length > 0 && newPlanId) {
+        const assignResult = await assignMealPlanToClients(newPlanId, selectedClients);
+        if (assignResult.error) {
+          toast.error(isRTL ? 'تم حفظ الخطة لكن فشل التعيين للعملاء' : 'Plan saved but failed to assign to clients');
+        } else {
+          toast.success(isRTL ? `تم تعيين الخطة لـ ${selectedClients.length} عميل` : `Assigned to ${selectedClients.length} clients`);
+        }
+      }
+
       setIsDialogOpen(false);
       resetPlanForm();
       fetchData();
@@ -750,6 +813,27 @@ export const MealPlansSection = () => {
                 onChange={(e) => setPlanFormData({ ...planFormData, description: e.target.value })}
                 placeholder={isRTL ? 'وصف الخطة...' : 'Plan description...'}
               />
+            </div>
+
+            {/* Client Assignment */}
+            <div className="border-t pt-4 mt-4">
+              <Label className="flex items-center gap-2 mb-2">
+                <UserPlus className="h-4 w-4" />
+                {isRTL ? 'تعيين الخطة للعملاء' : 'Assign to Clients'}
+              </Label>
+              <MultiSelect
+                options={clientOptions}
+                selected={selectedClients}
+                onChange={setSelectedClients}
+                placeholder={isRTL ? 'اختر العملاء...' : 'Select clients...'}
+                searchPlaceholder={isRTL ? 'بحث عن عميل...' : 'Search clients...'}
+                emptyText={isRTL ? 'لا يوجد عملاء' : 'No clients found'}
+              />
+              {selectedClients.length > 0 && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  {isRTL ? `سيتم تعيين الخطة لـ ${selectedClients.length} عميل` : `Will assign to ${selectedClients.length} client(s)`}
+                </p>
+              )}
             </div>
           </div>
           <DialogFooter className="mt-4">
