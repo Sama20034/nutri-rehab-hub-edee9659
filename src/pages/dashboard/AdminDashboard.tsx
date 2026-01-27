@@ -14,13 +14,13 @@ import { ClientsSection } from '@/components/admin/sections/ClientsSection';
 import { AssignmentsSection } from '@/components/admin/sections/AssignmentsSection';
 import { ExercisesSection } from '@/components/admin/sections/ExercisesSection';
 import { DietPlansSection } from '@/components/admin/sections/DietPlansSection';
+import { MealPlansSection } from '@/components/admin/sections/MealPlansSection';
 import { ArticlesSection } from '@/components/admin/sections/ArticlesSection';
 import { StoreSection } from '@/components/admin/sections/StoreSection';
 import { PaymentsSection } from '@/components/admin/sections/PaymentsSection';
 import { DiscountsSection } from '@/components/admin/sections/DiscountsSection';
 import { VideosSection } from '@/components/admin/sections/VideosSection';
 import { TransformationsSection } from '@/components/admin/sections/TransformationsSection';
-
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import logo from '@/assets/logo.png';
 
@@ -165,6 +165,8 @@ const AdminDashboard = () => {
             onAssignToClients={assignExerciseToClients}
           />
         );
+      case 'meal-plans':
+        return <MealPlansSection />;
       case 'diets':
         return (
           <DietPlansSection
