@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ImageUpload } from '@/components/ui/image-upload';
 import { Plus, Search, Edit, Trash2, Dumbbell, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -327,10 +328,12 @@ export const ExercisesSection = ({
               />
             </div>
             <div>
-              <Label>{isRTL ? 'رابط الصورة' : 'Image URL'}</Label>
-              <Input
+              <Label>{isRTL ? 'صورة التمرين' : 'Exercise Image'}</Label>
+              <ImageUpload
                 value={exerciseForm.image_url}
-                onChange={(e) => setExerciseForm({ ...exerciseForm, image_url: e.target.value })}
+                onChange={(url) => setExerciseForm({ ...exerciseForm, image_url: url })}
+                placeholder={isRTL ? 'اختر صورة التمرين' : 'Choose exercise image'}
+                folder="exercises"
               />
             </div>
             <div>

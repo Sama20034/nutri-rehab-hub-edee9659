@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ImageUpload } from '@/components/ui/image-upload';
 import { motion } from 'framer-motion';
 import { 
   Package, Plus, Edit, Trash2, Eye, Search, Filter,
@@ -423,10 +424,12 @@ export const StoreSection = ({
                         </div>
                       </div>
                       <div>
-                        <Label>{isRTL ? 'رابط الصورة' : 'Image URL'}</Label>
-                        <Input
+                        <Label>{isRTL ? 'صورة المنتج' : 'Product Image'}</Label>
+                        <ImageUpload
                           value={newProduct.image_url}
-                          onChange={(e) => setNewProduct({ ...newProduct, image_url: e.target.value })}
+                          onChange={(url) => setNewProduct({ ...newProduct, image_url: url })}
+                          placeholder={isRTL ? 'اختر صورة المنتج' : 'Choose product image'}
+                          folder="products"
                         />
                       </div>
                       <div>

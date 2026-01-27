@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { ImageUploadCompact } from '@/components/ui/image-upload';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, Edit, Trash2, Calendar, Coffee, Sun, Moon, Apple, 
@@ -993,12 +994,13 @@ export const MealPlansSection = () => {
               <div>
                 <Label className="flex items-center gap-2">
                   <Image className="h-4 w-4" />
-                  {isRTL ? 'رابط الصورة' : 'Image URL'}
+                  {isRTL ? 'صورة الوصفة' : 'Recipe Image'}
                 </Label>
-                <Input
+                <ImageUploadCompact
                   value={recipeFormData.image_url}
-                  onChange={(e) => setRecipeFormData({ ...recipeFormData, image_url: e.target.value })}
-                  placeholder="https://..."
+                  onChange={(url) => setRecipeFormData({ ...recipeFormData, image_url: url })}
+                  placeholder={isRTL ? 'رفع صورة' : 'Upload image'}
+                  folder="recipes"
                 />
               </div>
               <div>
@@ -1124,11 +1126,14 @@ const MealInputCard = ({
             value={meal.time}
             onChange={(e) => onChange({ ...meal, time: e.target.value })}
           />
-          <Input
-            placeholder={isRTL ? 'رابط الصورة' : 'Image URL'}
-            value={meal.image_url || ''}
-            onChange={(e) => onChange({ ...meal, image_url: e.target.value })}
-          />
+          <div className="col-span-3">
+            <ImageUploadCompact
+              value={meal.image_url || ''}
+              onChange={(url) => onChange({ ...meal, image_url: url })}
+              placeholder={isRTL ? 'رفع صورة' : 'Upload image'}
+              folder="meals"
+            />
+          </div>
         </div>
       </CardContent>
     </Card>
