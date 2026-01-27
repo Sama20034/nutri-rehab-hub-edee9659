@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ImageUpload } from '@/components/ui/image-upload';
 import { Plus, Search, Edit, Trash2, Video, Users, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -383,11 +384,12 @@ export const VideosSection = () => {
               />
             </div>
             <div>
-              <Label>{isRTL ? 'رابط الصورة المصغرة' : 'Thumbnail URL'}</Label>
-              <Input
+              <Label>{isRTL ? 'الصورة المصغرة' : 'Thumbnail'}</Label>
+              <ImageUpload
                 value={formData.thumbnail_url}
-                onChange={(e) => setFormData({ ...formData, thumbnail_url: e.target.value })}
-                placeholder="https://..."
+                onChange={(url) => setFormData({ ...formData, thumbnail_url: url })}
+                placeholder={isRTL ? 'اختر صورة مصغرة' : 'Choose thumbnail'}
+                folder="thumbnails"
               />
             </div>
             <div>
