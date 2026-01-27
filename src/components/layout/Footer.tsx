@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MessageCircle, Facebook, Instagram, Youtube, Clock } from 'lucide-react';
+import { Facebook, Instagram, Youtube } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import alligatorLogo from '@/assets/alligator-fit-logo.png';
 
@@ -21,62 +21,32 @@ const Footer = () => {
   const { t, isRTL } = useLanguage();
 
   const socialLinks = [
-    { 
-      icon: Facebook, 
-      href: 'https://www.facebook.com/share/1Cs13SZqDx/', 
-      label: 'Facebook',
-      color: 'hover:bg-[#1877F2]'
-    },
-    { 
-      icon: Instagram, 
-      href: 'https://www.instagram.com/dr.mahmoud_reaky', 
-      label: 'Instagram',
-      color: 'hover:bg-gradient-to-tr hover:from-[#F58529] hover:via-[#DD2A7B] hover:to-[#8134AF]'
-    },
-    { 
-      icon: Instagram, 
-      href: 'https://www.instagram.com/alligator_fit_team', 
-      label: 'Alligator Fit Team',
-      color: 'hover:bg-gradient-to-tr hover:from-[#F58529] hover:via-[#DD2A7B] hover:to-[#8134AF]'
-    },
-    { 
-      icon: TikTokIcon, 
-      href: 'https://www.tiktok.com/@mahmoudreagy', 
-      label: 'TikTok',
-      color: 'hover:bg-black'
-    },
-    { 
-      icon: Youtube, 
-      href: 'https://youtube.com/@mahmoudreagy', 
-      label: 'YouTube',
-      color: 'hover:bg-[#FF0000]'
-    },
-    { 
-      icon: ThreadsIcon, 
-      href: 'https://www.threads.com/@dr.mahmoud_reaky', 
-      label: 'Threads',
-      color: 'hover:bg-black'
-    },
+    { icon: Instagram, href: 'https://www.instagram.com/dr.mahmoud_reaky', label: 'Instagram' },
+    { icon: Facebook, href: 'https://www.facebook.com/share/1Cs13SZqDx/', label: 'Facebook' },
+    { icon: Youtube, href: 'https://youtube.com/@mahmoudreagy', label: 'YouTube' },
+    { icon: TikTokIcon, href: 'https://www.tiktok.com/@mahmoudreagy', label: 'TikTok' },
+    { icon: ThreadsIcon, href: 'https://www.threads.com/@dr.mahmoud_reaky', label: 'Threads' },
   ];
 
   return (
     <footer className="bg-card border-t border-border">
-      <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-          {/* Brand */}
-          <div className="space-y-6">
-            <Link to="/" className="flex items-center gap-3">
-              <img src={alligatorLogo} alt="Dr. Mahmoud Al-Reaky" className="h-16 w-auto" />
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+          
+          {/* Brand Section */}
+          <div className="space-y-4 text-center md:text-right order-1 md:order-3">
+            <Link to="/" className="inline-flex items-center gap-3 justify-center md:justify-end">
+              <img src={alligatorLogo} alt="Alligator Fit" className="h-12 w-auto" />
             </Link>
-            <p className="text-muted-foreground text-sm leading-relaxed">
+            <p className="text-muted-foreground text-sm leading-relaxed max-w-xs mx-auto md:mx-0 md:ml-auto">
               {isRTL 
-                ? 'متخصصون في التغذية العلاجية والتأهيل الطبي. نساعدك في تحقيق أهدافك الصحية بأفضل الطرق العلمية الحديثة.'
-                : 'Specialists in therapeutic nutrition and medical rehabilitation. We help you achieve your health goals with the best modern scientific methods.'
+                ? 'منصة متكاملة للتدريب والتغذية مع متابعة شخصية من فريق متخصص لضمان تحقيق أهدافك.'
+                : 'An integrated platform for training and nutrition with personal follow-up from a specialized team to ensure you achieve your goals.'
               }
             </p>
             
             {/* Social Links */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-3 justify-center md:justify-end">
               {socialLinks.map((social, index) => (
                 <a
                   key={index}
@@ -84,7 +54,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.label}
-                  className={`w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground ${social.color} hover:text-white transition-all duration-300`}
+                  className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-colors"
                 >
                   <social.icon className="h-5 w-5" />
                 </a>
@@ -93,16 +63,14 @@ const Footer = () => {
           </div>
 
           {/* Quick Links */}
-          <div>
-            <h4 className="text-foreground font-semibold mb-6">{t('footer.links')}</h4>
-            <ul className="space-y-3">
+          <div className="text-center order-2">
+            <h4 className="text-foreground font-semibold mb-4">{isRTL ? 'روابط سريعة' : 'Quick Links'}</h4>
+            <ul className="space-y-2">
               {[
-                { path: '/', label: t('nav.home') },
-                { path: '/about', label: t('nav.about') },
-                { path: '/services', label: t('nav.services') },
+                { path: '/', label: isRTL ? 'الرئيسية' : 'Home' },
                 { path: '/packages', label: isRTL ? 'الباقات' : 'Packages' },
-                { path: '/store', label: isRTL ? 'المتجر' : 'Store' },
-                { path: '/contact', label: t('nav.contact') },
+                { path: '/about', label: isRTL ? 'من نحن' : 'About Us' },
+                { path: '/contact', label: isRTL ? 'تواصل معنا' : 'Contact Us' },
               ].map((link) => (
                 <li key={link.path}>
                   <Link
@@ -116,16 +84,16 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Policies */}
-          <div>
-            <h4 className="text-foreground font-semibold mb-6">{t('footer.policies')}</h4>
-            <ul className="space-y-3">
+          {/* Legal Links */}
+          <div className="text-center md:text-left order-3 md:order-1">
+            <h4 className="text-foreground font-semibold mb-4">{isRTL ? 'قانوني' : 'Legal'}</h4>
+            <ul className="space-y-2">
               <li>
                 <Link
                   to="/privacy"
                   className="text-muted-foreground hover:text-primary transition-colors text-sm"
                 >
-                  {t('footer.privacy')}
+                  {isRTL ? 'سياسة الخصوصية' : 'Privacy Policy'}
                 </Link>
               </li>
               <li>
@@ -133,124 +101,17 @@ const Footer = () => {
                   to="/terms"
                   className="text-muted-foreground hover:text-primary transition-colors text-sm"
                 >
-                  {t('footer.terms')}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/refund"
-                  className="text-muted-foreground hover:text-primary transition-colors text-sm"
-                >
-                  {t('footer.refund')}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/service-policy"
-                  className="text-muted-foreground hover:text-primary transition-colors text-sm"
-                >
-                  {isRTL ? 'سياسة الخدمة' : 'Service Policy'}
+                  {isRTL ? 'شروط الخدمة' : 'Terms of Service'}
                 </Link>
               </li>
             </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h4 className="text-foreground font-semibold mb-6">{t('contact.title')}</h4>
-            <ul className="space-y-4">
-              {/* WhatsApp - Primary */}
-              <li>
-                <a 
-                  href="https://wa.me/201016111733" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="flex items-center gap-3 text-muted-foreground text-sm hover:text-primary transition-colors group"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-[#25D366]/10 flex items-center justify-center group-hover:bg-[#25D366]/20 transition-colors">
-                    <MessageCircle className="h-5 w-5 text-[#25D366]" />
-                  </div>
-                  <div>
-                    <span className="block font-medium text-foreground">{isRTL ? 'واتساب' : 'WhatsApp'}</span>
-                    <span dir="ltr">01016111733</span>
-                  </div>
-                </a>
-              </li>
-              
-              {/* Phone */}
-              <li>
-                <a href="tel:+201016111733" className="flex items-center gap-3 text-muted-foreground text-sm hover:text-primary transition-colors group">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <Phone className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <span className="block font-medium text-foreground">{isRTL ? 'اتصل بنا' : 'Call Us'}</span>
-                    <span dir="ltr">01016111733</span>
-                  </div>
-                </a>
-              </li>
-
-              {/* Email */}
-              <li>
-                <a href="mailto:dr.mahmoudreaky@gmail.com" className="flex items-center gap-3 text-muted-foreground text-sm hover:text-primary transition-colors group">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <Mail className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <span className="block font-medium text-foreground">{isRTL ? 'البريد الإلكتروني' : 'Email'}</span>
-                    <span>dr.mahmoudreaky@gmail.com</span>
-                  </div>
-                </a>
-              </li>
-
-              {/* Working Hours */}
-              <li>
-                <div className="flex items-center gap-3 text-muted-foreground text-sm">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Clock className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <span className="block font-medium text-foreground">{isRTL ? 'ساعات العمل' : 'Working Hours'}</span>
-                    <span>{isRTL ? 'يومياً من 10 صباحاً - 10 مساءً' : 'Daily 10 AM - 10 PM'}</span>
-                  </div>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* WhatsApp CTA Bar */}
-        <div className="mt-12 p-6 rounded-2xl bg-gradient-to-r from-[#25D366]/10 to-primary/10 border border-[#25D366]/30">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-[#25D366] flex items-center justify-center">
-                <MessageCircle className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h4 className="font-bold text-foreground">
-                  {isRTL ? 'تواصل معنا مباشرة عبر واتساب' : 'Contact us directly via WhatsApp'}
-                </h4>
-                <p className="text-muted-foreground text-sm">
-                  {isRTL ? 'نرد على جميع الاستفسارات في أسرع وقت' : 'We respond to all inquiries as quickly as possible'}
-                </p>
-              </div>
-            </div>
-            <a
-              href="https://wa.me/201016111733"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-[#25D366] hover:bg-[#20BD5A] text-white px-6 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 shadow-lg"
-            >
-              <MessageCircle className="h-5 w-5" />
-              {isRTL ? 'راسلنا الآن' : 'Message Us Now'}
-            </a>
           </div>
         </div>
 
         {/* Copyright */}
-        <div className="mt-8 pt-8 border-t border-border text-center">
+        <div className="mt-10 pt-6 border-t border-border text-center">
           <p className="text-muted-foreground text-sm">
-            © {new Date().getFullYear()} Dr. Mahmoud Al-Reaky. {t('footer.rights')}
+            © {new Date().getFullYear()} Alligator Fit. {isRTL ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
           </p>
         </div>
       </div>
