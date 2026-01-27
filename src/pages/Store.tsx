@@ -7,9 +7,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCart, GuestCartItem } from "@/hooks/useCart";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   ShoppingCart, 
   Package, 
@@ -21,8 +21,12 @@ import {
   Minus,
   Trash2,
   Gift,
-  CheckCircle
+  CheckCircle,
+  Search,
+  Filter,
+  Star
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 interface Product {
   id: string;
@@ -61,6 +65,7 @@ const Store = () => {
   
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showCart, setShowCart] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch products
   const { data: products = [], isLoading: loadingProducts } = useQuery({
@@ -101,7 +106,19 @@ const Store = () => {
   const loadingCart = user ? loadingDbCart : false;
 
   const cartTotal = cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const grantsAccess = cartTotal >= 7500;
+
+  // Filter products based on search
+  const filteredProducts = products.filter(product => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      product.name.toLowerCase().includes(searchLower) ||
+      (product.name_ar?.toLowerCase().includes(searchLower)) ||
+      (product.description?.toLowerCase().includes(searchLower)) ||
+      (product.description_ar?.toLowerCase().includes(searchLower))
+    );
+  });
 
   const handleAddToCart = async (product: Product, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -123,141 +140,188 @@ const Store = () => {
 
   return (
     <Layout>
-      <div className={`min-h-screen bg-background py-8 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
-        <div className="container mx-auto px-4">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-                <Package className="h-8 w-8 text-primary" />
+      <div className={`min-h-screen bg-background ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+        {/* Hero Section */}
+        <div className="relative bg-gradient-to-b from-primary/10 via-background to-background py-16 md:py-24">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.15),transparent_60%)]" />
+          <div className="container mx-auto px-4 relative z-10">
+            <div className="max-w-3xl mx-auto text-center">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
                 {isRTL ? 'متجر المكملات الغذائية' : 'Supplements Store'}
               </h1>
-              <p className="text-muted-foreground mt-2">
-                {isRTL ? 'مكملات غذائية عالية الجودة مع متابعة طبية' : 'High-quality supplements with medical follow-up'}
+              <p className="text-lg md:text-xl text-muted-foreground mb-8">
+                {isRTL 
+                  ? 'مكملات غذائية عالية الجودة لدعم رحلتك الصحية' 
+                  : 'Premium supplements to support your health journey'}
               </p>
+              
+              {/* Search Bar */}
+              <div className="relative max-w-xl mx-auto">
+                <Search className={`absolute top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground ${isRTL ? 'right-4' : 'left-4'}`} />
+                <Input
+                  type="text"
+                  placeholder={isRTL ? 'ابحث عن المنتجات...' : 'Search products...'}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={`h-14 text-lg bg-card border-border/50 rounded-2xl ${isRTL ? 'pr-12 pl-4' : 'pl-12 pr-4'}`}
+                />
+              </div>
             </div>
+          </div>
+        </div>
 
+        <div className="container mx-auto px-4 pb-16">
+          {/* Stats Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-8 -mt-8">
+            <div className="flex items-center gap-6 text-sm text-muted-foreground">
+              <span className="flex items-center gap-2">
+                <Package className="h-4 w-4 text-primary" />
+                {filteredProducts.length} {isRTL ? 'منتج' : 'Products'}
+              </span>
+            </div>
+            
+            {/* Cart Button */}
             <Button 
               onClick={() => setShowCart(true)}
               variant="outline"
-              className="relative"
+              size="lg"
+              className="relative gap-2 rounded-xl border-border/50 bg-card/50 hover:bg-card"
             >
               <ShoppingCart className="h-5 w-5" />
-              <span className={`${isRTL ? 'mr-2' : 'ml-2'}`}>
-                {isRTL ? 'السلة' : 'Cart'}
-              </span>
-              {cartItems.length > 0 && (
-                <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs">
-                  {cartItems.length}
+              <span>{isRTL ? 'السلة' : 'Cart'}</span>
+              {cartCount > 0 && (
+                <Badge className="absolute -top-2 -right-2 h-6 w-6 flex items-center justify-center p-0 text-xs bg-primary">
+                  {cartCount}
                 </Badge>
               )}
             </Button>
           </div>
 
-          {/* Access Promotion Banner */}
-          <Card className="mb-8 border-primary/30 bg-gradient-to-r from-primary/10 to-primary/5">
-            <CardContent className="py-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-primary/20 rounded-full">
-                  <Gift className="h-8 w-8 text-primary" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-foreground">
-                    {isRTL ? '🎉 عرض خاص!' : '🎉 Special Offer!'}
-                  </h3>
-                  <p className="text-muted-foreground">
-                    {isRTL 
-                      ? 'عند شراء منتجات بقيمة 7,500 ج.م أو أكثر، احصل على وصول مجاني كامل للمحتوى الغذائي والوصفات!'
-                      : 'Purchase products worth 7,500 EGP or more and get FREE full access to nutritional content and recipes!'}
-                  </p>
-                </div>
+          {/* Special Offer Banner */}
+          <div className="mb-10 p-6 rounded-2xl bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border border-primary/20">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+              <div className="p-3 bg-primary/20 rounded-xl">
+                <Gift className="h-8 w-8 text-primary" />
               </div>
-            </CardContent>
-          </Card>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-foreground mb-1">
+                  {isRTL ? '🎉 عرض خاص!' : '🎉 Special Offer!'}
+                </h3>
+                <p className="text-muted-foreground">
+                  {isRTL 
+                    ? 'عند شراء منتجات بقيمة 7,500 ج.م أو أكثر، احصل على وصول مجاني للمحتوى الغذائي!'
+                    : 'Buy products worth 7,500 EGP+ and get FREE access to nutritional content!'}
+                </p>
+              </div>
+              {grantsAccess && cartTotal > 0 && (
+                <Badge className="bg-primary/20 text-primary border-0 px-4 py-2">
+                  <CheckCircle className="h-4 w-4 mr-1" />
+                  {isRTL ? 'مؤهل للعرض!' : 'Eligible!'}
+                </Badge>
+              )}
+            </div>
+          </div>
 
           {/* Products Grid */}
           {loadingProducts ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {[1, 2, 3, 4].map(i => (
-                <Card key={i} className="animate-pulse">
-                  <div className="h-48 bg-muted rounded-t-lg" />
-                  <CardContent className="p-4 space-y-3">
-                    <div className="h-4 bg-muted rounded w-3/4" />
-                    <div className="h-3 bg-muted rounded w-1/2" />
-                  </CardContent>
-                </Card>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                <div key={i} className="rounded-2xl overflow-hidden bg-card border border-border/50">
+                  <Skeleton className="h-56 w-full" />
+                  <div className="p-5 space-y-3">
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <div className="flex justify-between items-center pt-2">
+                      <Skeleton className="h-6 w-24" />
+                      <Skeleton className="h-10 w-10 rounded-xl" />
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
-          ) : products.length === 0 ? (
-            <Card className="p-12 text-center">
-              <Package className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+          ) : filteredProducts.length === 0 ? (
+            <div className="text-center py-20">
+              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
+                <Package className="h-10 w-10 text-muted-foreground" />
+              </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">
-                {isRTL ? 'لا توجد منتجات حالياً' : 'No products available'}
+                {searchQuery 
+                  ? (isRTL ? 'لا توجد نتائج' : 'No results found')
+                  : (isRTL ? 'لا توجد منتجات حالياً' : 'No products available')}
               </h3>
               <p className="text-muted-foreground">
-                {isRTL ? 'سيتم إضافة منتجات قريباً' : 'Products will be added soon'}
+                {searchQuery 
+                  ? (isRTL ? 'جرب البحث بكلمات أخرى' : 'Try different search terms')
+                  : (isRTL ? 'سيتم إضافة منتجات قريباً' : 'Products will be added soon')}
               </p>
-            </Card>
+            </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.map(product => (
-                <Card 
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredProducts.map(product => (
+                <div 
                   key={product.id} 
-                  className="group hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer"
+                  className="group rounded-2xl overflow-hidden bg-card border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 cursor-pointer"
                   onClick={() => setSelectedProduct(product)}
                 >
-                  <div className="relative h-48 bg-muted overflow-hidden">
+                  {/* Product Image */}
+                  <div className="relative h-56 bg-muted overflow-hidden">
                     {product.image_url ? (
                       <img 
                         src={product.image_url} 
                         alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Package className="h-16 w-16 text-muted-foreground" />
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+                        <Package className="h-16 w-16 text-muted-foreground/50" />
                       </div>
                     )}
-                    {product.video_url && (
-                      <div className="absolute top-2 right-2">
-                        <Badge variant="secondary" className="gap-1">
+                    
+                    {/* Badges */}
+                    <div className="absolute top-3 left-3 right-3 flex justify-between">
+                      {product.video_url && (
+                        <Badge variant="secondary" className="gap-1 bg-background/80 backdrop-blur-sm">
                           <Play className="h-3 w-3" />
                           {isRTL ? 'فيديو' : 'Video'}
                         </Badge>
-                      </div>
-                    )}
-                    {product.medical_followup_required && (
-                      <div className="absolute top-2 left-2">
-                        <Badge variant="destructive" className="gap-1">
+                      )}
+                      {product.medical_followup_required && (
+                        <Badge variant="destructive" className="gap-1 bg-destructive/90 backdrop-blur-sm ml-auto">
                           <Stethoscope className="h-3 w-3" />
                         </Badge>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-bold text-lg text-foreground mb-1">
-                      {product.name}
+                  
+                  {/* Product Info */}
+                  <div className="p-5">
+                    <h3 className="font-bold text-lg text-foreground mb-1 line-clamp-1">
+                      {isRTL ? product.name_ar || product.name : product.name}
                     </h3>
-                    {product.name_ar && (
-                      <p className="text-sm text-muted-foreground mb-2">{product.name_ar}</p>
-                    )}
-                    <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                    <p className="text-sm text-muted-foreground line-clamp-2 mb-4 min-h-[2.5rem]">
                       {isRTL ? product.description_ar || product.description : product.description}
                     </p>
+                    
                     <div className="flex items-center justify-between">
-                      <span className="text-xl font-bold text-primary">
-                        {product.price.toLocaleString()} {isRTL ? 'ج.م' : 'EGP'}
-                      </span>
+                      <div>
+                        <span className="text-2xl font-bold text-primary">
+                          {product.price.toLocaleString()}
+                        </span>
+                        <span className="text-sm text-muted-foreground ml-1">
+                          {isRTL ? 'ج.م' : 'EGP'}
+                        </span>
+                      </div>
                       <Button 
-                        size="sm"
+                        size="icon"
+                        className="h-11 w-11 rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all"
                         onClick={(e) => handleAddToCart(product, e)}
                         disabled={cartLoading}
                       >
-                        <ShoppingCart className="h-4 w-4" />
+                        <Plus className="h-5 w-5" />
                       </Button>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))}
             </div>
           )}
@@ -265,20 +329,19 @@ const Store = () => {
 
         {/* Product Details Dialog */}
         <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl">
             {selectedProduct && (
               <>
                 <DialogHeader>
-                  <DialogTitle className="text-2xl">{selectedProduct.name}</DialogTitle>
-                  {selectedProduct.name_ar && (
-                    <p className="text-lg text-muted-foreground">{selectedProduct.name_ar}</p>
-                  )}
+                  <DialogTitle className="text-2xl">
+                    {isRTL ? selectedProduct.name_ar || selectedProduct.name : selectedProduct.name}
+                  </DialogTitle>
                 </DialogHeader>
 
                 <div className="space-y-6">
                   {/* Image/Video */}
                   {selectedProduct.video_url ? (
-                    <div className="aspect-video rounded-lg overflow-hidden bg-muted">
+                    <div className="aspect-video rounded-xl overflow-hidden bg-muted">
                       <iframe
                         src={selectedProduct.video_url}
                         className="w-full h-full"
@@ -290,7 +353,7 @@ const Store = () => {
                     <img 
                       src={selectedProduct.image_url} 
                       alt={selectedProduct.name}
-                      className="w-full h-64 object-cover rounded-lg"
+                      className="w-full h-64 object-cover rounded-xl"
                     />
                   ) : null}
 
@@ -307,9 +370,9 @@ const Store = () => {
 
                   {/* Usage Instructions */}
                   {(selectedProduct.usage_instructions || selectedProduct.usage_instructions_ar) && (
-                    <div>
+                    <div className="p-4 bg-muted/50 rounded-xl">
                       <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        <CheckCircle className="h-4 w-4 text-primary" />
                         {isRTL ? 'طريقة الاستخدام' : 'Usage Instructions'}
                       </h4>
                       <p className="text-muted-foreground">
@@ -320,9 +383,9 @@ const Store = () => {
 
                   {/* Suitable For */}
                   {(selectedProduct.suitable_for || selectedProduct.suitable_for_ar) && (
-                    <div>
+                    <div className="p-4 bg-muted/50 rounded-xl">
                       <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                        <Users className="h-4 w-4 text-blue-500" />
+                        <Users className="h-4 w-4 text-accent" />
                         {isRTL ? 'يناسب' : 'Suitable For'}
                       </h4>
                       <p className="text-muted-foreground">
@@ -333,7 +396,7 @@ const Store = () => {
 
                   {/* Medical Follow-up */}
                   {selectedProduct.medical_followup_required && (
-                    <div className="p-4 bg-destructive/10 rounded-lg border border-destructive/20">
+                    <div className="p-4 bg-destructive/10 rounded-xl border border-destructive/20">
                       <h4 className="font-semibold text-destructive mb-2 flex items-center gap-2">
                         <AlertTriangle className="h-4 w-4" />
                         {isRTL ? 'يتطلب متابعة طبية' : 'Requires Medical Follow-up'}
@@ -347,10 +410,15 @@ const Store = () => {
                   )}
 
                   {/* Price and Add to Cart */}
-                  <div className="flex items-center justify-between pt-4 border-t">
-                    <span className="text-2xl font-bold text-primary">
-                      {selectedProduct.price.toLocaleString()} {isRTL ? 'ج.م' : 'EGP'}
-                    </span>
+                  <div className="flex items-center justify-between pt-4 border-t border-border">
+                    <div>
+                      <span className="text-3xl font-bold text-primary">
+                        {selectedProduct.price.toLocaleString()}
+                      </span>
+                      <span className="text-lg text-muted-foreground ml-2">
+                        {isRTL ? 'ج.م' : 'EGP'}
+                      </span>
+                    </div>
                     <Button 
                       size="lg"
                       onClick={() => {
@@ -358,7 +426,7 @@ const Store = () => {
                         setSelectedProduct(null);
                       }}
                       disabled={cartLoading}
-                      className="gap-2"
+                      className="gap-2 rounded-xl px-6"
                     >
                       <ShoppingCart className="h-5 w-5" />
                       {isRTL ? 'أضف للسلة' : 'Add to Cart'}
@@ -372,10 +440,10 @@ const Store = () => {
 
         {/* Cart Dialog */}
         <Dialog open={showCart} onOpenChange={setShowCart}>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg rounded-2xl">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <ShoppingCart className="h-5 w-5" />
+              <DialogTitle className="flex items-center gap-2 text-xl">
+                <ShoppingCart className="h-5 w-5 text-primary" />
                 {isRTL ? 'سلة التسوق' : 'Shopping Cart'}
               </DialogTitle>
             </DialogHeader>
@@ -383,12 +451,14 @@ const Store = () => {
             {loadingCart ? (
               <div className="space-y-4">
                 {[1, 2].map(i => (
-                  <div key={i} className="h-20 bg-muted rounded animate-pulse" />
+                  <Skeleton key={i} className="h-20 rounded-xl" />
                 ))}
               </div>
             ) : cartItems.length === 0 ? (
-              <div className="text-center py-8">
-                <ShoppingCart className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+              <div className="text-center py-12">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                  <ShoppingCart className="h-8 w-8 text-muted-foreground" />
+                </div>
                 <p className="text-muted-foreground">
                   {isRTL ? 'السلة فارغة' : 'Your cart is empty'}
                 </p>
@@ -396,8 +466,8 @@ const Store = () => {
             ) : (
               <div className="space-y-4">
                 {cartItems.map(item => (
-                  <div key={item.id} className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg">
-                    <div className="w-16 h-16 bg-muted rounded overflow-hidden flex-shrink-0">
+                  <div key={item.id} className="flex items-center gap-4 p-3 bg-muted/30 rounded-xl border border-border/50">
+                    <div className="w-16 h-16 bg-muted rounded-lg overflow-hidden flex-shrink-0">
                       {item.product.image_url ? (
                         <img src={item.product.image_url} alt={item.product.name} className="w-full h-full object-cover" />
                       ) : (
@@ -407,32 +477,39 @@ const Store = () => {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-foreground truncate">{item.product.name}</h4>
-                      <p className="text-primary font-medium">{item.product.price.toLocaleString()} {isRTL ? 'ج.م' : 'EGP'}</p>
+                      <h4 className="font-semibold text-foreground truncate text-sm">
+                        {isRTL ? item.product.name_ar || item.product.name : item.product.name}
+                      </h4>
+                      <p className="text-primary font-bold">
+                        {item.product.price.toLocaleString()} {isRTL ? 'ج.م' : 'EGP'}
+                      </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
                       <Button 
                         size="icon" 
-                        variant="outline" 
-                        className="h-8 w-8"
+                        variant="ghost" 
+                        className="h-8 w-8 rounded-lg"
                         onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                        disabled={cartLoading}
                       >
-                        <Minus className="h-4 w-4" />
+                        <Minus className="h-3 w-3" />
                       </Button>
                       <span className="w-8 text-center font-medium">{item.quantity}</span>
                       <Button 
                         size="icon" 
-                        variant="outline" 
-                        className="h-8 w-8"
+                        variant="ghost" 
+                        className="h-8 w-8 rounded-lg"
                         onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                        disabled={cartLoading}
                       >
-                        <Plus className="h-4 w-4" />
+                        <Plus className="h-3 w-3" />
                       </Button>
                       <Button 
                         size="icon" 
                         variant="ghost" 
-                        className="h-8 w-8 text-destructive"
+                        className="h-8 w-8 rounded-lg text-destructive hover:text-destructive hover:bg-destructive/10"
                         onClick={() => handleRemoveFromCart(item.id)}
+                        disabled={cartLoading}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -440,38 +517,32 @@ const Store = () => {
                   </div>
                 ))}
 
-                {/* Cart Total */}
-                <div className="border-t pt-4 space-y-3">
-                  <div className="flex justify-between items-center text-lg">
-                    <span className="font-semibold">{isRTL ? 'الإجمالي:' : 'Total:'}</span>
-                    <span className="font-bold text-primary">{cartTotal.toLocaleString()} {isRTL ? 'ج.م' : 'EGP'}</span>
-                  </div>
-
+                {/* Cart Summary */}
+                <div className="pt-4 border-t border-border space-y-3">
                   {grantsAccess && (
-                    <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
-                      <div className="flex items-center gap-2 text-green-600">
-                        <Gift className="h-5 w-5" />
-                        <span className="font-medium">
-                          {isRTL ? '🎉 ستحصل على وصول مجاني للمحتوى الغذائي!' : '🎉 You will get FREE access to nutritional content!'}
-                        </span>
-                      </div>
+                    <div className="flex items-center gap-2 p-3 bg-primary/10 rounded-xl text-primary">
+                      <Gift className="h-5 w-5" />
+                      <span className="text-sm font-medium">
+                        {isRTL ? '🎉 مؤهل للحصول على المحتوى المجاني!' : '🎉 Eligible for FREE content access!'}
+                      </span>
                     </div>
                   )}
-
-                  {!grantsAccess && (
-                    <p className="text-sm text-muted-foreground">
-                      {isRTL 
-                        ? `أضف ${(7500 - cartTotal).toLocaleString()} ج.م للحصول على وصول مجاني للمحتوى`
-                        : `Add ${(7500 - cartTotal).toLocaleString()} EGP more to get free content access`}
-                    </p>
-                  )}
+                  
+                  <div className="flex items-center justify-between text-lg">
+                    <span className="font-medium text-muted-foreground">
+                      {isRTL ? 'الإجمالي' : 'Total'}
+                    </span>
+                    <span className="font-bold text-foreground text-xl">
+                      {cartTotal.toLocaleString()} {isRTL ? 'ج.م' : 'EGP'}
+                    </span>
+                  </div>
 
                   <Button 
-                    className="w-full" 
-                    size="lg"
+                    className="w-full h-12 rounded-xl text-base"
                     onClick={handleCheckout}
                   >
-                    {isRTL ? 'إتمام الطلب' : 'Proceed to Checkout'}
+                    <ShoppingCart className="h-5 w-5 mr-2" />
+                    {isRTL ? 'إتمام الشراء' : 'Proceed to Checkout'}
                   </Button>
                 </div>
               </div>
