@@ -224,6 +224,95 @@ export type Database = {
           },
         ]
       }
+      client_meal_tracking: {
+        Row: {
+          client_id: string
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string
+          date: string
+          id: string
+          meal_plan_id: string | null
+          meal_type: string
+        }
+        Insert: {
+          client_id: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          meal_plan_id?: string | null
+          meal_type: string
+        }
+        Update: {
+          client_id?: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          meal_plan_id?: string | null
+          meal_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_meal_tracking_meal_plan_id_fkey"
+            columns: ["meal_plan_id"]
+            isOneToOne: false
+            referencedRelation: "meal_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_progress: {
+        Row: {
+          admin_feedback: string | null
+          client_id: string
+          created_at: string
+          date: string
+          exercises_completed: number | null
+          exercises_total: number | null
+          id: string
+          meals_completed: number | null
+          meals_total: number | null
+          notes: string | null
+          progress_percentage: number | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          admin_feedback?: string | null
+          client_id: string
+          created_at?: string
+          date?: string
+          exercises_completed?: number | null
+          exercises_total?: number | null
+          id?: string
+          meals_completed?: number | null
+          meals_total?: number | null
+          notes?: string | null
+          progress_percentage?: number | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          admin_feedback?: string | null
+          client_id?: string
+          created_at?: string
+          date?: string
+          exercises_completed?: number | null
+          exercises_total?: number | null
+          id?: string
+          meals_completed?: number | null
+          meals_total?: number | null
+          notes?: string | null
+          progress_percentage?: number | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       client_recipes: {
         Row: {
           assigned_by: string | null

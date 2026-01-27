@@ -21,6 +21,7 @@ import { PaymentsSection } from '@/components/admin/sections/PaymentsSection';
 import { DiscountsSection } from '@/components/admin/sections/DiscountsSection';
 import { VideosSection } from '@/components/admin/sections/VideosSection';
 import { TransformationsSection } from '@/components/admin/sections/TransformationsSection';
+import { ProgressTrackingSection } from '@/components/admin/sections/ProgressTrackingSection';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import logo from '@/assets/logo.png';
 
@@ -181,6 +182,8 @@ const AdminDashboard = () => {
         return <VideosSection />;
       case 'transformations':
         return <TransformationsSection />;
+      case 'progress':
+        return <ProgressTrackingSection />;
       case 'articles':
         return <ArticlesSection />;
       default:
