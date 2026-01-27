@@ -142,40 +142,40 @@ const Store = () => {
     <Layout>
       <div className={`min-h-screen bg-background ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Hero Section */}
-        <div className="relative bg-gradient-to-b from-primary/10 via-background to-background py-16 md:py-24">
+        <div className="relative bg-gradient-to-b from-primary/10 via-background to-background py-10 sm:py-16 md:py-24">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.15),transparent_60%)]" />
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 sm:mb-4">
                 {isRTL ? 'متجر المكملات الغذائية' : 'Supplements Store'}
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground mb-8">
+              <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 px-2">
                 {isRTL 
                   ? 'مكملات غذائية عالية الجودة لدعم رحلتك الصحية' 
                   : 'Premium supplements to support your health journey'}
               </p>
               
               {/* Search Bar */}
-              <div className="relative max-w-xl mx-auto">
-                <Search className={`absolute top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground ${isRTL ? 'right-4' : 'left-4'}`} />
+              <div className="relative max-w-xl mx-auto px-2 sm:px-0">
+                <Search className={`absolute top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground ${isRTL ? 'right-5 sm:right-4' : 'left-5 sm:left-4'}`} />
                 <Input
                   type="text"
                   placeholder={isRTL ? 'ابحث عن المنتجات...' : 'Search products...'}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className={`h-14 text-lg bg-card border-border/50 rounded-2xl ${isRTL ? 'pr-12 pl-4' : 'pl-12 pr-4'}`}
+                  className={`h-12 sm:h-14 text-base sm:text-lg bg-card border-border/50 rounded-xl sm:rounded-2xl ${isRTL ? 'pr-10 sm:pr-12 pl-4' : 'pl-10 sm:pl-12 pr-4'}`}
                 />
               </div>
             </div>
           </div>
         </div>
 
-        <div className="container mx-auto px-4 pb-16">
+        <div className="container mx-auto px-3 sm:px-4 pb-8 sm:pb-16">
           {/* Stats Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-8 -mt-8">
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <span className="flex items-center gap-2">
-                <Package className="h-4 w-4 text-primary" />
+          <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8 -mt-4 sm:-mt-8">
+            <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm text-muted-foreground">
+              <span className="flex items-center gap-1.5 sm:gap-2">
+                <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                 {filteredProducts.length} {isRTL ? 'منتج' : 'Products'}
               </span>
             </div>
@@ -184,13 +184,13 @@ const Store = () => {
             <Button 
               onClick={() => setShowCart(true)}
               variant="outline"
-              size="lg"
-              className="relative gap-2 rounded-xl border-border/50 bg-card/50 hover:bg-card"
+              size="default"
+              className="relative gap-1.5 sm:gap-2 rounded-lg sm:rounded-xl border-border/50 bg-card/50 hover:bg-card text-sm sm:text-base h-10 sm:h-12 px-3 sm:px-4"
             >
-              <ShoppingCart className="h-5 w-5" />
+              <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
               <span>{isRTL ? 'السلة' : 'Cart'}</span>
               {cartCount > 0 && (
-                <Badge className="absolute -top-2 -right-2 h-6 w-6 flex items-center justify-center p-0 text-xs bg-primary">
+                <Badge className="absolute -top-1.5 sm:-top-2 -right-1.5 sm:-right-2 h-5 w-5 sm:h-6 sm:w-6 flex items-center justify-center p-0 text-[10px] sm:text-xs bg-primary">
                   {cartCount}
                 </Badge>
               )}
@@ -198,24 +198,24 @@ const Store = () => {
           </div>
 
           {/* Special Offer Banner */}
-          <div className="mb-10 p-6 rounded-2xl bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border border-primary/20">
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-              <div className="p-3 bg-primary/20 rounded-xl">
-                <Gift className="h-8 w-8 text-primary" />
+          <div className="mb-6 sm:mb-10 p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border border-primary/20">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+              <div className="p-2 sm:p-3 bg-primary/20 rounded-lg sm:rounded-xl">
+                <Gift className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-foreground mb-1">
+                <h3 className="text-base sm:text-lg font-bold text-foreground mb-0.5 sm:mb-1">
                   {isRTL ? '🎉 عرض خاص!' : '🎉 Special Offer!'}
                 </h3>
-                <p className="text-muted-foreground">
+                <p className="text-sm sm:text-base text-muted-foreground">
                   {isRTL 
                     ? 'عند شراء منتجات بقيمة 7,500 ج.م أو أكثر، احصل على وصول مجاني للمحتوى الغذائي!'
                     : 'Buy products worth 7,500 EGP+ and get FREE access to nutritional content!'}
                 </p>
               </div>
               {grantsAccess && cartTotal > 0 && (
-                <Badge className="bg-primary/20 text-primary border-0 px-4 py-2">
-                  <CheckCircle className="h-4 w-4 mr-1" />
+                <Badge className="bg-primary/20 text-primary border-0 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm">
+                  <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
                   {isRTL ? 'مؤهل للعرض!' : 'Eligible!'}
                 </Badge>
               )}
@@ -224,7 +224,7 @@ const Store = () => {
 
           {/* Products Grid */}
           {loadingProducts ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
               {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
                 <div key={i} className="rounded-2xl overflow-hidden bg-card border border-border/50">
                   <Skeleton className="h-56 w-full" />
@@ -256,15 +256,15 @@ const Store = () => {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
               {filteredProducts.map(product => (
                 <div 
                   key={product.id} 
-                  className="group rounded-2xl overflow-hidden bg-card border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 cursor-pointer"
+                  className="group rounded-xl sm:rounded-2xl overflow-hidden bg-card border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 cursor-pointer"
                   onClick={() => setSelectedProduct(product)}
                 >
                   {/* Product Image */}
-                  <div className="relative h-56 bg-muted overflow-hidden">
+                  <div className="relative h-36 sm:h-56 bg-muted overflow-hidden">
                     {product.image_url ? (
                       <img 
                         src={product.image_url} 
@@ -273,51 +273,51 @@ const Store = () => {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-                        <Package className="h-16 w-16 text-muted-foreground/50" />
+                        <Package className="h-10 w-10 sm:h-16 sm:w-16 text-muted-foreground/50" />
                       </div>
                     )}
                     
                     {/* Badges */}
-                    <div className="absolute top-3 left-3 right-3 flex justify-between">
+                    <div className="absolute top-2 sm:top-3 left-2 sm:left-3 right-2 sm:right-3 flex justify-between">
                       {product.video_url && (
-                        <Badge variant="secondary" className="gap-1 bg-background/80 backdrop-blur-sm">
-                          <Play className="h-3 w-3" />
-                          {isRTL ? 'فيديو' : 'Video'}
+                        <Badge variant="secondary" className="gap-1 bg-background/80 backdrop-blur-sm text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                          <Play className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                          <span className="hidden sm:inline">{isRTL ? 'فيديو' : 'Video'}</span>
                         </Badge>
                       )}
                       {product.medical_followup_required && (
-                        <Badge variant="destructive" className="gap-1 bg-destructive/90 backdrop-blur-sm ml-auto">
-                          <Stethoscope className="h-3 w-3" />
+                        <Badge variant="destructive" className="gap-1 bg-destructive/90 backdrop-blur-sm ml-auto p-1 sm:p-1.5">
+                          <Stethoscope className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                         </Badge>
                       )}
                     </div>
                   </div>
                   
                   {/* Product Info */}
-                  <div className="p-5">
-                    <h3 className="font-bold text-lg text-foreground mb-1 line-clamp-1">
+                  <div className="p-3 sm:p-5">
+                    <h3 className="font-bold text-sm sm:text-lg text-foreground mb-0.5 sm:mb-1 line-clamp-1">
                       {isRTL ? product.name_ar || product.name : product.name}
                     </h3>
-                    <p className="text-sm text-muted-foreground line-clamp-2 mb-4 min-h-[2.5rem]">
+                    <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mb-2 sm:mb-4 min-h-[2rem] sm:min-h-[2.5rem]">
                       {isRTL ? product.description_ar || product.description : product.description}
                     </p>
                     
                     <div className="flex items-center justify-between">
                       <div>
-                        <span className="text-2xl font-bold text-primary">
+                        <span className="text-base sm:text-2xl font-bold text-primary">
                           {product.price.toLocaleString()}
                         </span>
-                        <span className="text-sm text-muted-foreground ml-1">
+                        <span className="text-[10px] sm:text-sm text-muted-foreground mr-0.5 sm:ml-1">
                           {isRTL ? 'ج.م' : 'EGP'}
                         </span>
                       </div>
                       <Button 
                         size="icon"
-                        className="h-11 w-11 rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all"
+                        className="h-8 w-8 sm:h-11 sm:w-11 rounded-lg sm:rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all"
                         onClick={(e) => handleAddToCart(product, e)}
                         disabled={cartLoading}
                       >
-                        <Plus className="h-5 w-5" />
+                        <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
                       </Button>
                     </div>
                   </div>

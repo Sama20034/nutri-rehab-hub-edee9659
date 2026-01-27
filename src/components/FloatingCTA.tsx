@@ -18,7 +18,7 @@ const FloatingCTA = () => {
   return (
     <>
       {/* Floating Buttons Container */}
-      <div className={`fixed bottom-6 ${isRTL ? 'left-6' : 'right-6'} z-50 flex flex-col gap-3`}>
+      <div className={`fixed bottom-4 sm:bottom-6 ${isRTL ? 'left-4 sm:left-6' : 'right-4 sm:right-6'} z-50 flex flex-col gap-2 sm:gap-3 safe-bottom`}>
         
         {/* Expanded Menu */}
         <AnimatePresence>
@@ -75,7 +75,7 @@ const FloatingCTA = () => {
           
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="relative w-14 h-14 bg-[#25D366] hover:bg-[#20BD5A] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
+            className="relative w-12 h-12 sm:w-14 sm:h-14 bg-[#25D366] hover:bg-[#20BD5A] text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group touch-target"
             aria-label="WhatsApp"
           >
             <AnimatePresence mode="wait">
