@@ -224,6 +224,50 @@ export type Database = {
           },
         ]
       }
+      client_meal_plans: {
+        Row: {
+          assigned_by: string | null
+          client_id: string
+          created_at: string
+          end_date: string | null
+          id: string
+          meal_plan_id: string
+          notes: string | null
+          start_date: string | null
+          status: string | null
+        }
+        Insert: {
+          assigned_by?: string | null
+          client_id: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          meal_plan_id: string
+          notes?: string | null
+          start_date?: string | null
+          status?: string | null
+        }
+        Update: {
+          assigned_by?: string | null
+          client_id?: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          meal_plan_id?: string
+          notes?: string | null
+          start_date?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_meal_plans_meal_plan_id_fkey"
+            columns: ["meal_plan_id"]
+            isOneToOne: false
+            referencedRelation: "meal_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_meal_tracking: {
         Row: {
           client_id: string

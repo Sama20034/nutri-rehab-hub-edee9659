@@ -1509,7 +1509,8 @@ const FooterSection = () => {
     href: '#',
     label: 'YouTube'
   }];
-  return;
+  
+  return null;
 };
 
 // Main Index Component
