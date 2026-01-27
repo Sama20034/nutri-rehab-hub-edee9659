@@ -16,6 +16,7 @@ import { NutritionSection } from '@/components/dashboard/sections/NutritionSecti
 import { ChatSection } from '@/components/dashboard/sections/ChatSection';
 import { VideosSection } from '@/components/dashboard/sections/VideosSection';
 import { MedicalFollowupSection } from '@/components/dashboard/sections/MedicalFollowupSection';
+import { ProgressSection } from '@/components/dashboard/sections/ProgressSection';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { cn } from '@/lib/utils';
 
@@ -120,10 +121,9 @@ const ClientDashboard = () => {
         );
       case 'progress':
         return (
-          <PlaceholderSection 
+          <ProgressSection 
             isRTL={isRTL}
-            title={isRTL ? 'متابعة التقدم' : 'Progress Tracking'}
-            description={isRTL ? 'تابع تقدمك في البرنامج العلاجي' : 'Track your progress in the treatment program'}
+            clientId={user?.id || ''}
           />
         );
       case 'videos':

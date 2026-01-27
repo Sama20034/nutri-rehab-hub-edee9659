@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, Dumbbell, Video, Star,
-  Utensils, FileText, ClipboardList, UserPlus, X, LogOut, Home, CreditCard, Tag, ChefHat
+  Utensils, FileText, ClipboardList, UserPlus, X, LogOut, Home, CreditCard, Tag, ChefHat, TrendingUp
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
@@ -30,6 +30,7 @@ const sidebarItems = [
   { id: 'exercises', labelAr: 'التمارين', labelEn: 'Exercises', icon: Dumbbell },
   { id: 'meal-plans', labelAr: 'خطط الوجبات', labelEn: 'Meal Plans', icon: ChefHat },
   { id: 'diets', labelAr: 'الأنظمة الغذائية', labelEn: 'Diet Plans', icon: Utensils },
+  { id: 'progress', labelAr: 'متابعة التقدم', labelEn: 'Progress Tracking', icon: TrendingUp },
   { id: 'videos', labelAr: 'الفيديوهات', labelEn: 'Videos', icon: Video },
   { id: 'transformations', labelAr: 'قصص النجاح', labelEn: 'Success Stories', icon: Star },
   { id: 'articles', labelAr: 'المقالات', labelEn: 'Articles', icon: FileText },
