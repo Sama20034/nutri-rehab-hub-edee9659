@@ -1,8 +1,9 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route, useLocation } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/hooks/useAuth";
 import FloatingCTA from "@/components/FloatingCTA";
@@ -20,13 +21,38 @@ import PendingApproval from "./pages/PendingApproval";
 import Articles from "./pages/Articles";
 import ServicePolicy from "./pages/ServicePolicy";
 import ClientDashboard from "./pages/dashboard/ClientDashboard";
-
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import Profile from "./pages/Profile";
 import Store from "./pages/Store";
 import Checkout from "./pages/Checkout";
 
 const queryClient = new QueryClient();
+
+// Debug component to track routing
+const RouteDebugger = () => {
+  const location = useLocation();
+  
+  useEffect(() => {
+    console.log("🔍 [ROUTE DEBUG] Current location:", {
+      pathname: location.pathname,
+      hash: location.hash,
+      search: location.search,
+      fullURL: window.location.href,
+      hashFromWindow: window.location.hash
+    });
+  }, [location]);
+  
+  useEffect(() => {
+    console.log("🚀 [ROUTE DEBUG] App mounted. Initial state:", {
+      fullURL: window.location.href,
+      pathname: window.location.pathname,
+      hash: window.location.hash,
+      search: window.location.search
+    });
+  }, []);
+  
+  return null;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -36,6 +62,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <HashRouter>
+            <RouteDebugger />
             <ScrollToTop />
             <Routes>
               <Route path="/" element={<Index />} />
