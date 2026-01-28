@@ -17,7 +17,9 @@ import {
   Smartphone,
   CheckCircle2,
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
+  Utensils,
+  Sparkles
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -109,6 +111,11 @@ const Checkout = () => {
   });
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash_on_delivery');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  // Add-on plans
+  const [freeUsagePlan, setFreeUsagePlan] = useState(false);
+  const [monthlyNutritionPlan, setMonthlyNutritionPlan] = useState(false);
+  const NUTRITION_PLAN_PRICE = 100;
 
   // Fetch cart items for logged-in users
   const { data: dbCartItems = [], isLoading: loadingDbCart } = useQuery({
@@ -133,8 +140,10 @@ const Checkout = () => {
   const cartItems: (CartItem | GuestCartItem)[] = user ? dbCartItems : guestCart;
   const isLoading = user ? loadingDbCart : false;
 
-  const cartTotal = cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
-  const grantsAccess = cartTotal >= 7500;
+  const productTotal = cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+  const addonsTotal = monthlyNutritionPlan ? NUTRITION_PLAN_PRICE : 0;
+  const cartTotal = productTotal + addonsTotal;
+  const grantsAccess = productTotal >= 7500;
 
   // Track if we've done the initial check
   const [hasCheckedCart, setHasCheckedCart] = useState(false);
@@ -205,14 +214,27 @@ const Checkout = () => {
         throw new Error(isRTL ? 'يرجى تصحيح الأخطاء' : 'Please fix the errors');
       }
 
+      // Build add-ons notes
+      const addOns: string[] = [];
+      if (freeUsagePlan) {
+        addOns.push(isRTL ? '✅ خطة الاستخدام الأمثل (مجاناً)' : '✅ Optimal Usage Plan (FREE)');
+      }
+      if (monthlyNutritionPlan) {
+        addOns.push(isRTL ? `✅ خطة تغذية شهرية (+${NUTRITION_PLAN_PRICE} ج.م)` : `✅ Monthly Nutrition Plan (+${NUTRITION_PLAN_PRICE} EGP)`);
+      }
+      
+      const addOnsText = addOns.length > 0 
+        ? `\n\nAdd-ons:\n${addOns.join('\n')}` 
+        : '';
+
       // Create order data
       const orderData: any = {
         total_amount: cartTotal,
         shipping_address: checkoutData.shipping_address,
         phone: checkoutData.phone,
         notes: checkoutData.notes 
-          ? `${checkoutData.notes}\n\nPayment Method: ${PAYMENT_METHODS[paymentMethod].name}`
-          : `Payment Method: ${PAYMENT_METHODS[paymentMethod].name}`,
+          ? `${checkoutData.notes}${addOnsText}\n\nPayment Method: ${PAYMENT_METHODS[paymentMethod].name}`
+          : `${addOnsText}\n\nPayment Method: ${PAYMENT_METHODS[paymentMethod].name}`,
         status: 'pending',
         grants_content_access: grantsAccess
       };
@@ -388,11 +410,107 @@ const Checkout = () => {
 
                 <Separator />
 
-                <div className="flex justify-between items-center text-base sm:text-lg">
-                  <span className="font-semibold">{isRTL ? 'الإجمالي:' : 'Total:'}</span>
-                  <span className="font-bold text-primary text-lg sm:text-xl">
-                    {cartTotal.toLocaleString()} {isRTL ? 'ج.م' : 'EGP'}
-                  </span>
+                {/* Add-on Plans Section */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-foreground text-sm sm:text-base flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-secondary" />
+                    {isRTL ? 'خدمات إضافية' : 'Add-on Services'}
+                  </h4>
+                  
+                  {/* Free Usage Plan */}
+                  <motion.div 
+                    className={`p-3 sm:p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
+                      freeUsagePlan 
+                        ? 'border-primary bg-primary/10' 
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                    onClick={() => setFreeUsagePlan(!freeUsagePlan)}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
+                        freeUsagePlan 
+                          ? 'bg-primary border-primary' 
+                          : 'border-muted-foreground'
+                      }`}>
+                        {freeUsagePlan && <CheckCircle2 className="h-3.5 w-3.5 text-primary-foreground" />}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <p className="font-semibold text-foreground text-sm sm:text-base">
+                            {isRTL ? 'خطة الاستخدام الأمثل' : 'Optimal Usage Plan'}
+                          </p>
+                          <span className="text-primary font-bold text-sm sm:text-base">
+                            {isRTL ? 'مجاناً' : 'FREE'}
+                          </span>
+                        </div>
+                        <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                          {isRTL 
+                            ? 'احصل على دليل مجاني لأفضل طريقة لاستخدام المنتجات التي طلبتها'
+                            : 'Get a free guide for the best way to use the products you ordered'}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Monthly Nutrition Plan - 100 EGP */}
+                  <motion.div 
+                    className={`p-3 sm:p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
+                      monthlyNutritionPlan 
+                        ? 'border-secondary bg-secondary/10' 
+                        : 'border-border hover:border-secondary/50'
+                    }`}
+                    onClick={() => setMonthlyNutritionPlan(!monthlyNutritionPlan)}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
+                        monthlyNutritionPlan 
+                          ? 'bg-secondary border-secondary' 
+                          : 'border-muted-foreground'
+                      }`}>
+                        {monthlyNutritionPlan && <CheckCircle2 className="h-3.5 w-3.5 text-secondary-foreground" />}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <p className="font-semibold text-foreground text-sm sm:text-base flex items-center gap-2">
+                            <Utensils className="h-4 w-4 text-secondary" />
+                            {isRTL ? 'خطة تغذية شهرية' : 'Monthly Nutrition Plan'}
+                          </p>
+                          <span className="text-secondary font-bold text-sm sm:text-base">
+                            +{NUTRITION_PLAN_PRICE} {isRTL ? 'ج.م' : 'EGP'}
+                          </span>
+                        </div>
+                        <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                          {isRTL 
+                            ? 'خطة تغذية مخصصة لمدة شهر كامل مع متابعة'
+                            : 'A customized nutrition plan for a full month with follow-up'}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+
+                <Separator />
+
+                {/* Price Breakdown */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center text-sm text-muted-foreground">
+                    <span>{isRTL ? 'المنتجات:' : 'Products:'}</span>
+                    <span>{productTotal.toLocaleString()} {isRTL ? 'ج.م' : 'EGP'}</span>
+                  </div>
+                  {monthlyNutritionPlan && (
+                    <div className="flex justify-between items-center text-sm text-secondary">
+                      <span>{isRTL ? 'خطة التغذية الشهرية:' : 'Monthly Nutrition Plan:'}</span>
+                      <span>+{NUTRITION_PLAN_PRICE} {isRTL ? 'ج.م' : 'EGP'}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center text-base sm:text-lg pt-2 border-t border-border/50">
+                    <span className="font-semibold">{isRTL ? 'الإجمالي:' : 'Total:'}</span>
+                    <span className="font-bold text-primary text-lg sm:text-xl">
+                      {cartTotal.toLocaleString()} {isRTL ? 'ج.م' : 'EGP'}
+                    </span>
+                  </div>
                 </div>
 
                 {grantsAccess && (
