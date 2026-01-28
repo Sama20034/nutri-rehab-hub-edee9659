@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
+import ProductShowcase from "@/components/store/ProductShowcase";
 import { 
   ShoppingCart, 
   Package, 
@@ -19,11 +20,9 @@ import {
   Stethoscope,
   Plus,
   Minus,
-  Trash2,
   Gift,
   CheckCircle,
   Search,
-  Star,
   Sparkles,
   Zap,
   ArrowRight,
@@ -69,7 +68,6 @@ const Store = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showCart, setShowCart] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
 
   // Fetch products
   const { data: products = [], isLoading: loadingProducts } = useQuery({
@@ -175,7 +173,7 @@ const Store = () => {
               animate={{ y: [0, 15, 0] }}
               transition={{ duration: 6, repeat: Infinity }}
             >
-              <Star className="w-10 h-10" />
+              <Sparkles className="w-10 h-10" />
             </motion.div>
           </div>
 
@@ -321,149 +319,16 @@ const Store = () => {
             </div>
           </motion.div>
 
-          {/* Products Grid */}
-          <AnimatePresence mode="wait">
-            {loadingProducts ? (
-              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                  <div key={i} className="rounded-2xl overflow-hidden bg-card/50 border border-border/50">
-                    <Skeleton className="h-48 sm:h-64 w-full" />
-                    <div className="p-4 space-y-3">
-                      <Skeleton className="h-5 w-3/4" />
-                      <Skeleton className="h-4 w-1/2" />
-                      <Skeleton className="h-10 w-full rounded-xl" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : filteredProducts.length === 0 ? (
-              <motion.div 
-                className="text-center py-24"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted/50 flex items-center justify-center">
-                  <Package className="h-12 w-12 text-muted-foreground/50" />
-                </div>
-                <h3 className="text-2xl font-semibold text-foreground mb-2">
-                  {searchQuery 
-                    ? (isRTL ? 'لا توجد نتائج' : 'No results found')
-                    : (isRTL ? 'لا توجد منتجات حالياً' : 'No products available')}
-                </h3>
-                <p className="text-muted-foreground">
-                  {searchQuery 
-                    ? (isRTL ? 'جرب البحث بكلمات أخرى' : 'Try different search terms')
-                    : (isRTL ? 'سيتم إضافة منتجات قريباً' : 'Products will be added soon')}
-                </p>
-              </motion.div>
-            ) : (
-              <motion.div 
-                className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                {filteredProducts.map((product, index) => (
-                  <motion.div 
-                    key={product.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    onMouseEnter={() => setHoveredProduct(product.id)}
-                    onMouseLeave={() => setHoveredProduct(null)}
-                    className="group relative"
-                    onClick={() => setSelectedProduct(product)}
-                  >
-                    {/* Glow Effect */}
-                    <div className={`absolute -inset-1 bg-gradient-to-r from-primary/50 to-secondary/50 rounded-2xl blur-lg opacity-0 group-hover:opacity-30 transition-all duration-500 ${hoveredProduct === product.id ? 'opacity-30' : ''}`} />
-                    
-                    <div className="relative rounded-2xl overflow-hidden bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/50 transition-all duration-500 cursor-pointer">
-                      {/* Product Image */}
-                      <div className="relative h-40 sm:h-56 overflow-hidden">
-                        {product.image_url ? (
-                          <motion.img 
-                            src={product.image_url} 
-                            alt={product.name}
-                            className="w-full h-full object-cover"
-                            whileHover={{ scale: 1.1 }}
-                            transition={{ duration: 0.6 }}
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-                            <Package className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground/30" />
-                          </div>
-                        )}
-                        
-                        {/* Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        
-                        {/* Badges */}
-                        <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-                          {product.video_url && (
-                            <Badge className="gap-1.5 bg-background/90 backdrop-blur-sm text-foreground border-0 shadow-lg">
-                              <Play className="h-3 w-3" />
-                              <span className="hidden sm:inline text-xs">{isRTL ? 'فيديو' : 'Video'}</span>
-                            </Badge>
-                          )}
-                          {product.medical_followup_required && (
-                            <Badge variant="destructive" className="gap-1 ml-auto shadow-lg">
-                              <Stethoscope className="h-3 w-3" />
-                            </Badge>
-                          )}
-                        </div>
-
-                        {/* Quick Add Button - Shows on Hover */}
-                        <motion.div 
-                          className="absolute bottom-3 left-3 right-3"
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: hoveredProduct === product.id ? 1 : 0, y: hoveredProduct === product.id ? 0 : 10 }}
-                        >
-                          <Button 
-                            className="w-full h-10 rounded-xl bg-primary/90 backdrop-blur-sm hover:bg-primary shadow-lg gap-2"
-                            onClick={(e) => handleAddToCart(product, e)}
-                            disabled={cartLoading}
-                          >
-                            <Plus className="h-4 w-4" />
-                            <span className="text-sm font-semibold">{isRTL ? 'أضف للسلة' : 'Add to Cart'}</span>
-                          </Button>
-                        </motion.div>
-                      </div>
-                      
-                      {/* Product Info */}
-                      <div className="p-4 sm:p-5">
-                        <h3 className="font-bold text-sm sm:text-base text-foreground mb-1 line-clamp-1 group-hover:text-primary transition-colors">
-                          {isRTL ? product.name_ar || product.name : product.name}
-                        </h3>
-                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mb-4 min-h-[2.5rem]">
-                          {isRTL ? product.description_ar || product.description : product.description}
-                        </p>
-                        
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-baseline gap-1">
-                            <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                              {product.price.toLocaleString()}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {isRTL ? 'ج.م' : 'EGP'}
-                            </span>
-                          </div>
-                          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                            <Button 
-                              size="icon"
-                              className="h-10 w-10 rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-primary-foreground transition-all duration-300 sm:hidden"
-                              onClick={(e) => handleAddToCart(product, e)}
-                              disabled={cartLoading}
-                            >
-                              <Plus className="h-5 w-5" />
-                            </Button>
-                          </motion.div>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* Products Showcase */}
+          <ProductShowcase
+            products={filteredProducts}
+            isLoading={loadingProducts}
+            isRTL={isRTL}
+            onProductClick={setSelectedProduct}
+            onAddToCart={handleAddToCart}
+            cartLoading={cartLoading}
+            searchQuery={searchQuery}
+          />
         </div>
 
         {/* Product Details Dialog */}
