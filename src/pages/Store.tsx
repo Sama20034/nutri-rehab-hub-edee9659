@@ -199,7 +199,7 @@ const Store = () => {
 
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6">
                 <span className="text-foreground">
-                  {isRTL ? 'اكتشف ' : 'Discover '}
+                  {isRTL ? 'احصل على ' : 'Get a '}
                 </span>
                 <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient">
                   {isRTL ? 'خطة مجانية بعد أي طلب يتخطى ٧٥٠٠ج' : 'Free Plan with Orders Over 7,500 EGP'}
