@@ -1086,6 +1086,47 @@ export type Database = {
         }
         Relationships: []
       }
+      store_categories: {
+        Row: {
+          created_at: string
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          name: string
+          name_ar: string | null
+          parent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          name_ar?: string | null
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          name_ar?: string | null
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "store_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transformations: {
         Row: {
           after_image_url: string | null

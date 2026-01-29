@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { motion } from 'framer-motion';
 import { 
   Package, Plus, Edit, Trash2, Eye, Search, Filter,
-  ShoppingCart, CheckCircle, XCircle, Clock, Truck
+  ShoppingCart, CheckCircle, XCircle, Clock, Truck, Play
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -37,6 +37,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Order {
   id: string;
@@ -92,6 +93,24 @@ export const StoreSection = ({
   const [statusFilter, setStatusFilter] = useState('all');
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [categories, setCategories] = useState<{ id: string; name: string; name_ar: string | null; parent_id: string | null }[]>([]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    const { data } = await supabase
+      .from('store_categories')
+      .select('id, name, name_ar, parent_id')
+      .eq('is_active', true)
+      .order('display_order');
+    if (data) setCategories(data);
+  };
+
+  const getSubcategories = () => {
+    return categories.filter(c => c.parent_id !== null);
+  };
 
   const [newProduct, setNewProduct] = useState({
     name: '',
@@ -417,10 +436,21 @@ export const StoreSection = ({
                         </div>
                         <div>
                           <Label>{isRTL ? 'التصنيف' : 'Category'}</Label>
-                          <Input
+                          <Select
                             value={newProduct.category}
-                            onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-                          />
+                            onValueChange={(value) => setNewProduct({ ...newProduct, category: value })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder={isRTL ? 'اختر التصنيف' : 'Select category'} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {getSubcategories().map(cat => (
+                                <SelectItem key={cat.id} value={isRTL ? cat.name_ar || cat.name : cat.name}>
+                                  {isRTL ? cat.name_ar || cat.name : cat.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
                       <div>
