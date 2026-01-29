@@ -414,9 +414,9 @@ export const CategoriesSection = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="h-full flex flex-col">
       {/* Header */}
-      <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
+      <div className={`flex items-center justify-between mb-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
         <div className={isRTL ? 'text-right' : 'text-left'}>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <FolderTree className="h-6 w-6 text-primary" />
@@ -432,70 +432,69 @@ export const CategoriesSection = () => {
         </Button>
       </div>
 
-      {/* Search */}
-      <Card className="bg-card border-border">
-        <CardContent className="p-4">
-          <div className="relative">
-            <Search className={`absolute top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground ${isRTL ? 'right-3' : 'left-3'}`} />
-            <Input
-              placeholder={isRTL ? 'بحث في التصنيفات...' : 'Search categories...'}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={isRTL ? 'pr-10' : 'pl-10'}
-            />
-          </div>
-        </CardContent>
-      </Card>
+      {/* Search Bar */}
+      <div className="mb-6">
+        <div className="relative max-w-md">
+          <Search className={`absolute top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground ${isRTL ? 'right-3' : 'left-3'}`} />
+          <Input
+            placeholder={isRTL ? 'بحث في التصنيفات...' : 'Search categories...'}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={`${isRTL ? 'pr-10' : 'pl-10'} bg-muted/50`}
+          />
+        </div>
+      </div>
 
-      {/* Categories Tree */}
-      <Card className="bg-card border-border">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Tag className="h-5 w-5 text-primary" />
-            {isRTL ? 'شجرة التصنيفات' : 'Category Tree'}
-            <Badge variant="secondary" className="ml-2">
-              {categories.length} {isRTL ? 'تصنيف' : 'categories'}
-            </Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {filteredTree ? (
-            <div className="space-y-1">
-              {filteredTree.map(cat => (
-                <div
-                  key={cat.id}
-                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors group"
-                >
-                  <Tag className="h-4 w-4 text-primary" />
-                  <span className="flex-1 font-medium">{isRTL ? cat.name_ar || cat.name : cat.name}</span>
-                  <Badge variant="outline" className="text-xs">
-                    {cat.parent_id ? (isRTL ? 'فرعي' : 'Sub') : (isRTL ? 'رئيسي' : 'Main')}
-                  </Badge>
-                  <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleEdit(cat)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive" onClick={() => handleDelete(cat)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+      {/* Stats Bar */}
+      <div className="flex items-center gap-4 mb-6 pb-4 border-b border-border">
+        <Badge variant="secondary" className="text-sm px-3 py-1">
+          <Tag className="h-4 w-4 mr-2" />
+          {categories.length} {isRTL ? 'تصنيف' : 'categories'}
+        </Badge>
+        <Badge variant="outline" className="text-sm px-3 py-1">
+          {getMainCategories().length} {isRTL ? 'تصنيف رئيسي' : 'main categories'}
+        </Badge>
+      </div>
+
+      {/* Categories Tree - Full Width */}
+      <div className="flex-1 overflow-auto">
+        {filteredTree ? (
+          <div className="space-y-2">
+            {filteredTree.map(cat => (
+              <div
+                key={cat.id}
+                className="flex items-center gap-3 p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors group border border-border/50"
+              >
+                <Tag className="h-4 w-4 text-primary" />
+                <span className="flex-1 font-medium">{isRTL ? cat.name_ar || cat.name : cat.name}</span>
+                <Badge variant="outline" className="text-xs">
+                  {cat.parent_id ? (isRTL ? 'فرعي' : 'Sub') : (isRTL ? 'رئيسي' : 'Main')}
+                </Badge>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleEdit(cat)}>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive" onClick={() => handleDelete(cat)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
-              ))}
-            </div>
-          ) : categoryTree.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <FolderTree className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>{isRTL ? 'لا توجد تصنيفات' : 'No categories found'}</p>
-            </div>
-          ) : (
-            <div className="space-y-1">
-              {categoryTree
-                .sort((a, b) => a.display_order - b.display_order)
-                .map(category => renderCategoryItem(category))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              </div>
+            ))}
+          </div>
+        ) : categoryTree.length === 0 ? (
+          <div className="text-center py-16 text-muted-foreground">
+            <FolderTree className="h-16 w-16 mx-auto mb-4 opacity-50" />
+            <p className="text-lg">{isRTL ? 'لا توجد تصنيفات' : 'No categories found'}</p>
+            <p className="text-sm mt-2">{isRTL ? 'ابدأ بإضافة تصنيف جديد' : 'Start by adding a new category'}</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {categoryTree
+              .sort((a, b) => a.display_order - b.display_order)
+              .map(category => renderCategoryItem(category))}
+          </div>
+        )}
+      </div>
 
       {/* Add Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
