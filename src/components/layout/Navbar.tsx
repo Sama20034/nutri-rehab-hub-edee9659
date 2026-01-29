@@ -13,11 +13,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from '@/components/ui/hover-card';
 import { toast } from 'sonner';
 import logo from '@/assets/alligator-fit-logo.png';
 
@@ -130,55 +125,56 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
               link.hasDropdown ? (
-                <HoverCard key={link.path} openDelay={0} closeDelay={100}>
-                  <HoverCardTrigger asChild>
-                    <Link
-                      to={link.path}
-                      className={`relative text-sm font-medium transition-colors duration-300 flex items-center gap-1 ${
-                        location.pathname === link.path
-                          ? 'text-primary'
-                          : 'text-muted-foreground hover:text-foreground'
-                      }`}
-                    >
-                      {link.label}
-                      <ChevronDown className="h-3.5 w-3.5" />
-                      {location.pathname === link.path && (
-                        <motion.div
-                          layoutId="activeNav"
-                          className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"
-                        />
-                      )}
-                    </Link>
-                  </HoverCardTrigger>
-                  <HoverCardContent 
-                    align="center" 
-                    sideOffset={15}
-                    className="w-auto p-6 bg-card border border-border shadow-2xl rounded-xl z-[60]"
+                <div key={link.path} className="relative group">
+                  <Link
+                    to={link.path}
+                    className={`relative text-sm font-medium transition-colors duration-300 flex items-center gap-1 py-2 ${
+                      location.pathname === link.path
+                        ? 'text-primary'
+                        : 'text-muted-foreground hover:text-primary'
+                    }`}
                   >
-                    <div className="grid grid-cols-5 gap-6 min-w-[800px]">
-                      {storeCategories.map((category) => (
-                        <div key={category.name} className="space-y-3">
-                          <h4 className="font-bold text-sm text-foreground border-b border-border/50 pb-2">
-                            {category.name}
-                          </h4>
-                          <ul className="space-y-2">
-                            {category.subcategories.map((sub) => (
-                              <li key={sub}>
-                                <button
-                                  onClick={() => handleCategoryClick(sub)}
-                                  className={`text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 group w-full ${isRTL ? 'text-right' : 'text-left'}`}
-                                >
-                                  <ChevronRight className={`h-3 w-3 text-primary opacity-0 group-hover:opacity-100 transition-opacity ${isRTL ? 'rotate-180' : ''}`} />
-                                  {sub}
-                                </button>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
+                    {link.label}
+                    <ChevronDown className="h-3.5 w-3.5 transition-transform group-hover:rotate-180" />
+                    {location.pathname === link.path && (
+                      <motion.div
+                        layoutId="activeNav"
+                        className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"
+                      />
+                    )}
+                  </Link>
+                  
+                  {/* Mega Menu Dropdown */}
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[100]">
+                    <div className="bg-background border border-border shadow-2xl rounded-lg p-8 min-w-[900px]">
+                      <div className="grid grid-cols-5 gap-8">
+                        {storeCategories.map((category, colIndex) => (
+                          <div key={category.name} className="space-y-4">
+                            {/* Category Header */}
+                            <h4 className="font-bold text-foreground text-sm leading-tight">
+                              {category.name}
+                            </h4>
+                            
+                            {/* Subcategories */}
+                            <ul className="space-y-0">
+                              {category.subcategories.map((sub, index) => (
+                                <li key={sub} className="border-b border-dashed border-border/60 last:border-b-0">
+                                  <button
+                                    onClick={() => handleCategoryClick(sub)}
+                                    className={`w-full py-2.5 text-sm text-primary hover:text-primary/80 transition-colors flex items-center gap-1 ${isRTL ? 'text-right flex-row-reverse' : 'text-left'}`}
+                                  >
+                                    <span className="text-primary">&gt;</span>
+                                    <span>{sub}</span>
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </HoverCardContent>
-                </HoverCard>
+                  </div>
+                </div>
               ) : (
                 <Link
                   key={link.path}
