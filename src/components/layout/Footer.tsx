@@ -120,38 +120,24 @@ const Footer = () => {
           <div>
             <h4 className="text-foreground font-semibold mb-6">{t('footer.policies')}</h4>
             <ul className="space-y-3">
-              <li>
-                <Link
-                  to="/privacy"
-                  className="text-muted-foreground hover:text-primary transition-colors text-sm"
-                >
-                  {t('footer.privacy')}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/terms"
-                  className="text-muted-foreground hover:text-primary transition-colors text-sm"
-                >
-                  {t('footer.terms')}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/refund"
-                  className="text-muted-foreground hover:text-primary transition-colors text-sm"
-                >
-                  {t('footer.refund')}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/service-policy"
-                  className="text-muted-foreground hover:text-primary transition-colors text-sm"
-                >
-                  {isRTL ? 'سياسة الخدمة' : 'Service Policy'}
-                </Link>
-              </li>
+              {[
+                { path: '/privacy', label: isRTL ? 'سياسة الخصوصية' : 'Privacy Policy' },
+                { path: '/terms', label: isRTL ? 'الشروط والأحكام' : 'Terms & Conditions' },
+                { path: '/refund', label: isRTL ? 'الاسترجاع والاستبدال' : 'Refund & Exchange' },
+                { path: '/shipping', label: isRTL ? 'الشحن والتوصيل' : 'Shipping & Delivery' },
+                { path: '/about', label: isRTL ? 'من نحن' : 'About Us' },
+                { path: '/contact', label: isRTL ? 'اتصل بنا' : 'Contact Us' },
+                { path: '/address', label: isRTL ? 'العنوان' : 'Address' },
+              ].map((link) => (
+                <li key={link.path}>
+                  <Link
+                    to={link.path}
+                    className="text-muted-foreground hover:text-primary transition-colors text-sm"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
