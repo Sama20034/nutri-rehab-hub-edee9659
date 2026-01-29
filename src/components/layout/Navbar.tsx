@@ -145,26 +145,36 @@ const Navbar = () => {
                   </Link>
                   
                   {/* Mega Menu Dropdown */}
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[100]">
-                    <div className="bg-background border border-border shadow-2xl rounded-lg p-8 min-w-[900px]">
-                      <div className="grid grid-cols-5 gap-8">
-                        {storeCategories.map((category, colIndex) => (
-                          <div key={category.name} className="space-y-4">
+                  <div 
+                    className="absolute top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[100]"
+                    style={{ 
+                      left: isRTL ? 'auto' : '50%', 
+                      right: isRTL ? '50%' : 'auto',
+                      transform: isRTL ? 'translateX(50%)' : 'translateX(-50%)'
+                    }}
+                  >
+                    <div className="bg-card border border-border shadow-2xl rounded-lg p-8" style={{ minWidth: '950px' }}>
+                      <div 
+                        className="grid grid-cols-5 gap-10"
+                        dir={isRTL ? 'rtl' : 'ltr'}
+                      >
+                        {storeCategories.map((category) => (
+                          <div key={category.name} className="min-w-0">
                             {/* Category Header */}
-                            <h4 className="font-bold text-foreground text-sm leading-tight">
+                            <h4 className={`font-bold text-foreground text-sm leading-tight mb-4 pb-2 border-b-2 border-primary/30 ${isRTL ? 'text-right' : 'text-left'}`}>
                               {category.name}
                             </h4>
                             
                             {/* Subcategories */}
                             <ul className="space-y-0">
-                              {category.subcategories.map((sub, index) => (
-                                <li key={sub} className="border-b border-dashed border-border/60 last:border-b-0">
+                              {category.subcategories.map((sub) => (
+                                <li key={sub} className="border-b border-dashed border-border/50 last:border-b-0">
                                   <button
                                     onClick={() => handleCategoryClick(sub)}
-                                    className={`w-full py-2.5 text-sm text-primary hover:text-primary/80 transition-colors flex items-center gap-1 ${isRTL ? 'text-right flex-row-reverse' : 'text-left'}`}
+                                    className={`w-full py-2.5 text-sm text-primary hover:text-primary/70 transition-colors flex items-center gap-2 ${isRTL ? 'flex-row-reverse justify-start' : 'justify-start'}`}
                                   >
-                                    <span className="text-primary">&gt;</span>
-                                    <span>{sub}</span>
+                                    <span className="text-primary font-medium">{isRTL ? '<' : '>'}</span>
+                                    <span className="whitespace-nowrap">{sub}</span>
                                   </button>
                                 </li>
                               ))}
