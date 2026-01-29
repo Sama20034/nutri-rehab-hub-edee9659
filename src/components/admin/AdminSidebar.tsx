@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, Dumbbell, Video, Star,
-  Utensils, FileText, ClipboardList, UserPlus, X, LogOut, Home, CreditCard, Tag, ChefHat, TrendingUp
+  Utensils, FileText, ClipboardList, UserPlus, X, LogOut, Home, CreditCard, Tag, ChefHat, TrendingUp, FolderTree
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
@@ -22,6 +22,7 @@ interface AdminSidebarProps {
 const sidebarItems = [
   { id: 'overview', labelAr: 'نظرة عامة', labelEn: 'Overview', icon: LayoutDashboard },
   { id: 'store', labelAr: 'المتجر', labelEn: 'Store', icon: Dumbbell },
+  { id: 'categories', labelAr: 'التصنيفات', labelEn: 'Categories', icon: FolderTree },
   { id: 'payments', labelAr: 'المدفوعات', labelEn: 'Payments', icon: CreditCard },
   { id: 'discounts', labelAr: 'الخصومات', labelEn: 'Discounts', icon: Tag },
   { id: 'pending', labelAr: 'طلبات الموافقة', labelEn: 'Pending Approvals', icon: UserPlus },

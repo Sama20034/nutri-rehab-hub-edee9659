@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Globe, LayoutDashboard, User, LogOut, ChevronDown, ShoppingBag, ChevronRight } from 'lucide-react';
@@ -14,65 +14,51 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import logo from '@/assets/alligator-fit-logo.png';
 
-// Store categories structure
-const STORE_CATEGORIES = {
-  en: [
-    {
-      name: "Proteins, Aminos & Creatine",
-      subcategories: ["Proteins", "Weight Gainers & Carbs", "Bcaa & Recovery", "Pure Amino Acids", "Creatine"]
-    },
-    {
-      name: "Pre-Workout & Natural Boosters",
-      subcategories: ["Pre-Workout", "Test Boosters", "GH Boosters"]
-    },
-    {
-      name: "Weight Loss & Natural Healthy Foods",
-      subcategories: ["Stimulant Fat Burners", "Non Stimulant Fat Burners", "High Natural Foods", "Protein Bars & Snacks"]
-    },
-    {
-      name: "General Health Care",
-      subcategories: ["Vitamins & Minerals", "Omega & Fish Oil", "Women Health", "Kids Health", "Skin & Hair Care", "Bones & Joint Supports"]
-    },
-    {
-      name: "Fitness Equipment",
-      subcategories: ["Training Supports", "Shakers & Bottles", "Sports Wear"]
-    }
-  ],
-  ar: [
-    {
-      name: "البروتينات والأحماض الأمينية والكرياتين",
-      subcategories: ["البروتينات", "زيادة الوزن والكربوهيدرات", "BCAA والتعافي", "الأحماض الأمينية النقية", "الكرياتين"]
-    },
-    {
-      name: "ما قبل التمرين والمعززات الطبيعية",
-      subcategories: ["ما قبل التمرين", "معززات التستوستيرون", "معززات هرمون النمو"]
-    },
-    {
-      name: "إنقاص الوزن والأغذية الصحية الطبيعية",
-      subcategories: ["حارقات الدهون المنشطة", "حارقات الدهون غير المنشطة", "الأغذية الطبيعية العالية", "ألواح البروتين والوجبات الخفيفة"]
-    },
-    {
-      name: "الرعاية الصحية العامة",
-      subcategories: ["الفيتامينات والمعادن", "أوميغا وزيت السمك", "صحة المرأة", "صحة الأطفال", "العناية بالبشرة والشعر", "دعم العظام والمفاصل"]
-    },
-    {
-      name: "معدات اللياقة البدنية",
-      subcategories: ["دعامات التدريب", "الشيكرات والزجاجات", "الملابس الرياضية"]
-    }
-  ]
-};
+interface CategoryData {
+  id: string;
+  name: string;
+  name_ar: string | null;
+  parent_id: string | null;
+  display_order: number;
+}
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [expandedMobileCategory, setExpandedMobileCategory] = useState<string | null>(null);
+  const [dbCategories, setDbCategories] = useState<CategoryData[]>([]);
   const { language, setLanguage, t, isRTL } = useLanguage();
   const { user, profile, role, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const storeCategories = isRTL ? STORE_CATEGORIES.ar : STORE_CATEGORIES.en;
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    const { data } = await supabase
+      .from('store_categories')
+      .select('id, name, name_ar, parent_id, display_order')
+      .eq('is_active', true)
+      .order('display_order');
+    if (data) setDbCategories(data);
+  };
+
+  const getStoreCategories = () => {
+    const mainCats = dbCategories.filter(c => !c.parent_id);
+    return mainCats.map(main => ({
+      name: isRTL ? main.name_ar || main.name : main.name,
+      subcategories: dbCategories
+        .filter(c => c.parent_id === main.id)
+        .sort((a, b) => a.display_order - b.display_order)
+        .map(sub => isRTL ? sub.name_ar || sub.name : sub.name)
+    }));
+  };
+
+  const storeCategories = getStoreCategories();
 
   const navLinks = [
     { path: '/', label: t('nav.home') },
