@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
-import ProductShowcase from "@/components/store/ProductShowcase";
+import FilterSidebar from "@/components/store/FilterSidebar";
+import SortBar, { SortOption } from "@/components/store/SortBar";
+import ProductGrid from "@/components/store/ProductGrid";
 import { 
   ShoppingCart, 
   Package, 
@@ -68,6 +70,13 @@ const Store = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showCart, setShowCart] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Filter & Sort State
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>('newest');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   // Fetch products
   const { data: products = [], isLoading: loadingProducts } = useQuery({
@@ -83,6 +92,20 @@ const Store = () => {
       return data as Product[];
     }
   });
+
+  // Extract unique categories
+  const categories = useMemo(() => {
+    const cats = products
+      .map(p => p.category)
+      .filter((c): c is string => c !== null && c !== '');
+    return [...new Set(cats)];
+  }, [products]);
+
+  // Calculate max price
+  const maxPrice = useMemo(() => {
+    if (products.length === 0) return 50000;
+    return Math.max(...products.map(p => p.price), 50000);
+  }, [products]);
 
   // Fetch cart items from database for logged-in users
   const { data: dbCartItems = [], isLoading: loadingDbCart } = useQuery({
@@ -111,16 +134,80 @@ const Store = () => {
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const grantsAccess = cartTotal >= 7500;
 
-  // Filter products based on search
-  const filteredProducts = products.filter(product => {
-    const searchLower = searchQuery.toLowerCase();
-    return (
-      product.name.toLowerCase().includes(searchLower) ||
-      (product.name_ar?.toLowerCase().includes(searchLower)) ||
-      (product.description?.toLowerCase().includes(searchLower)) ||
-      (product.description_ar?.toLowerCase().includes(searchLower))
+  // Filter and sort products
+  const filteredProducts = useMemo(() => {
+    let result = products;
+
+    // Search filter
+    if (searchQuery) {
+      const searchLower = searchQuery.toLowerCase();
+      result = result.filter(product => 
+        product.name.toLowerCase().includes(searchLower) ||
+        (product.name_ar?.toLowerCase().includes(searchLower)) ||
+        (product.description?.toLowerCase().includes(searchLower)) ||
+        (product.description_ar?.toLowerCase().includes(searchLower))
+      );
+    }
+
+    // Category filter
+    if (selectedCategories.length > 0) {
+      result = result.filter(product => 
+        product.category && selectedCategories.includes(product.category)
+      );
+    }
+
+    // Price range filter
+    result = result.filter(product => 
+      product.price >= priceRange[0] && product.price <= priceRange[1]
     );
-  });
+
+    // Stock filter
+    if (inStockOnly) {
+      result = result.filter(product => 
+        product.stock_quantity === null || product.stock_quantity > 0
+      );
+    }
+
+    // Sort
+    switch (sortBy) {
+      case 'newest':
+        // Already sorted by created_at desc
+        break;
+      case 'oldest':
+        result = [...result].reverse();
+        break;
+      case 'price-asc':
+        result = [...result].sort((a, b) => a.price - b.price);
+        break;
+      case 'price-desc':
+        result = [...result].sort((a, b) => b.price - a.price);
+        break;
+      case 'name-asc':
+        result = [...result].sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'name-desc':
+        result = [...result].sort((a, b) => b.name.localeCompare(a.name));
+        break;
+    }
+
+    return result;
+  }, [products, searchQuery, selectedCategories, priceRange, inStockOnly, sortBy]);
+
+  // Count active filters
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (selectedCategories.length > 0) count++;
+    if (priceRange[0] > 0 || priceRange[1] < maxPrice) count++;
+    if (inStockOnly) count++;
+    return count;
+  }, [selectedCategories, priceRange, maxPrice, inStockOnly]);
+
+  const handleResetFilters = () => {
+    setSelectedCategories([]);
+    setPriceRange([0, maxPrice]);
+    setInStockOnly(false);
+    setSearchQuery("");
+  };
 
   const handleAddToCart = async (product: Product, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -143,61 +230,35 @@ const Store = () => {
   return (
     <Layout>
       <div className={`min-h-screen bg-background overflow-hidden ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
-        {/* Animated Background */}
+        {/* Subtle Background */}
         <div className="fixed inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary/10 rounded-full blur-3xl animate-pulse delay-1000" />
-          <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-accent/5 rounded-full blur-3xl animate-pulse delay-500" />
+          <div className="absolute top-0 left-1/4 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-secondary/5 rounded-full blur-3xl" />
         </div>
 
-        {/* Hero Section */}
-        <div className="relative py-12 sm:py-20 md:py-28 overflow-hidden">
-          {/* Floating Elements */}
-          <div className="absolute inset-0 overflow-hidden">
-            <motion.div 
-              className="absolute top-20 left-10 text-primary/20"
-              animate={{ y: [0, -20, 0], rotate: [0, 10, 0] }}
-              transition={{ duration: 5, repeat: Infinity }}
-            >
-              <Sparkles className="w-12 h-12" />
-            </motion.div>
-            <motion.div 
-              className="absolute top-32 right-20 text-secondary/20"
-              animate={{ y: [0, 20, 0], rotate: [0, -10, 0] }}
-              transition={{ duration: 4, repeat: Infinity }}
-            >
-              <Zap className="w-16 h-16" />
-            </motion.div>
-            <motion.div 
-              className="absolute bottom-20 left-1/4 text-primary/10"
-              animate={{ y: [0, 15, 0] }}
-              transition={{ duration: 6, repeat: Infinity }}
-            >
-              <Sparkles className="w-10 h-10" />
-            </motion.div>
-          </div>
-
+        {/* Compact Hero Section */}
+        <div className="relative py-8 sm:py-12 border-b border-border/30">
           <div className="container mx-auto px-4 relative z-10">
             <motion.div 
-              className="max-w-4xl mx-auto text-center"
-              initial={{ opacity: 0, y: 30 }}
+              className="max-w-3xl mx-auto text-center"
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: 0.5 }}
             >
               {/* Badge */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6"
+                transition={{ delay: 0.1 }}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-4"
               >
-                <Sparkles className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-primary">
+                <Sparkles className="w-3.5 h-3.5 text-primary" />
+                <span className="text-xs font-medium text-primary">
                   {isRTL ? 'منتجات أصلية 100%' : '100% Original Products'}
                 </span>
               </motion.div>
 
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">
                 <span className="text-foreground">
                   {isRTL ? 'احصل على ' : 'Get a '}
                 </span>
@@ -206,29 +267,29 @@ const Store = () => {
                 </span>
               </h1>
               
-              <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto px-4">
+              <p className="text-sm sm:text-base text-muted-foreground mb-6 max-w-xl mx-auto">
                 {isRTL 
-                  ? 'مكملات غذائية عالية الجودة مختارة بعناية لدعم رحلتك نحو حياة صحية أفضل' 
-                  : 'Premium quality supplements carefully selected to support your journey to a healthier life'}
+                  ? 'مكملات غذائية عالية الجودة مختارة بعناية لدعم رحلتك' 
+                  : 'Premium supplements carefully selected to support your journey'}
               </p>
               
               {/* Search Bar */}
               <motion.div 
-                className="relative max-w-2xl mx-auto px-4"
-                initial={{ opacity: 0, y: 20 }}
+                className="relative max-w-lg mx-auto"
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
+                transition={{ delay: 0.2 }}
               >
                 <div className="relative group">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-primary via-secondary to-primary rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-500" />
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-xl blur opacity-0 group-hover:opacity-100 transition duration-300" />
                   <div className="relative flex items-center">
-                    <Search className={`absolute top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground ${isRTL ? 'right-5' : 'left-5'}`} />
+                    <Search className={`absolute top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground ${isRTL ? 'right-4' : 'left-4'}`} />
                     <Input
                       type="text"
                       placeholder={isRTL ? 'ابحث عن المنتجات...' : 'Search for products...'}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className={`h-14 sm:h-16 text-base sm:text-lg bg-card/80 backdrop-blur-xl border-border/50 rounded-xl ${isRTL ? 'pr-14 pl-4' : 'pl-14 pr-4'}`}
+                      className={`h-11 text-sm bg-card/80 backdrop-blur-sm border-border/50 rounded-xl ${isRTL ? 'pr-11 pl-4' : 'pl-11 pr-4'}`}
                     />
                   </div>
                 </div>
@@ -237,98 +298,130 @@ const Store = () => {
           </div>
         </div>
 
-        <div className="container mx-auto px-4 pb-12 sm:pb-20 relative z-10">
-          {/* Stats & Cart Row */}
-          <motion.div 
-            className="flex flex-wrap items-center justify-between gap-4 mb-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-          >
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-card/50 backdrop-blur-sm border border-border/50">
-                <Package className="h-5 w-5 text-primary" />
-                <span className="text-sm font-medium">
-                  {filteredProducts.length} {isRTL ? 'منتج' : 'Products'}
-                </span>
-              </div>
-            </div>
-            
-            {/* Cart Button */}
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button 
-                onClick={() => setShowCart(true)}
-                className="relative gap-2 h-12 px-6 rounded-xl bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25"
-              >
-                <ShoppingCart className="h-5 w-5" />
-                <span className="font-semibold">{isRTL ? 'السلة' : 'Cart'}</span>
-                {cartCount > 0 && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -top-2 -right-2 h-6 w-6 flex items-center justify-center rounded-full bg-secondary text-secondary-foreground text-xs font-bold shadow-lg"
-                  >
-                    {cartCount}
-                  </motion.div>
-                )}
-              </Button>
-            </motion.div>
-          </motion.div>
+        {/* Main Content with Sidebar */}
+        <div className="container mx-auto px-4 py-6 sm:py-8 relative z-10">
+          <div className="flex gap-6 lg:gap-8">
+            {/* Filter Sidebar */}
+            <FilterSidebar
+              isRTL={isRTL}
+              categories={categories}
+              selectedCategories={selectedCategories}
+              onCategoryChange={setSelectedCategories}
+              priceRange={priceRange}
+              maxPrice={maxPrice}
+              onPriceRangeChange={setPriceRange}
+              inStockOnly={inStockOnly}
+              onInStockChange={setInStockOnly}
+              onReset={handleResetFilters}
+              activeFiltersCount={activeFiltersCount}
+            />
 
-          {/* Special Offer Banner */}
-          <motion.div 
-            className="mb-10 relative overflow-hidden"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-secondary/10 to-primary/20 rounded-2xl" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,hsl(var(--primary)/0.2),transparent_50%)]" />
-            <div className="relative p-6 sm:p-8 rounded-2xl border border-primary/20 backdrop-blur-sm">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <motion.div 
-                  className="p-4 bg-gradient-to-br from-primary to-primary/60 rounded-2xl shadow-lg shadow-primary/30"
-                  animate={{ rotate: [0, 5, -5, 0] }}
-                  transition={{ duration: 4, repeat: Infinity }}
-                >
-                  <Gift className="h-8 w-8 text-primary-foreground" />
-                </motion.div>
-                <div className="flex-1">
-                  <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-1 flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-secondary" />
-                    {isRTL ? 'عرض حصري!' : 'Exclusive Offer!'}
-                  </h3>
-                  <p className="text-muted-foreground">
-                    {isRTL 
-                      ? 'اشتري بـ 7,500 ج.م أو أكثر واحصل على وصول مجاني للمحتوى الغذائي!'
-                      : 'Buy 7,500 EGP+ and get FREE access to nutritional content!'}
-                  </p>
+            {/* Products Area */}
+            <div className="flex-1 min-w-0 space-y-5">
+              {/* Top Bar: Filters (mobile) + Sort + Cart */}
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  {/* Mobile Filter Button */}
+                  <FilterSidebar
+                    isRTL={isRTL}
+                    categories={categories}
+                    selectedCategories={selectedCategories}
+                    onCategoryChange={setSelectedCategories}
+                    priceRange={priceRange}
+                    maxPrice={maxPrice}
+                    onPriceRangeChange={setPriceRange}
+                    inStockOnly={inStockOnly}
+                    onInStockChange={setInStockOnly}
+                    onReset={handleResetFilters}
+                    activeFiltersCount={activeFiltersCount}
+                  />
                 </div>
-                {grantsAccess && cartTotal > 0 && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
+                
+                {/* Cart Button */}
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button 
+                    onClick={() => setShowCart(true)}
+                    className="relative gap-2 h-11 px-5 rounded-xl bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/20"
                   >
-                    <Badge className="bg-primary text-primary-foreground border-0 px-5 py-2.5 text-sm font-semibold shadow-lg">
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      {isRTL ? 'مؤهل!' : 'Eligible!'}
-                    </Badge>
-                  </motion.div>
-                )}
+                    <ShoppingCart className="h-4 w-4" />
+                    <span className="font-semibold text-sm">{isRTL ? 'السلة' : 'Cart'}</span>
+                    {cartCount > 0 && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center rounded-full bg-secondary text-secondary-foreground text-xs font-bold shadow-lg"
+                      >
+                        {cartCount}
+                      </motion.div>
+                    )}
+                  </Button>
+                </motion.div>
               </div>
-            </div>
-          </motion.div>
 
-          {/* Products Showcase */}
-          <ProductShowcase
-            products={filteredProducts}
-            isLoading={loadingProducts}
-            isRTL={isRTL}
-            onProductClick={setSelectedProduct}
-            onAddToCart={handleAddToCart}
-            cartLoading={cartLoading}
-            searchQuery={searchQuery}
-          />
+              {/* Sort Bar */}
+              <SortBar
+                isRTL={isRTL}
+                productCount={filteredProducts.length}
+                sortBy={sortBy}
+                onSortChange={setSortBy}
+                viewMode={viewMode}
+                onViewModeChange={setViewMode}
+              />
+
+              {/* Special Offer Banner */}
+              <motion.div 
+                className="relative overflow-hidden"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/15 via-secondary/10 to-primary/15 rounded-xl" />
+                <div className="relative p-4 sm:p-5 rounded-xl border border-primary/20 backdrop-blur-sm">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                    <motion.div 
+                      className="p-3 bg-gradient-to-br from-primary to-primary/60 rounded-xl shadow-lg shadow-primary/30"
+                      animate={{ rotate: [0, 5, -5, 0] }}
+                      transition={{ duration: 4, repeat: Infinity }}
+                    >
+                      <Gift className="h-6 w-6 text-primary-foreground" />
+                    </motion.div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-foreground mb-0.5 flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-secondary" />
+                        {isRTL ? 'عرض حصري!' : 'Exclusive Offer!'}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {isRTL 
+                          ? 'اشتري بـ 7,500 ج.م أو أكثر واحصل على وصول مجاني للمحتوى الغذائي!'
+                          : 'Buy 7,500 EGP+ and get FREE access to nutritional content!'}
+                      </p>
+                    </div>
+                    {grantsAccess && cartTotal > 0 && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                      >
+                        <Badge className="bg-primary text-primary-foreground border-0 px-4 py-2 text-sm font-semibold shadow-lg">
+                          <CheckCircle className="h-4 w-4 mr-1.5" />
+                          {isRTL ? 'مؤهل!' : 'Eligible!'}
+                        </Badge>
+                      </motion.div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Products Grid */}
+              <ProductGrid
+                products={filteredProducts}
+                isLoading={loadingProducts}
+                isRTL={isRTL}
+                viewMode={viewMode}
+                onAddToCart={handleAddToCart}
+                cartLoading={cartLoading}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Product Details Dialog */}
