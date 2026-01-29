@@ -9,7 +9,8 @@ import {
   Tag,
   DollarSign,
   CheckCircle,
-  Package
+  Package,
+  ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -18,6 +19,54 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+
+// Predefined categories structure
+const STORE_CATEGORIES = {
+  en: [
+    {
+      name: "Proteins, Aminos & Creatine",
+      subcategories: ["Proteins", "Weight Gainers & Carbs", "Bcaa & Recovery", "Pure Amino Acids", "Creatine"]
+    },
+    {
+      name: "Pre-Workout & Natural Boosters",
+      subcategories: ["Pre-Workout", "Test Boosters", "GH Boosters"]
+    },
+    {
+      name: "Weight Loss & Natural Healthy Foods",
+      subcategories: ["Stimulant Fat Burners", "Non Stimulant Fat Burners", "High Natural Foods", "Protein Bars & Snacks"]
+    },
+    {
+      name: "General Health Care",
+      subcategories: ["Vitamins & Minerals", "Omega & Fish Oil", "Women Health", "Kids Health", "Skin & Hair Care", "Bones & Joint Supports"]
+    },
+    {
+      name: "Fitness Equipment",
+      subcategories: ["Training Supports", "Shakers & Bottles", "Sports Wear"]
+    }
+  ],
+  ar: [
+    {
+      name: "البروتينات والأحماض الأمينية والكرياتين",
+      subcategories: ["البروتينات", "زيادة الوزن والكربوهيدرات", "BCAA والتعافي", "الأحماض الأمينية النقية", "الكرياتين"]
+    },
+    {
+      name: "ما قبل التمرين والمعززات الطبيعية",
+      subcategories: ["ما قبل التمرين", "معززات التستوستيرون", "معززات هرمون النمو"]
+    },
+    {
+      name: "إنقاص الوزن والأغذية الصحية الطبيعية",
+      subcategories: ["حارقات الدهون المنشطة", "حارقات الدهون غير المنشطة", "الأغذية الطبيعية العالية", "ألواح البروتين والوجبات الخفيفة"]
+    },
+    {
+      name: "الرعاية الصحية العامة",
+      subcategories: ["الفيتامينات والمعادن", "أوميغا وزيت السمك", "صحة المرأة", "صحة الأطفال", "العناية بالبشرة والشعر", "دعم العظام والمفاصل"]
+    },
+    {
+      name: "معدات اللياقة البدنية",
+      subcategories: ["دعامات التدريب", "الشيكرات والزجاجات", "الملابس الرياضية"]
+    }
+  ]
+};
 
 interface FilterSidebarProps {
   isRTL: boolean;
@@ -51,17 +100,49 @@ const FilterSidebar = ({
     price: true,
     availability: true
   });
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
+
+  const storeCategories = isRTL ? STORE_CATEGORIES.ar : STORE_CATEGORIES.en;
 
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
-  const handleCategoryToggle = (category: string) => {
-    if (selectedCategories.includes(category)) {
-      onCategoryChange(selectedCategories.filter(c => c !== category));
+  const toggleCategoryExpand = (categoryName: string) => {
+    setExpandedCategories(prev => 
+      prev.includes(categoryName) 
+        ? prev.filter(c => c !== categoryName)
+        : [...prev, categoryName]
+    );
+  };
+
+  const handleSubcategoryToggle = (subcategory: string) => {
+    if (selectedCategories.includes(subcategory)) {
+      onCategoryChange(selectedCategories.filter(c => c !== subcategory));
     } else {
-      onCategoryChange([...selectedCategories, category]);
+      onCategoryChange([...selectedCategories, subcategory]);
     }
+  };
+
+  const handleMainCategoryToggle = (category: { name: string; subcategories: string[] }) => {
+    const allSelected = category.subcategories.every(sub => selectedCategories.includes(sub));
+    if (allSelected) {
+      // Deselect all subcategories
+      onCategoryChange(selectedCategories.filter(c => !category.subcategories.includes(c)));
+    } else {
+      // Select all subcategories
+      const newSelected = [...new Set([...selectedCategories, ...category.subcategories])];
+      onCategoryChange(newSelected);
+    }
+  };
+
+  const isMainCategoryPartiallySelected = (category: { name: string; subcategories: string[] }) => {
+    const selectedCount = category.subcategories.filter(sub => selectedCategories.includes(sub)).length;
+    return selectedCount > 0 && selectedCount < category.subcategories.length;
+  };
+
+  const isMainCategoryFullySelected = (category: { name: string; subcategories: string[] }) => {
+    return category.subcategories.every(sub => selectedCategories.includes(sub));
   };
 
   const FilterContent = () => (
@@ -107,31 +188,77 @@ const FilterSidebar = ({
             <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
           )}
         </CollapsibleTrigger>
-        <CollapsibleContent className="pt-3 space-y-2">
+        <CollapsibleContent className="pt-3 space-y-1">
           <AnimatePresence>
-            {categories.length > 0 ? (
-              categories.map((category, index) => (
-                <motion.div
-                  key={category}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.03 }}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
-                  onClick={() => handleCategoryToggle(category)}
-                >
-                  <Checkbox
-                    checked={selectedCategories.includes(category)}
-                    onCheckedChange={() => handleCategoryToggle(category)}
-                    className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                  />
-                  <span className="text-sm text-foreground flex-1">{category}</span>
-                </motion.div>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground py-2">
-                {isRTL ? 'لا توجد تصنيفات' : 'No categories available'}
-              </p>
-            )}
+            {storeCategories.map((category, index) => (
+              <motion.div
+                key={category.name}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.03 }}
+                className="space-y-1"
+              >
+                {/* Main Category */}
+                <div className="flex items-center gap-2">
+                  <div
+                    className="flex items-center gap-2 flex-1 p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                    onClick={() => handleMainCategoryToggle(category)}
+                  >
+                    <Checkbox
+                      checked={isMainCategoryFullySelected(category)}
+                      className={`data-[state=checked]:bg-primary data-[state=checked]:border-primary ${
+                        isMainCategoryPartiallySelected(category) ? 'data-[state=unchecked]:bg-primary/30' : ''
+                      }`}
+                    />
+                    <span className="text-sm font-medium text-foreground flex-1">{category.name}</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 p-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleCategoryExpand(category.name);
+                    }}
+                  >
+                    <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${
+                      expandedCategories.includes(category.name) ? 'rotate-90' : ''
+                    }`} />
+                  </Button>
+                </div>
+
+                {/* Subcategories */}
+                <AnimatePresence>
+                  {expandedCategories.includes(category.name) && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className={`space-y-1 overflow-hidden ${isRTL ? 'pr-6' : 'pl-6'}`}
+                    >
+                      {category.subcategories.map((subcategory) => (
+                        <motion.div
+                          key={subcategory}
+                          initial={{ opacity: 0, x: isRTL ? 10 : -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                          onClick={() => handleSubcategoryToggle(subcategory)}
+                        >
+                          <Checkbox
+                            checked={selectedCategories.includes(subcategory)}
+                            onCheckedChange={() => handleSubcategoryToggle(subcategory)}
+                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          />
+                          <span className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                            {subcategory}
+                          </span>
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ))}
           </AnimatePresence>
         </CollapsibleContent>
       </Collapsible>
