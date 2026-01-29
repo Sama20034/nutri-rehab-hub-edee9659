@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Package, Play, Stethoscope, Plus, Star, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,7 @@ interface ProductCardProps {
   size?: 'small' | 'medium' | 'large' | 'featured';
   index: number;
   onAddToCart: (product: Product, e?: React.MouseEvent) => void;
-  onClick: () => void;
+  onClick?: () => void;
   isLoading?: boolean;
 }
 
@@ -35,6 +36,12 @@ const ProductCard = ({
   onClick,
   isLoading 
 }: ProductCardProps) => {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    // Navigate to product detail page
+    navigate(`/product/${product.id}`);
+  };
   const sizeClasses = {
     small: 'col-span-1 row-span-1',
     medium: 'col-span-1 row-span-1 sm:col-span-1',
@@ -57,7 +64,7 @@ const ProductCard = ({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ delay: index * 0.08, duration: 0.5, ease: "easeOut" }}
       className={`group relative ${sizeClasses[size]}`}
-      onClick={onClick}
+      onClick={handleCardClick}
     >
       {/* Animated Border Gradient */}
       <div className="absolute -inset-[1px] bg-gradient-to-r from-primary via-secondary to-primary rounded-2xl sm:rounded-3xl opacity-0 group-hover:opacity-100 blur-sm transition-all duration-500 group-hover:blur-[2px]" />
