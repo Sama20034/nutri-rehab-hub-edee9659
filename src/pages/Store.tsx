@@ -336,130 +336,110 @@ const Store = () => {
           }} 
         />
 
-        {/* Main Content with Sidebar */}
+        {/* Main Content */}
         <div id="products-section" className="container mx-auto px-4 py-6 sm:py-8 relative z-10">
-          <div className="flex gap-6 lg:gap-8">
-            {/* Filter Sidebar */}
-            <FilterSidebar
+          {/* Products Area - Full Width */}
+          <div className="w-full space-y-5">
+            {/* Top Bar: Filters + Cart */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <FilterSidebar
+                isRTL={isRTL}
+                categories={categories}
+                selectedCategories={selectedCategories}
+                onCategoryChange={setSelectedCategories}
+                priceRange={priceRange}
+                maxPrice={maxPrice}
+                onPriceRangeChange={setPriceRange}
+                inStockOnly={inStockOnly}
+                onInStockChange={setInStockOnly}
+                onReset={handleResetFilters}
+                activeFiltersCount={activeFiltersCount}
+              />
+              
+              {/* Cart Button */}
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button 
+                  onClick={() => setShowCart(true)}
+                  className="relative gap-2 h-11 px-5 rounded-xl bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/20"
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  <span className="font-semibold text-sm">{isRTL ? 'السلة' : 'Cart'}</span>
+                  {cartCount > 0 && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center rounded-full bg-secondary text-secondary-foreground text-xs font-bold shadow-lg"
+                    >
+                      {cartCount}
+                    </motion.div>
+                  )}
+                </Button>
+              </motion.div>
+            </div>
+
+            {/* Sort Bar */}
+            <SortBar
               isRTL={isRTL}
-              categories={categories}
-              selectedCategories={selectedCategories}
-              onCategoryChange={setSelectedCategories}
-              priceRange={priceRange}
-              maxPrice={maxPrice}
-              onPriceRangeChange={setPriceRange}
-              inStockOnly={inStockOnly}
-              onInStockChange={setInStockOnly}
-              onReset={handleResetFilters}
-              activeFiltersCount={activeFiltersCount}
+              productCount={filteredProducts.length}
+              sortBy={sortBy}
+              onSortChange={setSortBy}
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
             />
 
-            {/* Products Area */}
-            <div className="flex-1 min-w-0 space-y-5">
-              {/* Top Bar: Filters (mobile) + Sort + Cart */}
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  {/* Mobile Filter Button */}
-                  <FilterSidebar
-                    isRTL={isRTL}
-                    categories={categories}
-                    selectedCategories={selectedCategories}
-                    onCategoryChange={setSelectedCategories}
-                    priceRange={priceRange}
-                    maxPrice={maxPrice}
-                    onPriceRangeChange={setPriceRange}
-                    inStockOnly={inStockOnly}
-                    onInStockChange={setInStockOnly}
-                    onReset={handleResetFilters}
-                    activeFiltersCount={activeFiltersCount}
-                  />
-                </div>
-                
-                {/* Cart Button */}
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button 
-                    onClick={() => setShowCart(true)}
-                    className="relative gap-2 h-11 px-5 rounded-xl bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/20"
+            {/* Special Offer Banner */}
+            <motion.div 
+              className="relative overflow-hidden"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/15 via-secondary/10 to-primary/15 rounded-xl" />
+              <div className="relative p-4 sm:p-5 rounded-xl border border-primary/20 backdrop-blur-sm">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                  <motion.div 
+                    className="p-3 bg-gradient-to-br from-primary to-primary/60 rounded-xl shadow-lg shadow-primary/30"
+                    animate={{ rotate: [0, 5, -5, 0] }}
+                    transition={{ duration: 4, repeat: Infinity }}
                   >
-                    <ShoppingCart className="h-4 w-4" />
-                    <span className="font-semibold text-sm">{isRTL ? 'السلة' : 'Cart'}</span>
-                    {cartCount > 0 && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center rounded-full bg-secondary text-secondary-foreground text-xs font-bold shadow-lg"
-                      >
-                        {cartCount}
-                      </motion.div>
-                    )}
-                  </Button>
-                </motion.div>
-              </div>
-
-              {/* Sort Bar */}
-              <SortBar
-                isRTL={isRTL}
-                productCount={filteredProducts.length}
-                sortBy={sortBy}
-                onSortChange={setSortBy}
-                viewMode={viewMode}
-                onViewModeChange={setViewMode}
-              />
-
-              {/* Special Offer Banner */}
-              <motion.div 
-                className="relative overflow-hidden"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/15 via-secondary/10 to-primary/15 rounded-xl" />
-                <div className="relative p-4 sm:p-5 rounded-xl border border-primary/20 backdrop-blur-sm">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                    <motion.div 
-                      className="p-3 bg-gradient-to-br from-primary to-primary/60 rounded-xl shadow-lg shadow-primary/30"
-                      animate={{ rotate: [0, 5, -5, 0] }}
-                      transition={{ duration: 4, repeat: Infinity }}
-                    >
-                      <Gift className="h-6 w-6 text-primary-foreground" />
-                    </motion.div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-bold text-foreground mb-0.5 flex items-center gap-2">
-                        <Sparkles className="h-4 w-4 text-secondary" />
-                        {isRTL ? 'عرض حصري!' : 'Exclusive Offer!'}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        {isRTL 
-                          ? 'اشتري بـ 7,500 ج.م أو أكثر واحصل على وصول مجاني للمحتوى الغذائي!'
-                          : 'Buy 7,500 EGP+ and get FREE access to nutritional content!'}
-                      </p>
-                    </div>
-                    {grantsAccess && cartTotal > 0 && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                      >
-                        <Badge className="bg-primary text-primary-foreground border-0 px-4 py-2 text-sm font-semibold shadow-lg">
-                          <CheckCircle className="h-4 w-4 mr-1.5" />
-                          {isRTL ? 'مؤهل!' : 'Eligible!'}
-                        </Badge>
-                      </motion.div>
-                    )}
+                    <Gift className="h-6 w-6 text-primary-foreground" />
+                  </motion.div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-foreground mb-0.5 flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-secondary" />
+                      {isRTL ? 'عرض حصري!' : 'Exclusive Offer!'}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {isRTL 
+                        ? 'اشتري بـ 7,500 ج.م أو أكثر واحصل على وصول مجاني للمحتوى الغذائي!'
+                        : 'Buy 7,500 EGP+ and get FREE access to nutritional content!'}
+                    </p>
                   </div>
+                  {grantsAccess && cartTotal > 0 && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                    >
+                      <Badge className="bg-primary text-primary-foreground border-0 px-4 py-2 text-sm font-semibold shadow-lg">
+                        <CheckCircle className="h-4 w-4 mr-1.5" />
+                        {isRTL ? 'مؤهل!' : 'Eligible!'}
+                      </Badge>
+                    </motion.div>
+                  )}
                 </div>
-              </motion.div>
-
-              {/* Products Grid */}
-              <div id="products-grid">
-                <ProductGrid
-                  products={filteredProducts}
-                  isLoading={loadingProducts}
-                  isRTL={isRTL}
-                  viewMode={viewMode}
-                  onAddToCart={handleAddToCart}
-                  cartLoading={cartLoading}
-                />
               </div>
+            </motion.div>
+
+            {/* Products Grid */}
+            <div id="products-grid">
+              <ProductGrid
+                products={filteredProducts}
+                isLoading={loadingProducts}
+                isRTL={isRTL}
+                viewMode={viewMode}
+                onAddToCart={handleAddToCart}
+                cartLoading={cartLoading}
+              />
             </div>
           </div>
         </div>
