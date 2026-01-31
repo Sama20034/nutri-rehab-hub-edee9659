@@ -450,14 +450,16 @@ const Store = () => {
               </motion.div>
 
               {/* Products Grid */}
-              <ProductGrid
-                products={filteredProducts}
-                isLoading={loadingProducts}
-                isRTL={isRTL}
-                viewMode={viewMode}
-                onAddToCart={handleAddToCart}
-                cartLoading={cartLoading}
-              />
+              <div id="products-grid">
+                <ProductGrid
+                  products={filteredProducts}
+                  isLoading={loadingProducts}
+                  isRTL={isRTL}
+                  viewMode={viewMode}
+                  onAddToCart={handleAddToCart}
+                  cartLoading={cartLoading}
+                />
+              </div>
             </div>
           </div>
         </div>

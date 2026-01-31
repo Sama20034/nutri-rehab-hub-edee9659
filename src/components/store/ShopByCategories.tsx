@@ -44,11 +44,13 @@ const ShopByCategories = ({ isRTL, onCategorySelect }: ShopByCategoriesProps) =>
     // Pass the category ID so we can fetch subcategories and filter properly
     onCategorySelect(category.id);
     
-    // Scroll to products section
-    const productsSection = document.getElementById('products-section');
-    if (productsSection) {
-      productsSection.scrollIntoView({ behavior: 'smooth' });
-    }
+    // Scroll to products grid (after a small delay to allow filtering)
+    setTimeout(() => {
+      const productsGrid = document.getElementById('products-grid');
+      if (productsGrid) {
+        productsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
   };
 
   if (isLoading) {
