@@ -38,6 +38,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import ProductImagesManager from '@/components/admin/ProductImagesManager';
 
 interface Order {
   id: string;
@@ -127,6 +128,7 @@ export const StoreSection = ({
     suitable_for: '',
     medical_followup_required: false
   });
+  const [newProductImages, setNewProductImages] = useState<string[]>([]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -163,35 +165,59 @@ export const StoreSection = ({
   );
 
   const handleAddProduct = async () => {
-    const { error } = await onAddProduct(newProduct as any);
-    if (error) {
+    // First create the product
+    const { data: productData, error: productError } = await supabase
+      .from('products')
+      .insert(newProduct as any)
+      .select()
+      .single();
+    
+    if (productError) {
       toast({
         title: isRTL ? 'خطأ' : 'Error',
-        description: error.message,
+        description: productError.message,
         variant: 'destructive'
       });
-    } else {
-      toast({
-        title: isRTL ? 'تم بنجاح' : 'Success',
-        description: isRTL ? 'تم إضافة المنتج' : 'Product added successfully'
-      });
-      setIsAddProductOpen(false);
-      setNewProduct({
-        name: '',
-        name_ar: '',
-        description: '',
-        description_ar: '',
-        price: 0,
-        image_url: '',
-        category: '',
-        stock_quantity: 0,
-        is_active: true,
-        video_url: '',
-        usage_instructions: '',
-        suitable_for: '',
-        medical_followup_required: false
-      });
+      return;
     }
+    
+    // Then add the additional images
+    if (newProductImages.length > 0 && productData) {
+      const imagesToInsert = newProductImages.map((url, index) => ({
+        product_id: productData.id,
+        image_url: url,
+        display_order: index
+      }));
+      
+      await supabase
+        .from('product_images')
+        .insert(imagesToInsert);
+    }
+    
+    toast({
+      title: isRTL ? 'تم بنجاح' : 'Success',
+      description: isRTL ? 'تم إضافة المنتج' : 'Product added successfully'
+    });
+    setIsAddProductOpen(false);
+    setNewProduct({
+      name: '',
+      name_ar: '',
+      description: '',
+      description_ar: '',
+      price: 0,
+      image_url: '',
+      category: '',
+      stock_quantity: 0,
+      is_active: true,
+      video_url: '',
+      usage_instructions: '',
+      suitable_for: '',
+      medical_followup_required: false
+    });
+    setNewProductImages([]);
+    
+    // Refresh the page to show the new product
+    window.location.reload();
   };
 
   const handleUpdateOrder = async (orderId: string, status: string) => {
@@ -454,14 +480,18 @@ export const StoreSection = ({
                         </div>
                       </div>
                       <div>
-                        <Label>{isRTL ? 'صورة المنتج' : 'Product Image'}</Label>
+                        <Label>{isRTL ? 'صورة المنتج الرئيسية' : 'Main Product Image'}</Label>
                         <ImageUpload
                           value={newProduct.image_url}
                           onChange={(url) => setNewProduct({ ...newProduct, image_url: url })}
-                          placeholder={isRTL ? 'اختر صورة المنتج' : 'Choose product image'}
+                          placeholder={isRTL ? 'اختر صورة المنتج الرئيسية' : 'Choose main product image'}
                           folder="products"
                         />
                       </div>
+                      <ProductImagesManager
+                        isRTL={isRTL}
+                        onImagesChange={(imgs) => setNewProductImages(imgs)}
+                      />
                       <div>
                         <Label>{isRTL ? 'رابط الفيديو' : 'Video URL'}</Label>
                         <Input

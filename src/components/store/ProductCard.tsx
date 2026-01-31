@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Package, Play, Stethoscope, Plus, Star, Flame, X } from "lucide-react";
@@ -10,6 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
+import ProductImageSlider from "./ProductImageSlider";
 
 interface Product {
   id: string;
@@ -64,6 +66,23 @@ const ProductCard = ({
 }: ProductCardProps) => {
   const navigate = useNavigate();
   const [showVideo, setShowVideo] = useState(false);
+  const [additionalImages, setAdditionalImages] = useState<string[]>([]);
+
+  // Fetch additional images for this product
+  useEffect(() => {
+    const fetchImages = async () => {
+      const { data } = await supabase
+        .from('product_images')
+        .select('image_url')
+        .eq('product_id', product.id)
+        .order('display_order');
+      
+      if (data) {
+        setAdditionalImages(data.map(img => img.image_url));
+      }
+    };
+    fetchImages();
+  }, [product.id]);
 
   const handleCardClick = () => {
     navigate(`/product/${product.id}`);
@@ -104,26 +123,18 @@ const ProductCard = ({
         <div className="absolute -inset-[1px] bg-gradient-to-r from-primary via-secondary to-primary rounded-2xl sm:rounded-3xl opacity-0 group-hover:opacity-100 blur-sm transition-all duration-500 group-hover:blur-[2px]" />
         
         <div className={`relative h-full rounded-2xl sm:rounded-3xl overflow-hidden bg-card border border-border/30 hover:border-transparent transition-all duration-500 cursor-pointer ${isFeatured ? 'shadow-2xl shadow-primary/10' : ''}`}>
-          {/* Image Container */}
+          {/* Image Container with Slider */}
           <div className={`relative ${imageHeights[size]} overflow-hidden`}>
-            {product.image_url ? (
-              <>
-                <motion.img 
-                  src={product.image_url} 
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                  whileHover={{ scale: 1.15 }}
-                  transition={{ duration: 0.8, ease: "easeOut" }}
-                />
-                {/* Gradient Overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              </>
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted via-muted/80 to-muted/50">
-                <Package className={`${isFeatured ? 'h-20 w-20' : 'h-12 w-12'} text-muted-foreground/20`} />
-              </div>
-            )}
+            <ProductImageSlider
+              images={additionalImages}
+              mainImage={product.image_url}
+              productName={product.name}
+              size={size}
+            />
+            
+            {/* Gradient Overlays */}
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
             
             {/* Top Badges */}
             <div className="absolute top-3 left-3 right-3 flex justify-between items-start gap-2">
