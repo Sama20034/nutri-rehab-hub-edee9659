@@ -839,9 +839,9 @@ const TransformationsCarousel = () => {
           </p>
         </motion.div>
 
-        <div className="relative max-w-4xl mx-auto px-2 sm:px-8">
+        <div className="relative max-w-4xl mx-auto px-8 sm:px-12 md:px-16">
           {/* Fixed height container to prevent layout shift */}
-          <div className="relative min-h-[400px] sm:min-h-[450px] md:min-h-[400px]">
+          <div className="relative min-h-[700px] sm:min-h-[500px] md:min-h-[400px]">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div key={currentIndex} initial={{
               opacity: 0
@@ -858,8 +858,8 @@ const TransformationsCarousel = () => {
                 <Card className="overflow-hidden border-border bg-card h-full">
                   {isCombined ?
                 // Combined image (before & after in one)
-                <div className="relative h-full min-h-[280px] sm:min-h-[320px]">
-                      <img src={beforeImage} alt="Before & After" className="absolute inset-0 w-full h-full object-cover object-top" loading="eager" />
+                <div className="relative h-full min-h-[320px] sm:min-h-[320px]">
+                      <img src={beforeImage} alt="Before & After" className="absolute inset-0 w-full h-full object-cover object-center" loading="eager" />
                       {useEmojiMask && <img src={emojiMask} alt="" className="absolute top-4 left-1/2 -translate-x-1/2 w-16 h-16 object-contain" />}
                       <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent" />
                       <div className="absolute bottom-4 left-4 right-4">
@@ -880,16 +880,16 @@ const TransformationsCarousel = () => {
                       </div>
                     </div> :
                 // Separate before and after images
-                <div className="relative h-full min-h-[280px] sm:min-h-[320px] grid grid-cols-2 gap-1">
+                <div className="relative h-full min-h-[320px] sm:min-h-[320px] grid grid-cols-2 gap-1">
                       <div className="relative overflow-hidden">
-                        <img src={beforeImage} alt="Before" className="absolute inset-0 w-full h-full object-cover object-top" loading="eager" />
+                        <img src={beforeImage} alt="Before" className="absolute inset-0 w-full h-full object-cover object-center" loading="eager" />
                         {useEmojiMask && <img src={emojiMask} alt="" className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-12 object-contain" />}
                         <Badge className="absolute bottom-2 left-2 bg-red-500/80 text-white">
                           {isRTL ? 'قبل' : 'Before'}
                         </Badge>
                       </div>
                       <div className="relative overflow-hidden">
-                        <img src={afterImage} alt="After" className="absolute inset-0 w-full h-full object-cover object-top" loading="eager" />
+                        <img src={afterImage} alt="After" className="absolute inset-0 w-full h-full object-cover object-center" loading="eager" />
                         {useEmojiMask && <img src={emojiMask} alt="" className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-12 object-contain" />}
                         <Badge className="absolute bottom-2 right-2 bg-green-500/80 text-white">
                           {isRTL ? 'بعد' : 'After'}
@@ -944,16 +944,26 @@ const TransformationsCarousel = () => {
           </div>
 
           {/* Navigation Buttons */}
-          <button onClick={prevSlide} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 sm:-translate-x-4 md:-translate-x-12 w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-card border border-border rounded-full flex items-center justify-center hover:bg-primary/10 transition-colors z-10">
-            <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
+          <button onClick={prevSlide} className="absolute left-0 top-1/3 sm:top-1/2 -translate-y-1/2 w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 bg-card border border-border rounded-full flex items-center justify-center hover:bg-primary/10 transition-colors z-10 shadow-lg">
+            <ChevronLeft className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6" />
           </button>
-          <button onClick={nextSlide} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 sm:translate-x-4 md:translate-x-12 w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-card border border-border rounded-full flex items-center justify-center hover:bg-primary/10 transition-colors z-10">
-            <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
+          <button onClick={nextSlide} className="absolute right-0 top-1/3 sm:top-1/2 -translate-y-1/2 w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 bg-card border border-border rounded-full flex items-center justify-center hover:bg-primary/10 transition-colors z-10 shadow-lg">
+            <ChevronRight className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6" />
           </button>
 
-          {/* Dots */}
-          <div className="flex justify-center gap-2 mt-8">
-            {transformations.map((_, index) => <button key={index} onClick={() => setCurrentIndex(index)} className={`w-3 h-3 rounded-full transition-all ${index === currentIndex ? 'bg-primary w-8' : 'bg-muted-foreground/30'}`} />)}
+          {/* Dots - Fixed Design */}
+          <div className="flex justify-center items-center gap-2 mt-8">
+            {transformations.map((_, index) => (
+              <button 
+                key={index} 
+                onClick={() => setCurrentIndex(index)} 
+                className={`h-3 rounded-full transition-all duration-300 ${
+                  index === currentIndex 
+                    ? 'bg-primary w-6' 
+                    : 'bg-muted-foreground/40 w-3 hover:bg-muted-foreground/60'
+                }`} 
+              />
+            ))}
           </div>
         </div>
       </div>
