@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Tag, Plus, Edit, Trash2, ChevronRight, ChevronDown, 
-  Search, FolderTree, Save, X
+  Search, FolderTree, Save, X, Image as ImageIcon
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ImageUpload } from '@/components/ui/image-upload';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,6 +46,7 @@ interface Category {
   parent_id: string | null;
   display_order: number;
   is_active: boolean;
+  image_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -72,7 +74,8 @@ export const CategoriesSection = () => {
     name_ar: '',
     parent_id: '',
     display_order: 0,
-    is_active: true
+    is_active: true,
+    image_url: ''
   });
 
   useEffect(() => {
@@ -138,7 +141,8 @@ export const CategoriesSection = () => {
       name_ar: '',
       parent_id: '',
       display_order: 0,
-      is_active: true
+      is_active: true,
+      image_url: ''
     });
     setIsAddDialogOpen(true);
   };
@@ -150,7 +154,8 @@ export const CategoriesSection = () => {
       name_ar: category.name_ar || '',
       parent_id: category.parent_id || '',
       display_order: category.display_order,
-      is_active: category.is_active
+      is_active: category.is_active,
+      image_url: category.image_url || ''
     });
     setIsEditDialogOpen(true);
   };
@@ -168,7 +173,8 @@ export const CategoriesSection = () => {
         name_ar: formData.name_ar || null,
         parent_id: formData.parent_id || null,
         display_order: formData.display_order,
-        is_active: formData.is_active
+        is_active: formData.is_active,
+        image_url: formData.image_url || null
       });
 
     if (error) {
@@ -197,7 +203,8 @@ export const CategoriesSection = () => {
         name_ar: formData.name_ar || null,
         parent_id: formData.parent_id || null,
         display_order: formData.display_order,
-        is_active: formData.is_active
+        is_active: formData.is_active,
+        image_url: formData.image_url || null
       })
       .eq('id', selectedCategory.id);
 
@@ -394,6 +401,24 @@ export const CategoriesSection = () => {
           />
         </div>
       </div>
+
+      {/* Category Image - Only for main categories */}
+      {!formData.parent_id && (
+        <div>
+          <Label className="flex items-center gap-2 mb-2">
+            <ImageIcon className="h-4 w-4 text-primary" />
+            {isRTL ? 'صورة التصنيف (للتصنيفات الرئيسية)' : 'Category Image (for main categories)'}
+          </Label>
+          <ImageUpload
+            value={formData.image_url}
+            onChange={(url) => setFormData({ ...formData, image_url: url })}
+            placeholder={isRTL ? 'اختر صورة التصنيف' : 'Select category image'}
+          />
+          <p className="text-xs text-muted-foreground mt-1">
+            {isRTL ? 'ستظهر هذه الصورة في قسم "تسوق حسب التصنيفات"' : 'This image will appear in "Shop by Categories" section'}
+          </p>
+        </div>
+      )}
 
       <div className="flex items-center gap-2">
         <Switch

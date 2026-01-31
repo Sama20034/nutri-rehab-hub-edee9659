@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
 import FilterSidebar from "@/components/store/FilterSidebar";
 import PromoBannerSlider from "@/components/store/PromoBannerSlider";
+import ShopByCategories from "@/components/store/ShopByCategories";
 import SortBar, { SortOption } from "@/components/store/SortBar";
 import ProductGrid from "@/components/store/ProductGrid";
 import { 
@@ -302,8 +303,16 @@ const Store = () => {
         {/* Promo Banner Slider */}
         <PromoBannerSlider isRTL={isRTL} />
 
+        {/* Shop By Categories */}
+        <ShopByCategories 
+          isRTL={isRTL} 
+          onCategorySelect={(categoryName) => {
+            setSelectedCategories([categoryName]);
+          }} 
+        />
+
         {/* Main Content with Sidebar */}
-        <div className="container mx-auto px-4 py-6 sm:py-8 relative z-10">
+        <div id="products-section" className="container mx-auto px-4 py-6 sm:py-8 relative z-10">
           <div className="flex gap-6 lg:gap-8">
             {/* Filter Sidebar */}
             <FilterSidebar

@@ -1159,6 +1159,7 @@ export type Database = {
           created_at: string
           display_order: number | null
           id: string
+          image_url: string | null
           is_active: boolean | null
           name: string
           name_ar: string | null
@@ -1169,6 +1170,7 @@ export type Database = {
           created_at?: string
           display_order?: number | null
           id?: string
+          image_url?: string | null
           is_active?: boolean | null
           name: string
           name_ar?: string | null
@@ -1179,6 +1181,7 @@ export type Database = {
           created_at?: string
           display_order?: number | null
           id?: string
+          image_url?: string | null
           is_active?: boolean | null
           name?: string
           name_ar?: string | null
