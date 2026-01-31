@@ -441,6 +441,91 @@ const Store = () => {
                 cartLoading={cartLoading}
               />
             </div>
+
+            {/* Features Section */}
+            <motion.div 
+              className="mt-12 py-10 rounded-2xl bg-gradient-to-br from-accent/20 via-accent/10 to-primary/10 border border-accent/30"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 px-6">
+                {/* Money Back */}
+                <motion.div 
+                  className="flex flex-col items-center text-center group"
+                  whileHover={{ y: -5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-secondary flex items-center justify-center mb-4 shadow-lg shadow-secondary/30 group-hover:scale-110 transition-transform">
+                    <svg className="w-8 h-8 md:w-10 md:h-10 text-secondary-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="2" y="6" width="20" height="12" rx="2" />
+                      <circle cx="12" cy="12" r="2" />
+                      <path d="M6 12h.01M18 12h.01" />
+                    </svg>
+                  </div>
+                  <h3 className="font-bold text-foreground text-sm md:text-base mb-1">
+                    {isRTL ? 'استرداد الأموال' : 'Money Back'}
+                  </h3>
+                  <p className="text-xs md:text-sm text-muted-foreground">
+                    {isRTL ? 'ضمان استرداد خلال 30 يوم' : '30 days money back guarantee'}
+                  </p>
+                </motion.div>
+
+                {/* Free Consultation */}
+                <motion.div 
+                  className="flex flex-col items-center text-center group"
+                  whileHover={{ y: -5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-secondary flex items-center justify-center mb-4 shadow-lg shadow-secondary/30 group-hover:scale-110 transition-transform">
+                    <Stethoscope className="w-8 h-8 md:w-10 md:h-10 text-secondary-foreground" />
+                  </div>
+                  <h3 className="font-bold text-foreground text-sm md:text-base mb-1">
+                    {isRTL ? 'استشارة مجانية' : 'Free Consultation'} 💊
+                  </h3>
+                  <p className="text-xs md:text-sm text-muted-foreground">
+                    {isRTL ? 'استشارة مجانية من أطبائنا' : 'Free consultation from doctors'}
+                  </p>
+                </motion.div>
+
+                {/* Fast Delivery */}
+                <motion.div 
+                  className="flex flex-col items-center text-center group"
+                  whileHover={{ y: -5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-secondary flex items-center justify-center mb-4 shadow-lg shadow-secondary/30 group-hover:scale-110 transition-transform">
+                    <Zap className="w-8 h-8 md:w-10 md:h-10 text-secondary-foreground" />
+                  </div>
+                  <h3 className="font-bold text-foreground text-sm md:text-base mb-1">
+                    {isRTL ? 'توصيل سريع' : 'Fast Delivery'}
+                  </h3>
+                  <p className="text-xs md:text-sm text-muted-foreground">
+                    {isRTL ? 'سوف تحصل على طلبك بسرعة' : 'You will get your order earlier'}
+                  </p>
+                </motion.div>
+
+                {/* Online Support */}
+                <motion.div 
+                  className="flex flex-col items-center text-center group"
+                  whileHover={{ y: -5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-secondary flex items-center justify-center mb-4 shadow-lg shadow-secondary/30 group-hover:scale-110 transition-transform">
+                    <svg className="w-8 h-8 md:w-10 md:h-10 text-secondary-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
+                      <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-bold text-foreground text-sm md:text-base mb-1">
+                    {isRTL ? 'دعم أونلاين' : 'Online Support'}
+                  </h3>
+                  <p className="text-xs md:text-sm text-muted-foreground">
+                    {isRTL ? 'متواجدون دائماً لمساعدتك' : "We're always available to help you"}
+                  </p>
+                </motion.div>
+              </div>
+            </motion.div>
           </div>
         </div>
 
