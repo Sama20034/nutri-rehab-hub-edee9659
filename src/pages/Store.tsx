@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
 import FilterSidebar from "@/components/store/FilterSidebar";
+import PromoBannerSlider from "@/components/store/PromoBannerSlider";
 import SortBar, { SortOption } from "@/components/store/SortBar";
 import ProductGrid from "@/components/store/ProductGrid";
 import { 
@@ -297,6 +298,9 @@ const Store = () => {
             </motion.div>
           </div>
         </div>
+
+        {/* Promo Banner Slider */}
+        <PromoBannerSlider isRTL={isRTL} />
 
         {/* Main Content with Sidebar */}
         <div className="container mx-auto px-4 py-6 sm:py-8 relative z-10">
