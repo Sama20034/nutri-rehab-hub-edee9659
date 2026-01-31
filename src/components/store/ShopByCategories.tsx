@@ -41,8 +41,8 @@ const ShopByCategories = ({ isRTL, onCategorySelect }: ShopByCategoriesProps) =>
   }, []);
 
   const handleShopNow = (category: Category) => {
-    const categoryName = isRTL ? category.name_ar || category.name : category.name;
-    onCategorySelect(categoryName);
+    // Pass the category ID so we can fetch subcategories and filter properly
+    onCategorySelect(category.id);
     
     // Scroll to products section
     const productsSection = document.getElementById('products-section');
