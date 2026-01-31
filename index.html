@@ -48,6 +48,32 @@
       padding-right: env(safe-area-inset-right);
     }
   </style>
+  <!-- Route persistence for mobile refresh -->
+  <script>
+    (function() {
+      // Check if we have a saved route from before refresh
+      var savedRoute = sessionStorage.getItem('currentRoute');
+      var currentHash = window.location.hash;
+      
+      // If no hash in URL but we have a saved route, restore it
+      if (savedRoute && (!currentHash || currentHash === '' || currentHash === '#' || currentHash === '#/')) {
+        window.location.hash = savedRoute;
+      }
+      
+      // Save current route on any hash change
+      window.addEventListener('hashchange', function() {
+        var hash = window.location.hash;
+        if (hash && hash !== '#' && hash !== '#/') {
+          sessionStorage.setItem('currentRoute', hash);
+        }
+      });
+      
+      // Save initial route if it exists
+      if (currentHash && currentHash !== '#' && currentHash !== '#/') {
+        sessionStorage.setItem('currentRoute', currentHash);
+      }
+    })();
+  </script>
 </head>
 
   <body>
