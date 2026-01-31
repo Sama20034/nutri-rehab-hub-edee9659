@@ -330,50 +330,36 @@ const FilterSidebar = ({
   );
 
   return (
-    <>
-      {/* Desktop Sidebar */}
-      <aside className="hidden lg:block w-72 flex-shrink-0">
-        <div className="sticky top-24 p-5 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50">
-          <ScrollArea className="h-[calc(100vh-200px)]">
-            <FilterContent />
-          </ScrollArea>
-        </div>
-      </aside>
-
-      {/* Mobile Filter Sheet */}
-      <div className="lg:hidden">
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button
-              variant="outline"
-              className="gap-2 h-11 px-4 rounded-xl border-border/50 bg-card/80 backdrop-blur-sm"
-            >
-              <Filter className="h-4 w-4" />
-              <span>{isRTL ? 'الفلاتر' : 'Filters'}</span>
-              {activeFiltersCount > 0 && (
-                <Badge variant="secondary" className="h-5 px-2 text-xs ms-1">
-                  {activeFiltersCount}
-                </Badge>
-              )}
-            </Button>
-          </SheetTrigger>
-          <SheetContent 
-            side={isRTL ? "right" : "left"} 
-            className="w-[85vw] sm:w-[350px] p-0 bg-card border-border/50"
-          >
-            <SheetHeader className="p-6 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
-              <SheetTitle className="flex items-center gap-2">
-                <Filter className="h-5 w-5 text-primary" />
-                {isRTL ? 'فلترة المنتجات' : 'Filter Products'}
-              </SheetTitle>
-            </SheetHeader>
-            <ScrollArea className="h-[calc(100vh-100px)] p-6">
-              <FilterContent />
-            </ScrollArea>
-          </SheetContent>
-        </Sheet>
-      </div>
-    </>
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button
+          variant="outline"
+          className="gap-2 h-11 px-4 rounded-xl border-border/50 bg-card/80 backdrop-blur-sm"
+        >
+          <Filter className="h-4 w-4" />
+          <span>{isRTL ? 'الفلاتر' : 'Filters'}</span>
+          {activeFiltersCount > 0 && (
+            <Badge variant="secondary" className="h-5 px-2 text-xs ms-1">
+              {activeFiltersCount}
+            </Badge>
+          )}
+        </Button>
+      </SheetTrigger>
+      <SheetContent 
+        side={isRTL ? "right" : "left"} 
+        className="w-[85vw] sm:w-[350px] p-0 bg-card border-border/50"
+      >
+        <SheetHeader className="p-6 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
+          <SheetTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5 text-primary" />
+            {isRTL ? 'فلترة المنتجات' : 'Filter Products'}
+          </SheetTitle>
+        </SheetHeader>
+        <ScrollArea className="h-[calc(100vh-100px)] p-6">
+          <FilterContent />
+        </ScrollArea>
+      </SheetContent>
+    </Sheet>
   );
 };
 
