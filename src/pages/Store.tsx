@@ -306,8 +306,33 @@ const Store = () => {
         {/* Shop By Categories */}
         <ShopByCategories 
           isRTL={isRTL} 
-          onCategorySelect={(categoryName) => {
-            setSelectedCategories([categoryName]);
+          onCategorySelect={async (categoryId) => {
+            // Fetch subcategories of this main category
+            const { data: subcategories } = await supabase
+              .from('store_categories')
+              .select('name, name_ar')
+              .eq('parent_id', categoryId)
+              .eq('is_active', true);
+            
+            if (subcategories && subcategories.length > 0) {
+              // Use subcategory names for filtering (both EN and AR)
+              const subNames = subcategories.flatMap(sub => [
+                sub.name,
+                sub.name_ar
+              ].filter(Boolean) as string[]);
+              setSelectedCategories(subNames);
+            } else {
+              // If no subcategories, use main category name
+              const { data: mainCat } = await supabase
+                .from('store_categories')
+                .select('name, name_ar')
+                .eq('id', categoryId)
+                .single();
+              
+              if (mainCat) {
+                setSelectedCategories([mainCat.name, mainCat.name_ar].filter(Boolean) as string[]);
+              }
+            }
           }} 
         />
 
