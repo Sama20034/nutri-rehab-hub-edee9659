@@ -23,6 +23,7 @@ import { VideosSection } from '@/components/admin/sections/VideosSection';
 import { TransformationsSection } from '@/components/admin/sections/TransformationsSection';
 import { ProgressTrackingSection } from '@/components/admin/sections/ProgressTrackingSection';
 import { CategoriesSection } from '@/components/admin/sections/CategoriesSection';
+import PromoBannersSection from '@/components/admin/sections/PromoBannersSection';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import logo from '@/assets/logo.png';
 
@@ -189,6 +190,8 @@ const AdminDashboard = () => {
         return <ArticlesSection />;
       case 'categories':
         return <CategoriesSection />;
+      case 'banners':
+        return <PromoBannersSection isRTL={isRTL} />;
       default:
         return null;
     }
