@@ -51,27 +51,47 @@
   <!-- Route persistence for mobile refresh -->
   <script>
     (function() {
-      // Check if we have a saved route from before refresh
-      var savedRoute = sessionStorage.getItem('currentRoute');
+      var STORAGE_KEY = 'alligator_current_route';
       var currentHash = window.location.hash;
+      var savedRoute = localStorage.getItem(STORAGE_KEY);
       
-      // If no hash in URL but we have a saved route, restore it
-      if (savedRoute && (!currentHash || currentHash === '' || currentHash === '#' || currentHash === '#/')) {
-        window.location.hash = savedRoute;
+      // Function to check if hash is empty/home
+      function isEmptyHash(hash) {
+        return !hash || hash === '' || hash === '#' || hash === '#/' || hash === '#';
       }
       
-      // Save current route on any hash change
-      window.addEventListener('hashchange', function() {
-        var hash = window.location.hash;
-        if (hash && hash !== '#' && hash !== '#/') {
-          sessionStorage.setItem('currentRoute', hash);
+      // Function to save route
+      function saveRoute(hash) {
+        if (!isEmptyHash(hash)) {
+          localStorage.setItem(STORAGE_KEY, hash);
         }
+      }
+      
+      // On page load: restore route if current hash is empty but we have saved route
+      if (isEmptyHash(currentHash) && savedRoute && !isEmptyHash(savedRoute)) {
+        // Use replace to avoid adding to history
+        window.location.replace(window.location.pathname + window.location.search + savedRoute);
+      } else if (!isEmptyHash(currentHash)) {
+        // Save current route if it's valid
+        saveRoute(currentHash);
+      }
+      
+      // Listen for hash changes and save them
+      window.addEventListener('hashchange', function() {
+        saveRoute(window.location.hash);
       });
       
-      // Save initial route if it exists
-      if (currentHash && currentHash !== '#' && currentHash !== '#/') {
-        sessionStorage.setItem('currentRoute', currentHash);
-      }
+      // Also save on beforeunload to catch any last-moment changes
+      window.addEventListener('beforeunload', function() {
+        saveRoute(window.location.hash);
+      });
+      
+      // For SPA navigation, also monitor popstate
+      window.addEventListener('popstate', function() {
+        setTimeout(function() {
+          saveRoute(window.location.hash);
+        }, 100);
+      });
     })();
   </script>
 </head>
