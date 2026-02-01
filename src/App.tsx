@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route, useLocation } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import FloatingCTA from "@/components/FloatingCTA";
 import ScrollToTop from "@/components/ScrollToTop";
 import Index from "./pages/Index";
@@ -56,51 +57,53 @@ const RouteDebugger = () => {
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <LanguageProvider>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <HashRouter>
-            <RouteDebugger />
-            <ScrollToTop />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/packages" element={<Packages />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/articles" element={<Articles />} />
-              <Route path="/service-policy" element={<ServicePolicy />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/payment" element={<Payment />} />
-              <Route path="/pending-approval" element={<PendingApproval />} />
-              <Route path="/privacy" element={<Policies />} />
-              <Route path="/terms" element={<Policies />} />
-              <Route path="/refund" element={<Policies />} />
-              <Route path="/shipping" element={<Policies />} />
-              <Route path="/address" element={<Policies />} />
-              <Route path="/about-us" element={<Policies />} />
-              <Route path="/dashboard" element={<ClientDashboard />} />
-              <Route path="/doctor" element={<NotFound />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/dashboard/client" element={<ClientDashboard />} />
-              <Route path="/dashboard/admin" element={<AdminDashboard />} />
-              <Route path="/dashboard/admin" element={<AdminDashboard />} />
-              <Route path="/store" element={<Store />} />
-              <Route path="/product/:productId" element={<ProductDetail />} />
-              <Route path="/checkout" element={<Checkout />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <FloatingCTA />
-          </HashRouter>
-        </TooltipProvider>
-      </AuthProvider>
-    </LanguageProvider>
-  </QueryClientProvider>
+  <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+    <QueryClientProvider client={queryClient}>
+      <LanguageProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <HashRouter>
+              <RouteDebugger />
+              <ScrollToTop />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/packages" element={<Packages />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/articles" element={<Articles />} />
+                <Route path="/service-policy" element={<ServicePolicy />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/payment" element={<Payment />} />
+                <Route path="/pending-approval" element={<PendingApproval />} />
+                <Route path="/privacy" element={<Policies />} />
+                <Route path="/terms" element={<Policies />} />
+                <Route path="/refund" element={<Policies />} />
+                <Route path="/shipping" element={<Policies />} />
+                <Route path="/address" element={<Policies />} />
+                <Route path="/about-us" element={<Policies />} />
+                <Route path="/dashboard" element={<ClientDashboard />} />
+                <Route path="/doctor" element={<NotFound />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/dashboard/client" element={<ClientDashboard />} />
+                <Route path="/dashboard/admin" element={<AdminDashboard />} />
+                <Route path="/dashboard/admin" element={<AdminDashboard />} />
+                <Route path="/store" element={<Store />} />
+                <Route path="/product/:productId" element={<ProductDetail />} />
+                <Route path="/checkout" element={<Checkout />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <FloatingCTA />
+            </HashRouter>
+          </TooltipProvider>
+        </AuthProvider>
+      </LanguageProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;
