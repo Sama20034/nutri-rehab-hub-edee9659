@@ -102,6 +102,16 @@ const mealTypeConfig = {
 
 const packageTypes = ['basic', 'premium', 'vip'];
 
+// URL validation helper
+const isValidUrl = (string: string) => {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
+};
+
 export const MealPlansSection = () => {
   const { isRTL } = useLanguage();
   const { user } = useAuth();
@@ -324,6 +334,14 @@ export const MealPlansSection = () => {
       toast.error(isRTL ? 'يرجى إدخال اسم الوصفة' : 'Please enter recipe name');
       return;
     }
+
+    // Validate video URL if provided
+    if (recipeFormData.video_url && !isValidUrl(recipeFormData.video_url)) {
+      toast.error(isRTL ? 'يرجى إدخال رابط فيديو صحيح (يجب أن يبدأ بـ https://)' : 'Please enter a valid video URL (must start with https://)');
+      return;
+    }
+
+    console.log('Submitting recipe data:', recipeFormData);
 
     const recipeData = {
       name: recipeFormData.name,

@@ -43,6 +43,16 @@ interface Client {
 
 const categories = ['تغذية', 'تمارين', 'صحة عامة', 'وصفات', 'نصائح'];
 
+// URL validation helper
+const isValidUrl = (string: string) => {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
+};
+
 export const VideosSection = () => {
   const { isRTL } = useLanguage();
   const { user } = useAuth();
@@ -123,6 +133,14 @@ export const VideosSection = () => {
       toast.error(isRTL ? 'يرجى إدخال عنوان الفيديو والرابط' : 'Please enter video title and URL');
       return;
     }
+
+    // Validate video URL
+    if (!isValidUrl(formData.url)) {
+      toast.error(isRTL ? 'يرجى إدخال رابط فيديو صحيح (يجب أن يبدأ بـ https://)' : 'Please enter a valid video URL (must start with https://)');
+      return;
+    }
+
+    console.log('Submitting video data:', formData);
 
     const videoData = {
       title: formData.title,

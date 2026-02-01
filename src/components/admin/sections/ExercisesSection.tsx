@@ -41,6 +41,16 @@ interface ExercisesSectionProps {
 const difficulties = ['beginner', 'intermediate', 'advanced'];
 const categories = ['cardio', 'strength', 'flexibility', 'balance'];
 
+// URL validation helper
+const isValidUrl = (string: string) => {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
+};
+
 export const ExercisesSection = ({
   exercises,
   onAddExercise,
@@ -114,6 +124,13 @@ export const ExercisesSection = ({
       toast.error(isRTL ? 'يرجى إدخال اسم التمرين' : 'Please enter exercise name');
       return;
     }
+    
+    // Validate video URL if provided
+    if (exerciseForm.video_url && !isValidUrl(exerciseForm.video_url)) {
+      toast.error(isRTL ? 'يرجى إدخال رابط فيديو صحيح' : 'Please enter a valid video URL');
+      return;
+    }
+    
     const data = {
       created_by: user?.id || null,
       name: exerciseForm.name,
@@ -124,6 +141,8 @@ export const ExercisesSection = ({
       difficulty: exerciseForm.difficulty || null,
       duration_minutes: exerciseForm.duration_minutes ? parseInt(exerciseForm.duration_minutes) : null
     };
+    
+    console.log('Submitting exercise data:', data);
     
     let result;
     let exerciseId: string | null = null;
