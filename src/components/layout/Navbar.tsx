@@ -103,7 +103,7 @@ const Navbar = () => {
       <div className="container mx-auto px-3 sm:px-4">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 sm:gap-3">
+          <Link to="/store" className="flex items-center gap-2 sm:gap-3">
             <img src={logo} alt="Alligator Fit" className="h-10 sm:h-12 w-auto" />
             <span className="text-lg sm:text-xl font-bold text-gradient hidden sm:block">Alligator Fit</span>
           </Link>
