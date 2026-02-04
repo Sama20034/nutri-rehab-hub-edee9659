@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Check, Shield, Sparkles, Crown, Zap, Award, Star, MessageCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useNavigate, Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "next-themes";
 import Layout from "@/components/layout/Layout";
-
 interface Package {
   id: string;
   name: string;
@@ -287,6 +287,20 @@ const PackageCard = ({ pkg, index }: { pkg: Package; index: number }) => {
 const Packages = () => {
   const { language } = useLanguage();
   const isRTL = language === "ar";
+  const { setTheme, theme } = useTheme();
+
+  // Force dark theme for Packages page
+  useEffect(() => {
+    const previousTheme = theme;
+    setTheme("dark");
+    
+    return () => {
+      // Restore previous theme when leaving the page
+      if (previousTheme && previousTheme !== "dark") {
+        setTheme(previousTheme);
+      }
+    };
+  }, []);
 
   return (
     <Layout>
