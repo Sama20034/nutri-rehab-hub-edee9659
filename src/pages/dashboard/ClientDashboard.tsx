@@ -161,13 +161,12 @@ const ClientDashboard = () => {
 
       {/* Main Content */}
       <div className={cn(
-        "transition-all duration-300 min-h-screen",
+        "transition-all duration-300 min-h-screen min-h-[100dvh] relative z-10",
         // Desktop: offset by sidebar width
-        "lg:mr-64 lg:ml-0",
         isRTL ? "lg:mr-64 lg:ml-0" : "lg:ml-64 lg:mr-0"
       )}>
         {/* Top Header */}
-        <header className="sticky top-0 z-30 bg-card/80 backdrop-blur-xl border-b border-border">
+        <header className="sticky top-0 z-20 bg-card/95 backdrop-blur-xl border-b border-border">
           <div className="px-4 py-3 flex items-center justify-between">
             {/* Mobile menu button */}
             <button 
