@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Utensils, Users } from 'lucide-react';
+import { Plus, Edit, Trash2, Utensils, Users, Paperclip, Film } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -19,7 +19,8 @@ import {
 } from '@/components/ui/table';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
-import { DietPlan } from '@/hooks/useAdminExercisesData';
+import { DietPlan, FileAttachment } from '@/hooks/useAdminExercisesData';
+import { FileUploadManager } from '@/components/admin/FileUploadManager';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -64,6 +65,9 @@ export const DietPlansSection = ({
     description: ''
   });
 
+  const [attachments, setAttachments] = useState<FileAttachment[]>([]);
+  const [videoUrls, setVideoUrls] = useState<string[]>([]);
+
   // Fetch clients
   useEffect(() => {
     const fetchClients = async () => {
@@ -103,6 +107,8 @@ export const DietPlansSection = ({
     });
     setEditingPlan(null);
     setSelectedClients([]);
+    setAttachments([]);
+    setVideoUrls([]);
   };
 
   const handleSubmit = async () => {
@@ -119,7 +125,9 @@ export const DietPlansSection = ({
       calories_max: formData.calories_max ? parseInt(formData.calories_max) : null,
       duration_weeks: formData.duration_weeks ? parseInt(formData.duration_weeks) : null,
       status: formData.status,
-      description: formData.description || null
+      description: formData.description || null,
+      attachments: attachments,
+      video_urls: videoUrls
     };
 
     let result;
@@ -172,6 +180,8 @@ export const DietPlansSection = ({
       status: plan.status || 'active',
       description: plan.description || ''
     });
+    setAttachments(plan.attachments || []);
+    setVideoUrls(plan.video_urls || []);
     setEditingPlan(plan);
     setSelectedClients([]);
     setIsDialogOpen(true);
@@ -188,8 +198,8 @@ export const DietPlansSection = ({
 
   const getStatusBadge = (status: string | null) => {
     return status === 'active'
-      ? <Badge className="bg-green-500">{isRTL ? 'نشط' : 'Active'}</Badge>
-      : <Badge className="bg-gray-500">{isRTL ? 'غير نشط' : 'Inactive'}</Badge>;
+      ? <Badge variant="default" className="bg-primary/20 text-primary border-primary/30">{isRTL ? 'نشط' : 'Active'}</Badge>
+      : <Badge variant="secondary">{isRTL ? 'غير نشط' : 'Inactive'}</Badge>;
   };
 
   return (
@@ -217,7 +227,7 @@ export const DietPlansSection = ({
               <TableHead>{isRTL ? 'الهدف' : 'Goal'}</TableHead>
               <TableHead>{isRTL ? 'السعرات' : 'Calories'}</TableHead>
               <TableHead>{isRTL ? 'الحالة' : 'Status'}</TableHead>
-              <TableHead>{isRTL ? 'المدة' : 'Duration'}</TableHead>
+              <TableHead>{isRTL ? 'المرفقات' : 'Attachments'}</TableHead>
               <TableHead className="text-center">{isRTL ? 'إجراءات' : 'Actions'}</TableHead>
             </TableRow>
           </TableHeader>
@@ -241,7 +251,21 @@ export const DietPlansSection = ({
                   </TableCell>
                   <TableCell>{getStatusBadge(plan.status)}</TableCell>
                   <TableCell>
-                    {plan.duration_weeks ? `${plan.duration_weeks} ${isRTL ? 'أسبوع' : 'weeks'}` : '-'}
+                    <div className="flex items-center gap-2">
+                      {(plan.attachments?.length || 0) > 0 && (
+                        <Badge variant="secondary" className="flex items-center gap-1">
+                          <Paperclip className="h-3 w-3" />
+                          {plan.attachments?.length}
+                        </Badge>
+                      )}
+                      {(plan.video_urls?.length || 0) > 0 && (
+                        <Badge variant="secondary" className="flex items-center gap-1">
+                          <Film className="h-3 w-3" />
+                          {plan.video_urls?.length}
+                        </Badge>
+                      )}
+                      {!(plan.attachments?.length || 0) && !(plan.video_urls?.length || 0) && '-'}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-center gap-2">
@@ -338,6 +362,17 @@ export const DietPlansSection = ({
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder={isRTL ? 'وصف النظام...' : 'Plan description...'}
+              />
+            </div>
+
+            {/* File Attachments & Videos */}
+            <div className="border-t pt-4 mt-4">
+              <FileUploadManager
+                attachments={attachments}
+                videoUrls={videoUrls}
+                onAttachmentsChange={setAttachments}
+                onVideoUrlsChange={setVideoUrls}
+                isRTL={isRTL}
               />
             </div>
 

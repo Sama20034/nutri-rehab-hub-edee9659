@@ -468,6 +468,7 @@ export type Database = {
       }
       diet_plans: {
         Row: {
+          attachments: Json | null
           calories_max: number | null
           calories_min: number | null
           created_at: string
@@ -478,8 +479,10 @@ export type Database = {
           id: string
           name: string
           status: string | null
+          video_urls: string[] | null
         }
         Insert: {
+          attachments?: Json | null
           calories_max?: number | null
           calories_min?: number | null
           created_at?: string
@@ -490,8 +493,10 @@ export type Database = {
           id?: string
           name: string
           status?: string | null
+          video_urls?: string[] | null
         }
         Update: {
+          attachments?: Json | null
           calories_max?: number | null
           calories_min?: number | null
           created_at?: string
@@ -502,6 +507,7 @@ export type Database = {
           id?: string
           name?: string
           status?: string | null
+          video_urls?: string[] | null
         }
         Relationships: []
       }
