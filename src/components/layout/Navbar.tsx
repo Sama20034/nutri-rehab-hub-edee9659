@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Globe, LayoutDashboard, User, LogOut, ChevronDown, ShoppingBag, ChevronRight } from 'lucide-react';
+import { Menu, X, Globe, LayoutDashboard, User, LogOut, ChevronDown, ShoppingBag, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
+import { useCart } from '@/hooks/useCart';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -32,8 +33,12 @@ const Navbar = () => {
   const [dbCategories, setDbCategories] = useState<CategoryData[]>([]);
   const { language, setLanguage, t, isRTL } = useLanguage();
   const { user, profile, role, signOut } = useAuth();
+  const { guestCart } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Calculate cart count
+  const cartCount = guestCart.reduce((total, item) => total + item.quantity, 0);
 
   useEffect(() => {
     fetchCategories();
@@ -196,6 +201,22 @@ const Navbar = () => {
 
           {/* Actions */}
           <div className="hidden lg:flex items-center gap-2">
+            {/* Cart Button - Desktop */}
+            <Link to="/checkout" className="relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-muted-foreground hover:text-foreground relative"
+              >
+                <ShoppingCart className="h-5 w-5" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
+                    {cartCount > 99 ? '99+' : cartCount}
+                  </span>
+                )}
+              </Button>
+            </Link>
+            
             <ThemeToggle />
             <Button
               variant="ghost"
@@ -268,6 +289,22 @@ const Navbar = () => {
 
           {/* Mobile Menu Button */}
           <div className="lg:hidden flex items-center gap-1">
+            {/* Cart Button - Mobile */}
+            <Link to="/checkout" className="relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-muted-foreground hover:text-foreground relative"
+              >
+                <ShoppingCart className="h-5 w-5" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartCount > 99 ? '99+' : cartCount}
+                  </span>
+                )}
+              </Button>
+            </Link>
+            
             <ThemeToggle />
             <Button
               variant="ghost"
