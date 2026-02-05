@@ -42,14 +42,9 @@ const ProductShowcase = ({
   cartLoading,
   searchQuery
 }: ProductShowcaseProps) => {
-  // Assign sizes based on position for Bento layout
-  const getProductSize = (index: number, total: number): 'small' | 'medium' | 'large' | 'featured' => {
-    if (total <= 2) return 'large';
-    if (index === 0) return 'featured';
-    if (index === 1 || index === 2) return 'medium';
-    if (index === 3) return 'large';
-    if ((index - 4) % 5 === 0) return 'large';
-    return 'medium';
+  // All products now have consistent size for uniform grid
+  const getProductSize = (): 'small' | 'medium' | 'large' | 'featured' => {
+    return 'medium'; // Uniform size for all products
   };
 
   if (isLoading) {
@@ -120,14 +115,14 @@ const ProductShowcase = ({
         </div>
       </motion.div>
 
-      {/* Bento Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 auto-rows-auto gap-4 sm:gap-5 lg:gap-6">
+      {/* Uniform Product Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
         {products.map((product, index) => (
           <ProductCard
             key={product.id}
             product={product}
             isRTL={isRTL}
-            size={getProductSize(index, products.length)}
+            size={getProductSize()}
             index={index}
             onAddToCart={onAddToCart}
             onClick={() => onProductClick(product)}
