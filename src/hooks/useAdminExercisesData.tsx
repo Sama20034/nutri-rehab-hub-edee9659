@@ -14,6 +14,12 @@ export interface Exercise {
   created_at: string;
 }
 
+export interface FileAttachment {
+  name: string;
+  url: string;
+  type: string;
+}
+
 export interface DietPlan {
   id: string;
   name: string;
@@ -25,6 +31,8 @@ export interface DietPlan {
   status: string | null;
   created_by: string | null;
   created_at: string;
+  attachments: FileAttachment[] | null;
+  video_urls: string[] | null;
 }
 
 export const useAdminExercisesData = () => {
@@ -53,7 +61,13 @@ export const useAdminExercisesData = () => {
         .select('*')
         .order('created_at', { ascending: false });
       if (fetchError) throw fetchError;
-      setDietPlans(data || []);
+      // Transform the data to match our interface
+      const transformedData = (data || []).map(plan => ({
+        ...plan,
+        attachments: (plan.attachments as unknown as FileAttachment[]) || [],
+        video_urls: plan.video_urls || []
+      }));
+      setDietPlans(transformedData);
     } catch (err) {
       setError((err as Error).message);
     }
@@ -106,7 +120,19 @@ export const useAdminExercisesData = () => {
   // Diet Plan CRUD
   const addDietPlan = async (plan: Omit<DietPlan, 'id' | 'created_at'>) => {
     try {
-      const { error } = await supabase.from('diet_plans').insert(plan);
+      const dbPlan = {
+        name: plan.name,
+        description: plan.description,
+        goal: plan.goal,
+        calories_min: plan.calories_min,
+        calories_max: plan.calories_max,
+        duration_weeks: plan.duration_weeks,
+        status: plan.status,
+        created_by: plan.created_by,
+        attachments: JSON.parse(JSON.stringify(plan.attachments || [])),
+        video_urls: plan.video_urls || []
+      };
+      const { error } = await supabase.from('diet_plans').insert(dbPlan);
       if (error) throw error;
       await fetchDietPlans();
       return { error: null };
@@ -117,7 +143,19 @@ export const useAdminExercisesData = () => {
 
   const updateDietPlan = async (id: string, updates: Partial<DietPlan>) => {
     try {
-      const { error } = await supabase.from('diet_plans').update(updates).eq('id', id);
+      const dbUpdates: Record<string, unknown> = {};
+      if (updates.name !== undefined) dbUpdates.name = updates.name;
+      if (updates.description !== undefined) dbUpdates.description = updates.description;
+      if (updates.goal !== undefined) dbUpdates.goal = updates.goal;
+      if (updates.calories_min !== undefined) dbUpdates.calories_min = updates.calories_min;
+      if (updates.calories_max !== undefined) dbUpdates.calories_max = updates.calories_max;
+      if (updates.duration_weeks !== undefined) dbUpdates.duration_weeks = updates.duration_weeks;
+      if (updates.status !== undefined) dbUpdates.status = updates.status;
+      if (updates.created_by !== undefined) dbUpdates.created_by = updates.created_by;
+      if (updates.attachments !== undefined) dbUpdates.attachments = JSON.parse(JSON.stringify(updates.attachments));
+      if (updates.video_urls !== undefined) dbUpdates.video_urls = updates.video_urls;
+      
+      const { error } = await supabase.from('diet_plans').update(dbUpdates).eq('id', id);
       if (error) throw error;
       await fetchDietPlans();
       return { error: null };
