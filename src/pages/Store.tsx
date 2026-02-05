@@ -307,7 +307,7 @@ const Store = () => {
         <ShopByCategories 
           isRTL={isRTL} 
           onCategorySelect={async (categoryId) => {
-            // Fetch subcategories of this main category
+            // Fetch subcategories of this main category with both names
             const { data: subcategories } = await supabase
               .from('store_categories')
               .select('name, name_ar')
@@ -315,7 +315,7 @@ const Store = () => {
               .eq('is_active', true);
             
             if (subcategories && subcategories.length > 0) {
-              // Use subcategory names for filtering (both EN and AR)
+              // Use both EN and AR names for filtering (to match any stored category format)
               const subNames = subcategories.flatMap(sub => [
                 sub.name,
                 sub.name_ar
