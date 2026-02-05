@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, Dumbbell, Video, Star,
-  Utensils, FileText, ClipboardList, UserPlus, X, LogOut, Home, CreditCard, Tag, ChefHat, TrendingUp, FolderTree, Image
+  Utensils, FileText, ClipboardList, UserPlus, X, LogOut, Home, CreditCard, Tag, ChefHat, TrendingUp, FolderTree, Image, Heart
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
@@ -28,6 +28,7 @@ const sidebarItems = [
   { id: 'discounts', labelAr: 'الخصومات', labelEn: 'Discounts', icon: Tag },
   { id: 'pending', labelAr: 'طلبات الموافقة', labelEn: 'Pending Approvals', icon: UserPlus },
   { id: 'clients', labelAr: 'العملاء', labelEn: 'Clients', icon: Users },
+  { id: 'health-profiles', labelAr: 'الملفات الصحية', labelEn: 'Health Profiles', icon: Heart },
   { id: 'assignments', labelAr: 'تعيين العملاء', labelEn: 'Client Assignments', icon: ClipboardList },
   { id: 'exercises', labelAr: 'التمارين', labelEn: 'Exercises', icon: Dumbbell },
   { id: 'meal-plans', labelAr: 'خطط الوجبات', labelEn: 'Meal Plans', icon: ChefHat },
