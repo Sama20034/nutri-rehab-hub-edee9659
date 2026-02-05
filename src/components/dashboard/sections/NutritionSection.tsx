@@ -128,8 +128,8 @@ export const NutritionSection = ({ isRTL, clientId, packageType = 'basic' }: Nut
 
   const fetchAllData = async () => {
     try {
-      const [dietRes, recipesRes, mealPlansRes] = await Promise.all([
-        // Fetch diet plans
+      const [dietRes, clientMealPlansRes, clientRecipesRes] = await Promise.all([
+        // Fetch assigned diet plans
         supabase
           .from('client_diet_plans')
           .select(`
@@ -137,24 +137,45 @@ export const NutritionSection = ({ isRTL, clientId, packageType = 'basic' }: Nut
             diet_plan:diet_plans(id, name, description, calories_min, calories_max, goal, duration_weeks, status)
           `)
           .eq('client_id', clientId),
-        // Fetch recipes
+        // Fetch assigned meal plans for this client
         supabase
-          .from('recipes')
-          .select('*')
-          .order('created_at', { ascending: false }),
-        // Fetch meal plans
+          .from('client_meal_plans')
+          .select(`
+            id, meal_plan_id, start_date, end_date, status, notes,
+            meal_plan:meal_plans(id, name, description, package_type, day_number, breakfast, lunch, dinner, snacks, total_calories)
+          `)
+          .eq('client_id', clientId)
+          .eq('status', 'active'),
+        // Fetch assigned recipes for this client
         supabase
-          .from('meal_plans')
-          .select('*')
-          .order('day_number', { ascending: true })
+          .from('client_recipes')
+          .select(`
+            id, recipe_id, day_of_week, meal_type, completed, notes,
+            recipe:recipes(*)
+          `)
+          .eq('client_id', clientId)
       ]);
 
       if (dietRes.data) {
         const validData = dietRes.data.filter(d => d.diet_plan !== null);
         setDietPlans(validData as ClientDietPlan[]);
       }
-      if (recipesRes.data) setRecipes(recipesRes.data);
-      if (mealPlansRes.data) setMealPlans(mealPlansRes.data);
+      
+      // Extract meal plans from client assignments
+      if (clientMealPlansRes.data) {
+        const assignedPlans = clientMealPlansRes.data
+          .filter(cmp => cmp.meal_plan !== null)
+          .map(cmp => cmp.meal_plan as MealPlan);
+        setMealPlans(assignedPlans);
+      }
+      
+      // Extract recipes from client assignments
+      if (clientRecipesRes.data) {
+        const assignedRecipes = clientRecipesRes.data
+          .filter(cr => cr.recipe !== null)
+          .map(cr => cr.recipe as Recipe);
+        setRecipes(assignedRecipes);
+      }
     } catch (error) {
       console.error('Error fetching nutrition data:', error);
     } finally {
