@@ -84,7 +84,11 @@ const FilterSidebar = ({
       subcategories: dbCategories
         .filter(c => c.parent_id === main.id)
         .sort((a, b) => a.display_order - b.display_order)
-        .map(sub => isRTL ? sub.name_ar || sub.name : sub.name)
+        .map(sub => ({
+          displayName: isRTL ? sub.name_ar || sub.name : sub.name,
+          // Store both names for filtering
+          filterNames: [sub.name, sub.name_ar].filter(Boolean) as string[]
+        }))
     }));
   };
 
@@ -102,33 +106,42 @@ const FilterSidebar = ({
     );
   };
 
-  const handleSubcategoryToggle = (subcategory: string) => {
-    if (selectedCategories.includes(subcategory)) {
-      onCategoryChange(selectedCategories.filter(c => c !== subcategory));
+  const handleSubcategoryToggle = (filterNames: string[]) => {
+    // Check if any of the filter names are selected
+    const isSelected = filterNames.some(name => selectedCategories.includes(name));
+    if (isSelected) {
+      // Remove all filter names for this subcategory
+      onCategoryChange(selectedCategories.filter(c => !filterNames.includes(c)));
     } else {
-      onCategoryChange([...selectedCategories, subcategory]);
+      // Add all filter names for this subcategory
+      onCategoryChange([...new Set([...selectedCategories, ...filterNames])]);
     }
   };
 
-  const handleMainCategoryToggle = (category: { name: string; subcategories: string[] }) => {
-    const allSelected = category.subcategories.every(sub => selectedCategories.includes(sub));
+  const isSubcategorySelected = (filterNames: string[]) => {
+    return filterNames.some(name => selectedCategories.includes(name));
+  };
+
+  const handleMainCategoryToggle = (category: { name: string; subcategories: { displayName: string; filterNames: string[] }[] }) => {
+    const allFilterNames = category.subcategories.flatMap(sub => sub.filterNames);
+    const allSelected = category.subcategories.every(sub => isSubcategorySelected(sub.filterNames));
     if (allSelected) {
       // Deselect all subcategories
-      onCategoryChange(selectedCategories.filter(c => !category.subcategories.includes(c)));
+      onCategoryChange(selectedCategories.filter(c => !allFilterNames.includes(c)));
     } else {
       // Select all subcategories
-      const newSelected = [...new Set([...selectedCategories, ...category.subcategories])];
+      const newSelected = [...new Set([...selectedCategories, ...allFilterNames])];
       onCategoryChange(newSelected);
     }
   };
 
-  const isMainCategoryPartiallySelected = (category: { name: string; subcategories: string[] }) => {
-    const selectedCount = category.subcategories.filter(sub => selectedCategories.includes(sub)).length;
+  const isMainCategoryPartiallySelected = (category: { name: string; subcategories: { displayName: string; filterNames: string[] }[] }) => {
+    const selectedCount = category.subcategories.filter(sub => isSubcategorySelected(sub.filterNames)).length;
     return selectedCount > 0 && selectedCount < category.subcategories.length;
   };
 
-  const isMainCategoryFullySelected = (category: { name: string; subcategories: string[] }) => {
-    return category.subcategories.every(sub => selectedCategories.includes(sub));
+  const isMainCategoryFullySelected = (category: { name: string; subcategories: { displayName: string; filterNames: string[] }[] }) => {
+    return category.subcategories.every(sub => isSubcategorySelected(sub.filterNames));
   };
 
   const FilterContent = () => (
@@ -224,19 +237,19 @@ const FilterSidebar = ({
                     >
                       {category.subcategories.map((subcategory) => (
                         <motion.div
-                          key={subcategory}
+                          key={subcategory.displayName}
                           initial={{ opacity: 0, x: isRTL ? 10 : -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
-                          onClick={() => handleSubcategoryToggle(subcategory)}
+                          onClick={() => handleSubcategoryToggle(subcategory.filterNames)}
                         >
                           <Checkbox
-                            checked={selectedCategories.includes(subcategory)}
-                            onCheckedChange={() => handleSubcategoryToggle(subcategory)}
+                            checked={isSubcategorySelected(subcategory.filterNames)}
+                            onCheckedChange={() => handleSubcategoryToggle(subcategory.filterNames)}
                             className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                           />
                           <span className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                            {subcategory}
+                            {subcategory.displayName}
                           </span>
                         </motion.div>
                       ))}
