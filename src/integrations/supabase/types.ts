@@ -616,6 +616,48 @@ export type Database = {
         }
         Relationships: []
       }
+      health_profiles: {
+        Row: {
+          allergies: string[] | null
+          client_id: string
+          created_at: string
+          diseases: string[] | null
+          disliked_foods: string[] | null
+          favorite_foods: string[] | null
+          id: string
+          medications: string[] | null
+          notes: string | null
+          supplements: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          allergies?: string[] | null
+          client_id: string
+          created_at?: string
+          diseases?: string[] | null
+          disliked_foods?: string[] | null
+          favorite_foods?: string[] | null
+          id?: string
+          medications?: string[] | null
+          notes?: string | null
+          supplements?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          allergies?: string[] | null
+          client_id?: string
+          created_at?: string
+          diseases?: string[] | null
+          disliked_foods?: string[] | null
+          favorite_foods?: string[] | null
+          id?: string
+          medications?: string[] | null
+          notes?: string | null
+          supplements?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       meal_plans: {
         Row: {
           breakfast: Json | null

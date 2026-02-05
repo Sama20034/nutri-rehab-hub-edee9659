@@ -24,6 +24,7 @@ import { TransformationsSection } from '@/components/admin/sections/Transformati
 import { ProgressTrackingSection } from '@/components/admin/sections/ProgressTrackingSection';
 import { CategoriesSection } from '@/components/admin/sections/CategoriesSection';
 import PromoBannersSection from '@/components/admin/sections/PromoBannersSection';
+import { HealthProfilesSection } from '@/components/admin/sections/HealthProfilesSection';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import logo from '@/assets/logo.png';
 
@@ -139,6 +140,8 @@ const AdminDashboard = () => {
             onReject={handleReject}
           />
         );
+      case 'health-profiles':
+        return <HealthProfilesSection />;
       case 'clients':
         return (
           <ClientsSection
