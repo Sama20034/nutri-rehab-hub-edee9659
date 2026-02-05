@@ -523,7 +523,7 @@ export const StoreSection = ({
                             </SelectTrigger>
                             <SelectContent>
                               {getSubcategories().map(cat => (
-                                <SelectItem key={cat.id} value={isRTL ? cat.name_ar || cat.name : cat.name}>
+                                <SelectItem key={cat.id} value={cat.name}>
                                   {isRTL ? cat.name_ar || cat.name : cat.name}
                                 </SelectItem>
                               ))}
