@@ -93,21 +93,22 @@ const ProductCard = ({
     setShowVideo(true);
   };
 
+  // All products now use consistent sizing for uniform grid layout
   const sizeClasses = {
-    small: 'col-span-1 row-span-1',
-    medium: 'col-span-1 row-span-1 sm:col-span-1',
-    large: 'col-span-1 sm:col-span-2 row-span-1',
-    featured: 'col-span-2 row-span-2 sm:col-span-2'
+    small: 'col-span-1',
+    medium: 'col-span-1',
+    large: 'col-span-1',
+    featured: 'col-span-1'
   };
 
   const imageHeights = {
-    small: 'h-32 sm:h-40',
-    medium: 'h-40 sm:h-52',
-    large: 'h-48 sm:h-64',
-    featured: 'h-64 sm:h-80'
+    small: 'h-40 sm:h-48',
+    medium: 'h-40 sm:h-48',
+    large: 'h-40 sm:h-48',
+    featured: 'h-40 sm:h-48'
   };
 
-  const isFeatured = size === 'featured' || size === 'large';
+  const isFeatured = false; // Disable featured styling for uniform look
   const embedUrl = product.video_url ? getYoutubeEmbedUrl(product.video_url) : null;
 
   return (
