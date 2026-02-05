@@ -754,8 +754,8 @@ const Checkout = () => {
 
                         {/* Screenshot Upload Section */}
                         <div className="p-3 sm:p-4 bg-secondary/10 border-2 border-secondary/30 rounded-xl">
-                          <div className="flex flex-col sm:flex-row items-start gap-3">
-                            <div className="p-2 rounded-full bg-secondary/20 flex-shrink-0 hidden sm:block">
+                          <div className="flex flex-col items-start gap-3">
+                            <div className="p-2 rounded-full bg-secondary/20 flex-shrink-0 hidden">
                               <Camera className="h-5 w-5 sm:h-6 sm:w-6 text-secondary" />
                             </div>
                             <div className="flex-1 w-full">
