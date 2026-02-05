@@ -82,7 +82,7 @@ export const ClientSidebar = ({
 
   return (
     <>
-      {/* Overlay for mobile */}
+      {/* Overlay for mobile - covers everything when sidebar is open */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -90,21 +90,22 @@ export const ClientSidebar = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] lg:hidden"
           />
         )}
       </AnimatePresence>
 
       {/* Sidebar */}
-      <motion.aside
-        initial={{ x: isRTL ? 100 : -100, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
+      <aside
         className={cn(
-          "fixed top-0 h-screen bg-sidebar-background border-border z-50 flex flex-col transition-all duration-300 w-64",
+          "fixed top-0 h-screen h-[100dvh] bg-sidebar-background border-border flex flex-col w-64 transition-transform duration-300 ease-in-out",
           isRTL ? "right-0 border-l" : "left-0 border-r",
-          // Mobile: show/hide based on isOpen
-          "lg:translate-x-0",
-          !isOpen && (isRTL ? "translate-x-full" : "-translate-x-full"),
+          // Desktop: always visible
+          "lg:z-40 lg:translate-x-0",
+          // Mobile: higher z-index and slide in/out
+          !isOpen && "z-[70]",
+          isOpen && "z-[70]",
+          !isOpen && (isRTL ? "translate-x-full lg:translate-x-0" : "-translate-x-full lg:translate-x-0"),
           isOpen && "translate-x-0"
         )}
       >
@@ -185,7 +186,7 @@ export const ClientSidebar = ({
             </span>
           </button>
         </div>
-      </motion.aside>
+      </aside>
     </>
   );
 };
