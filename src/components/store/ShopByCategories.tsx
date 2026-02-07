@@ -104,7 +104,7 @@ const ShopByCategories = ({ isRTL, onCategorySelect }: ShopByCategoriesProps) =>
             onClick={() => handleShopNow(category)}
           >
             {/* Background Image */}
-            <div className="relative h-56 sm:h-64 lg:h-72 overflow-hidden">
+            <div className="relative h-80 sm:h-64 lg:h-72 overflow-hidden">
               {category.image_url ? (
                 <img
                   src={category.image_url}
