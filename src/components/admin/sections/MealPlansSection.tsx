@@ -163,6 +163,9 @@ export const MealPlansSection = () => {
     package_type: 'basic'
   });
 
+  // Selected clients for recipe assignment
+  const [selectedRecipeClients, setSelectedRecipeClients] = useState<string[]>([]);
+
   const fetchData = useCallback(async () => {
     try {
       const [plansRes, recipesRes] = await Promise.all([
@@ -260,6 +263,23 @@ export const MealPlansSection = () => {
       package_type: 'basic'
     });
     setEditingRecipe(null);
+    setSelectedRecipeClients([]);
+  };
+
+  const assignRecipeToClients = async (recipeId: string, clientIds: string[]) => {
+    try {
+      const assignments = clientIds.map(clientId => ({
+        recipe_id: recipeId,
+        client_id: clientId,
+        assigned_by: user?.id
+      }));
+      
+      const { error } = await supabase.from('client_recipes').insert(assignments);
+      if (error) throw error;
+      return { error: null };
+    } catch (err) {
+      return { error: err as Error };
+    }
   };
 
   const handleSubmitPlan = async () => {
@@ -364,15 +384,30 @@ export const MealPlansSection = () => {
     };
 
     try {
+      let newRecipeId: string | null = null;
+
       if (editingRecipe) {
         const { error } = await supabase.from('recipes').update(recipeData).eq('id', editingRecipe.id);
         if (error) throw error;
+        newRecipeId = editingRecipe.id;
         toast.success(isRTL ? 'تم تحديث الوصفة' : 'Recipe updated');
       } else {
-        const { error } = await supabase.from('recipes').insert(recipeData);
+        const { data, error } = await supabase.from('recipes').insert(recipeData).select('id').single();
         if (error) throw error;
+        newRecipeId = data?.id || null;
         toast.success(isRTL ? 'تم إضافة الوصفة' : 'Recipe added');
       }
+
+      // Assign to clients if any selected
+      if (selectedRecipeClients.length > 0 && newRecipeId) {
+        const assignResult = await assignRecipeToClients(newRecipeId, selectedRecipeClients);
+        if (assignResult.error) {
+          toast.error(isRTL ? 'تم حفظ الوصفة لكن فشل التعيين للعملاء' : 'Recipe saved but failed to assign to clients');
+        } else {
+          toast.success(isRTL ? `تم تعيين الوصفة لـ ${selectedRecipeClients.length} عميل` : `Assigned to ${selectedRecipeClients.length} clients`);
+        }
+      }
+
       setIsRecipeDialogOpen(false);
       resetRecipeForm();
       fetchData();
@@ -1054,6 +1089,27 @@ export const MealPlansSection = () => {
                   rows={4}
                 />
               </div>
+            </div>
+
+            {/* Client Assignment for Recipe */}
+            <div className="border-t pt-4 mt-4">
+              <Label className="flex items-center gap-2 mb-2">
+                <UserPlus className="h-4 w-4" />
+                {isRTL ? 'تعيين الوصفة للعملاء' : 'Assign to Clients'}
+              </Label>
+              <MultiSelect
+                options={clientOptions}
+                selected={selectedRecipeClients}
+                onChange={setSelectedRecipeClients}
+                placeholder={isRTL ? 'اختر العملاء...' : 'Select clients...'}
+                searchPlaceholder={isRTL ? 'بحث عن عميل...' : 'Search clients...'}
+                emptyText={isRTL ? 'لا يوجد عملاء' : 'No clients found'}
+              />
+              {selectedRecipeClients.length > 0 && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  {isRTL ? `سيتم تعيين الوصفة لـ ${selectedRecipeClients.length} عميل` : `Will assign to ${selectedRecipeClients.length} client(s)`}
+                </p>
+              )}
             </div>
           </div>
           <DialogFooter className="mt-4">
