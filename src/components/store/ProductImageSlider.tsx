@@ -80,9 +80,9 @@ const ProductImageSlider = ({
             animate={{ opacity: isHovering ? 1 : 0, x: isHovering ? 0 : -10 }}
             transition={{ duration: 0.2 }}
             onClick={goToPrev}
-            className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 shadow-lg hover:bg-background transition-colors z-10"
+            className="absolute left-1 top-1/2 -translate-y-1/2 p-0.5 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 shadow-md hover:bg-background transition-colors z-10"
           >
-            <ChevronLeft className="h-4 w-4 text-foreground" />
+            <ChevronLeft className="h-3 w-3 text-foreground" />
           </motion.button>
 
           <motion.button
@@ -90,9 +90,9 @@ const ProductImageSlider = ({
             animate={{ opacity: isHovering ? 1 : 0, x: isHovering ? 0 : 10 }}
             transition={{ duration: 0.2 }}
             onClick={goToNext}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 shadow-lg hover:bg-background transition-colors z-10"
+            className="absolute right-1 top-1/2 -translate-y-1/2 p-0.5 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 shadow-md hover:bg-background transition-colors z-10"
           >
-            <ChevronRight className="h-4 w-4 text-foreground" />
+            <ChevronRight className="h-3 w-3 text-foreground" />
           </motion.button>
         </>
       )}
