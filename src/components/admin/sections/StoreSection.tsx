@@ -643,6 +643,201 @@ export const StoreSection = ({
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Edit Product Dialog */}
+      <Dialog open={!!editingProduct} onOpenChange={(open) => !open && setEditingProduct(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{isRTL ? 'تعديل المنتج' : 'Edit Product'}</DialogTitle>
+          </DialogHeader>
+          {editingProduct && (
+            <EditProductForm
+              product={editingProduct}
+              categories={getSubcategories()}
+              isRTL={isRTL}
+              onSave={async (updates) => {
+                const { error } = await onUpdateProduct(editingProduct.id, updates);
+                if (error) {
+                  toast({
+                    title: isRTL ? 'خطأ' : 'Error',
+                    description: error.message,
+                    variant: 'destructive'
+                  });
+                } else {
+                  toast({
+                    title: isRTL ? 'تم بنجاح' : 'Success',
+                    description: isRTL ? 'تم تحديث المنتج' : 'Product updated successfully'
+                  });
+                  setEditingProduct(null);
+                  window.location.reload();
+                }
+              }}
+              onCancel={() => setEditingProduct(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+// Edit Product Form Component
+interface EditProductFormProps {
+  product: Product;
+  categories: { id: string; name: string; name_ar: string | null }[];
+  isRTL: boolean;
+  onSave: (updates: Partial<Product>) => Promise<void>;
+  onCancel: () => void;
+}
+
+const EditProductForm = ({ product, categories, isRTL, onSave, onCancel }: EditProductFormProps) => {
+  const [formData, setFormData] = useState({
+    name: product.name,
+    name_ar: product.name_ar || '',
+    description: product.description || '',
+    description_ar: product.description_ar || '',
+    price: product.price,
+    image_url: product.image_url || '',
+    category: product.category || '',
+    stock_quantity: product.stock_quantity,
+    is_active: product.is_active,
+    video_url: product.video_url || '',
+    usage_instructions: product.usage_instructions || '',
+    suitable_for: product.suitable_for || '',
+    medical_followup_required: product.medical_followup_required
+  });
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async () => {
+    setSaving(true);
+    await onSave(formData);
+    setSaving(false);
+  };
+
+  return (
+    <div className="grid gap-4 py-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label>{isRTL ? 'الاسم (إنجليزي)' : 'Name (English)'}</Label>
+          <Input
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          />
+        </div>
+        <div>
+          <Label>{isRTL ? 'الاسم (عربي)' : 'Name (Arabic)'}</Label>
+          <Input
+            value={formData.name_ar}
+            onChange={(e) => setFormData({ ...formData, name_ar: e.target.value })}
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label>{isRTL ? 'الوصف (إنجليزي)' : 'Description (English)'}</Label>
+          <Textarea
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          />
+        </div>
+        <div>
+          <Label>{isRTL ? 'الوصف (عربي)' : 'Description (Arabic)'}</Label>
+          <Textarea
+            value={formData.description_ar}
+            onChange={(e) => setFormData({ ...formData, description_ar: e.target.value })}
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-4">
+        <div>
+          <Label>{isRTL ? 'السعر' : 'Price'}</Label>
+          <Input
+            type="number"
+            value={formData.price}
+            onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+          />
+        </div>
+        <div>
+          <Label>{isRTL ? 'الكمية' : 'Stock'}</Label>
+          <Input
+            type="number"
+            value={formData.stock_quantity}
+            onChange={(e) => setFormData({ ...formData, stock_quantity: Number(e.target.value) })}
+          />
+        </div>
+        <div>
+          <Label>{isRTL ? 'التصنيف' : 'Category'}</Label>
+          <Select
+            value={formData.category}
+            onValueChange={(value) => setFormData({ ...formData, category: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={isRTL ? 'اختر التصنيف' : 'Select category'} />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map(cat => (
+                <SelectItem key={cat.id} value={cat.name}>
+                  {isRTL ? cat.name_ar || cat.name : cat.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div>
+        <Label>{isRTL ? 'صورة المنتج الرئيسية' : 'Main Product Image'}</Label>
+        <ImageUpload
+          value={formData.image_url}
+          onChange={(url) => setFormData({ ...formData, image_url: url })}
+          placeholder={isRTL ? 'اختر صورة المنتج الرئيسية' : 'Choose main product image'}
+          folder="products"
+        />
+      </div>
+      <div>
+        <Label>{isRTL ? 'رابط الفيديو' : 'Video URL'}</Label>
+        <Input
+          value={formData.video_url}
+          onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+        />
+      </div>
+      <div>
+        <Label>{isRTL ? 'طريقة الاستخدام' : 'Usage Instructions'}</Label>
+        <Textarea
+          value={formData.usage_instructions}
+          onChange={(e) => setFormData({ ...formData, usage_instructions: e.target.value })}
+        />
+      </div>
+      <div>
+        <Label>{isRTL ? 'يناسب من؟' : 'Suitable For'}</Label>
+        <Textarea
+          value={formData.suitable_for}
+          onChange={(e) => setFormData({ ...formData, suitable_for: e.target.value })}
+        />
+      </div>
+      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={formData.is_active}
+            onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+          />
+          <Label>{isRTL ? 'نشط' : 'Active'}</Label>
+        </div>
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={formData.medical_followup_required}
+            onCheckedChange={(checked) => setFormData({ ...formData, medical_followup_required: checked })}
+          />
+          <Label>{isRTL ? 'متابعة طبية مطلوبة' : 'Medical Follow-up Required'}</Label>
+        </div>
+      </div>
+      <div className="flex gap-3 pt-4">
+        <Button onClick={handleSubmit} disabled={saving} className="flex-1">
+          {saving ? (isRTL ? 'جاري الحفظ...' : 'Saving...') : (isRTL ? 'حفظ التغييرات' : 'Save Changes')}
+        </Button>
+        <Button variant="outline" onClick={onCancel} disabled={saving}>
+          {isRTL ? 'إلغاء' : 'Cancel'}
+        </Button>
+      </div>
     </div>
   );
 };
