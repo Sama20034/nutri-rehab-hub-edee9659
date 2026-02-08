@@ -22,10 +22,13 @@ import {
   Wallet,
   Smartphone,
   Building2,
+  Camera,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { ImageUpload } from "@/components/ui/image-upload";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -147,6 +150,9 @@ const Register = () => {
 
   // Step 3: Payment Method
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
+
+  // Receipt screenshot
+  const [receiptUrl, setReceiptUrl] = useState("");
 
   const steps = [
     { number: 1, title: isRTL ? "البيانات الشخصية" : "Personal Data", icon: User },
@@ -503,24 +509,24 @@ const Register = () => {
             exit={{ opacity: 0, x: isRTL ? 20 : -20 }}
             className="space-y-4"
           >
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                <CheckCircle2 className="w-8 h-8 text-primary" />
+            <div className="text-center mb-4">
+              <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center">
+                <CheckCircle2 className="w-7 h-7 text-primary" />
               </div>
-              <h2 className="text-xl font-bold">{isRTL ? "تأكيد الطلب" : "Confirm Your Order"}</h2>
-              <p className="text-sm text-muted-foreground mt-1">
+              <h2 className="text-lg font-bold">{isRTL ? "تأكيد الطلب" : "Confirm Your Order"}</h2>
+              <p className="text-xs text-muted-foreground mt-1">
                 {isRTL ? "راجع بياناتك قبل التأكيد" : "Review your details before confirming"}
               </p>
             </div>
 
-            <div className="space-y-3 p-4 rounded-xl bg-card border border-border">
+            <div className="space-y-2 p-3 rounded-xl bg-card border border-border text-sm">
               {/* Personal Info */}
-              <div className="pb-3 border-b border-border">
-                <h3 className="font-semibold mb-2 flex items-center gap-2">
-                  <User className="w-4 h-4 text-primary" />
+              <div className="pb-2 border-b border-border">
+                <h3 className="font-semibold mb-1 flex items-center gap-2 text-sm">
+                  <User className="w-3.5 h-3.5 text-primary" />
                   {isRTL ? "البيانات الشخصية" : "Personal Info"}
                 </h3>
-                <div className="text-sm space-y-1">
+                <div className="text-xs space-y-0.5">
                   <p><span className="text-muted-foreground">{isRTL ? "الاسم:" : "Name:"}</span> {fullName}</p>
                   <p><span className="text-muted-foreground">{isRTL ? "البريد:" : "Email:"}</span> {email}</p>
                   <p><span className="text-muted-foreground">{isRTL ? "الهاتف:" : "Phone:"}</span> {phone}</p>
@@ -528,12 +534,12 @@ const Register = () => {
               </div>
 
               {/* Package Info */}
-              <div className="pb-3 border-b border-border">
-                <h3 className="font-semibold mb-2 flex items-center gap-2">
-                  <Package className="w-4 h-4 text-primary" />
+              <div className="pb-2 border-b border-border">
+                <h3 className="font-semibold mb-1 flex items-center gap-2 text-sm">
+                  <Package className="w-3.5 h-3.5 text-primary" />
                   {isRTL ? "الباقة" : "Package"}
                 </h3>
-                <div className="text-sm space-y-1">
+                <div className="text-xs space-y-0.5">
                   <p><span className="text-muted-foreground">{isRTL ? "النظام:" : "Plan:"}</span> {isRTL ? getSelectedPackage()?.name : getSelectedPackage()?.nameEn}</p>
                   <p><span className="text-muted-foreground">{isRTL ? "المدة:" : "Duration:"}</span> {isRTL ? getSelectedPackage()?.duration : getSelectedPackage()?.durationEn}</p>
                   <p><span className="text-muted-foreground">{isRTL ? "النوع:" : "Type:"}</span> {medicalFollowup ? (isRTL ? "متابعة طبية" : "Medical") : (isRTL ? "عادي" : "Regular")}</p>
@@ -542,25 +548,119 @@ const Register = () => {
 
               {/* Payment Info */}
               <div>
-                <h3 className="font-semibold mb-2 flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-primary" />
+                <h3 className="font-semibold mb-1 flex items-center gap-2 text-sm">
+                  <CreditCard className="w-3.5 h-3.5 text-primary" />
                   {isRTL ? "الدفع" : "Payment"}
                 </h3>
-                <div className="text-sm space-y-1">
+                <div className="text-xs space-y-0.5">
                   <p><span className="text-muted-foreground">{isRTL ? "الطريقة:" : "Method:"}</span> {isRTL ? getSelectedPayment()?.name : getSelectedPayment()?.nameEn}</p>
-                  <p className="text-lg font-bold text-primary mt-2">
+                  <p className="text-base font-bold text-primary mt-1">
                     {isRTL ? "الإجمالي:" : "Total:"} {calculatePrice().toLocaleString()} {isRTL ? "ج.م" : "EGP"}
                   </p>
                 </div>
               </div>
             </div>
 
+            {/* Payment Instructions */}
+            {selectedPayment && selectedPayment !== 'cash' && (
+              <div className="p-3 bg-muted/50 rounded-xl border space-y-2">
+                <h4 className="font-semibold text-foreground text-sm flex items-center gap-2">
+                  📝 {isRTL ? 'تعليمات الدفع' : 'Payment Instructions'}
+                </h4>
+                <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+                  {selectedPayment === 'vodafone-cash' ? (
+                    <>
+                      <li>{isRTL ? 'افتح تطبيق فودافون كاش' : 'Open Vodafone Cash app'}</li>
+                      <li>{isRTL ? 'حول المبلغ إلى: 01016111733' : 'Transfer to: 01016111733'}</li>
+                      <li>{isRTL ? 'احتفظ برقم العملية' : 'Keep the transaction number'}</li>
+                      <li>{isRTL ? 'ارفع سكرين شوت التحويل أدناه' : 'Upload transfer screenshot below'}</li>
+                    </>
+                  ) : selectedPayment === 'instapay' ? (
+                    <>
+                      <li>{isRTL ? 'افتح تطبيق البنك' : 'Open your bank app'}</li>
+                      <li>{isRTL ? 'اختر InstaPay' : 'Choose InstaPay'}</li>
+                      <li>{isRTL ? 'حول إلى: mahmoud.sayed@instapay' : 'Transfer to: mahmoud.sayed@instapay'}</li>
+                      <li>{isRTL ? 'ارفع سكرين شوت التحويل أدناه' : 'Upload transfer screenshot below'}</li>
+                    </>
+                  ) : (
+                    <>
+                      <li>{isRTL ? 'حول المبلغ للحساب البنكي' : 'Transfer to bank account'}</li>
+                      <li>{isRTL ? 'سنتواصل معك لإرسال تفاصيل الحساب' : 'We will contact you with account details'}</li>
+                      <li>{isRTL ? 'ارفع سكرين شوت التحويل أدناه' : 'Upload transfer screenshot below'}</li>
+                    </>
+                  )}
+                </ol>
+              </div>
+            )}
+
+            {/* Screenshot Upload Section */}
+            {selectedPayment && selectedPayment !== 'cash' && (
+              <div className="p-3 bg-secondary/10 border-2 border-secondary/30 rounded-xl">
+                <div className="flex flex-col items-start gap-2">
+                  <div className="flex-1 w-full">
+                    <h4 className="font-bold text-foreground text-sm flex items-center gap-2 mb-2">
+                      <Camera className="h-4 w-4 text-secondary" />
+                      {isRTL ? 'ارفع صورة إيصال التحويل' : 'Upload Transfer Receipt'}
+                    </h4>
+                    <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
+                      {isRTL 
+                        ? 'بعد تحويل المبلغ، ارفع سكرين شوت للمعاملة هنا للتأكيد السريع ✅'
+                        : 'After transferring, upload a screenshot of the transaction here for quick confirmation ✅'}
+                    </p>
+                    
+                    {/* Image Upload Component */}
+                    <div className="w-full">
+                      <ImageUpload
+                        value={receiptUrl}
+                        onChange={setReceiptUrl}
+                        placeholder={isRTL ? '📸 اضغط لرفع صورة الإيصال' : '📸 Click to upload receipt'}
+                        bucket="receipts"
+                        folder="subscriptions"
+                        className="mb-2 w-full"
+                      />
+                    </div>
+
+                    {receiptUrl && (
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="flex items-center gap-2 p-2 bg-primary/10 border border-primary/30 rounded-lg"
+                      >
+                        <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                        <span className="text-xs text-primary">
+                          {isRTL ? 'تم رفع الصورة بنجاح!' : 'Receipt uploaded successfully!'}
+                        </span>
+                      </motion.div>
+                    )}
+                    
+                    <div className="mt-3 pt-3 border-t border-secondary/20">
+                      <p className="text-xs text-muted-foreground mb-2">
+                        {isRTL ? 'أو أرسل عبر واتساب:' : 'Or send via WhatsApp:'}
+                      </p>
+                      <a 
+                        href="https://wa.me/201016111733" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-3 py-2 bg-[#25D366] text-white text-xs font-medium rounded-lg hover:bg-[#20bd5a] transition-colors w-full justify-center"
+                      >
+                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        </svg>
+                        {isRTL ? 'أرسل عبر واتساب' : 'Send via WhatsApp'}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Warning */}
-            <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
-              <p className="text-xs text-yellow-600 dark:text-yellow-400 text-center">
+            <div className="p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+              <p className="text-xs text-yellow-600 dark:text-yellow-400 text-center flex items-center justify-center gap-1">
+                <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
                 {isRTL
-                  ? "⚠️ سيتم مراجعة طلبك وتفعيل حسابك بعد تأكيد الدفع"
-                  : "⚠️ Your request will be reviewed and your account activated after payment confirmation"}
+                  ? "سيتم مراجعة طلبك وتفعيل حسابك بعد تأكيد الدفع"
+                  : "Your account will be activated after payment confirmation"}
               </p>
             </div>
           </motion.div>
