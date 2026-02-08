@@ -1,6 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
@@ -65,7 +66,16 @@ const Store = () => {
   const { language } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { setTheme } = useTheme();
   const isRTL = language === 'ar';
+  
+  // Force light theme on Store page
+  useEffect(() => {
+    setTheme('light');
+    return () => {
+      setTheme('dark'); // Restore dark theme when leaving
+    };
+  }, [setTheme]);
   
   const { guestCart, addToCart, updateQuantity, removeFromCart, isLoading: cartLoading } = useCart();
   
