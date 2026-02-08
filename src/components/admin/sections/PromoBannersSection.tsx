@@ -30,6 +30,7 @@ interface PromoBanner {
   link_url: string | null;
   display_order: number;
   is_active: boolean;
+  position: string | null;
 }
 
 interface PromoBannersSectionProps {
@@ -47,8 +48,11 @@ const PromoBannersSection = ({ isRTL }: PromoBannersSectionProps) => {
     title: '',
     title_ar: '',
     link_url: '',
-    is_active: true
+    is_active: true,
+    position: 'top' as 'top' | 'bottom'
   });
+
+  const [activeTab, setActiveTab] = useState<'top' | 'bottom'>('top');
 
   useEffect(() => {
     fetchBanners();
@@ -73,7 +77,8 @@ const PromoBannersSection = ({ isRTL }: PromoBannersSectionProps) => {
       title: '',
       title_ar: '',
       link_url: '',
-      is_active: true
+      is_active: true,
+      position: activeTab
     });
     setEditingBanner(null);
   };
@@ -98,6 +103,7 @@ const PromoBannersSection = ({ isRTL }: PromoBannersSectionProps) => {
           title_ar: formData.title_ar || null,
           link_url: formData.link_url || null,
           is_active: formData.is_active,
+          position: formData.position,
           updated_at: new Date().toISOString()
         })
         .eq('id', editingBanner.id);
@@ -118,7 +124,8 @@ const PromoBannersSection = ({ isRTL }: PromoBannersSectionProps) => {
         resetForm();
       }
     } else {
-      // Create new
+      // Create new - filter by active tab for display_order
+      const samePositionBanners = banners.filter(b => b.position === formData.position);
       const { error } = await supabase
         .from('promo_banners')
         .insert({
@@ -127,7 +134,8 @@ const PromoBannersSection = ({ isRTL }: PromoBannersSectionProps) => {
           title_ar: formData.title_ar || null,
           link_url: formData.link_url || null,
           is_active: formData.is_active,
-          display_order: banners.length
+          position: formData.position,
+          display_order: samePositionBanners.length
         });
 
       if (error) {
@@ -176,7 +184,8 @@ const PromoBannersSection = ({ isRTL }: PromoBannersSectionProps) => {
       title: banner.title || '',
       title_ar: banner.title_ar || '',
       link_url: banner.link_url || '',
-      is_active: banner.is_active
+      is_active: banner.is_active,
+      position: (banner.position as 'top' | 'bottom') || 'top'
     });
     setShowAddDialog(true);
   };
@@ -191,6 +200,9 @@ const PromoBannersSection = ({ isRTL }: PromoBannersSectionProps) => {
       fetchBanners();
     }
   };
+
+  // Filter banners by active tab
+  const filteredBanners = banners.filter(b => b.position === activeTab || (!b.position && activeTab === 'top'));
 
   return (
     <div className="h-full flex flex-col">
@@ -212,6 +224,7 @@ const PromoBannersSection = ({ isRTL }: PromoBannersSectionProps) => {
 
         <Button 
           onClick={() => {
+            setFormData(prev => ({ ...prev, position: activeTab }));
             resetForm();
             setShowAddDialog(true);
           }}
@@ -219,6 +232,30 @@ const PromoBannersSection = ({ isRTL }: PromoBannersSectionProps) => {
         >
           <Plus className="h-4 w-4" />
           {isRTL ? 'إضافة بانر' : 'Add Banner'}
+        </Button>
+      </div>
+
+      {/* Position Tabs */}
+      <div className="flex gap-2 mb-4">
+        <Button
+          variant={activeTab === 'top' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('top')}
+          size="sm"
+        >
+          {isRTL ? 'السلايدر العلوي' : 'Top Slider'}
+          <span className="ml-2 px-1.5 py-0.5 text-xs rounded bg-background/20">
+            {banners.filter(b => b.position === 'top' || !b.position).length}
+          </span>
+        </Button>
+        <Button
+          variant={activeTab === 'bottom' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('bottom')}
+          size="sm"
+        >
+          {isRTL ? 'السلايدر السفلي' : 'Bottom Slider'}
+          <span className="ml-2 px-1.5 py-0.5 text-xs rounded bg-background/20">
+            {banners.filter(b => b.position === 'bottom').length}
+          </span>
         </Button>
       </div>
 
@@ -230,16 +267,16 @@ const PromoBannersSection = ({ isRTL }: PromoBannersSectionProps) => {
               <div key={i} className="aspect-[2/1] rounded-xl bg-muted animate-pulse" />
             ))}
           </div>
-        ) : banners.length === 0 ? (
+        ) : filteredBanners.length === 0 ? (
           <div className="text-center py-12">
             <ImageIcon className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
             <p className="text-muted-foreground">
-              {isRTL ? 'لا توجد بانرات' : 'No banners yet'}
+              {isRTL ? 'لا توجد بانرات في هذا السلايدر' : 'No banners in this slider'}
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {banners.map((banner, index) => (
+            {filteredBanners.map((banner, index) => (
               <motion.div
                 key={banner.id}
                 initial={{ opacity: 0, y: 10 }}

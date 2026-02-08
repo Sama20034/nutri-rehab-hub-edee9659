@@ -13,25 +13,28 @@ interface PromoBanner {
   title_ar: string | null;
   link_url: string | null;
   display_order: number;
+  position: string | null;
 }
 
 interface PromoBannerSliderProps {
   isRTL: boolean;
+  position?: 'top' | 'bottom';
 }
 
-const PromoBannerSlider = ({ isRTL }: PromoBannerSliderProps) => {
+const PromoBannerSlider = ({ isRTL, position = 'top' }: PromoBannerSliderProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [banners, setBanners] = useState<PromoBanner[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Fetch banners from database
+  // Fetch banners from database filtered by position
   useEffect(() => {
     const fetchBanners = async () => {
       const { data, error } = await supabase
         .from('promo_banners')
         .select('*')
         .eq('is_active', true)
+        .eq('position', position)
         .order('display_order');
       
       if (!error && data) {
@@ -41,7 +44,7 @@ const PromoBannerSlider = ({ isRTL }: PromoBannerSliderProps) => {
     };
 
     fetchBanners();
-  }, []);
+  }, [position]);
 
   // Auto-rotate every 4 seconds
   useEffect(() => {
