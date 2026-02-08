@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PromoBanner {
   id: string;
@@ -120,25 +121,37 @@ const PromoBannerSlider = ({ isRTL }: PromoBannerSliderProps) => {
           )}
         </div>
 
-        {/* Dots Indicator */}
+        {/* Navigation Controls */}
         {banners.length > 1 && (
-          <div className="flex justify-center gap-1.5 mt-2">
-            {banners.map((_, index) => (
-              <button
-                key={index}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setCurrentIndex(index);
-                }}
-                className={cn(
-                  "w-1.5 h-1.5 rounded-full transition-all duration-300",
-                  index === currentIndex 
-                    ? "bg-primary" 
-                    : "bg-muted-foreground/40 hover:bg-muted-foreground/60"
-                )}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
+          <div className="flex justify-center items-center gap-3 mt-3">
+            {/* Next Arrow (Right in RTL) */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentIndex((prev) => (prev + 1) % banners.length);
+              }}
+              className="w-10 h-10 rounded-full bg-card/80 backdrop-blur-sm border border-border/50 flex items-center justify-center hover:bg-card transition-colors"
+            >
+              <ChevronRight className="h-4 w-4 text-foreground" />
+            </button>
+
+            {/* Counter */}
+            <div className="px-4 py-2 rounded-full bg-card/80 backdrop-blur-sm border border-border/50 flex items-center gap-1 min-w-[70px] justify-center">
+              <span className="text-primary font-bold">{currentIndex + 1}</span>
+              <span className="text-muted-foreground">/</span>
+              <span className="text-muted-foreground">{banners.length}</span>
+            </div>
+
+            {/* Prev Arrow (Left in RTL) */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentIndex((prev) => (prev - 1 + banners.length) % banners.length);
+              }}
+              className="w-10 h-10 rounded-full bg-card/80 backdrop-blur-sm border border-border/50 flex items-center justify-center hover:bg-card transition-colors"
+            >
+              <ChevronLeft className="h-4 w-4 text-foreground" />
+            </button>
           </div>
         )}
       </div>
