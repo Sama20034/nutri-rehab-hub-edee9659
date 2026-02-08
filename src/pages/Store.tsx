@@ -265,7 +265,7 @@ const Store = () => {
                   {isRTL ? 'احصل على ' : 'Get a '}
                 </span>
                 <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient">
-                  {isRTL ? 'خطة مجانية بعد أي طلب يتخطى ٧٥٠٠ج' : 'Free Plan with Orders Over 7,500 EGP'}
+                  {isRTL ? 'خطة مجانية بعد أي طلب' : 'Free Plan with Any Order'}
                 </span>
               </h1>
               
