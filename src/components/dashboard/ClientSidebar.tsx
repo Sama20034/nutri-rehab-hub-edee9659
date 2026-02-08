@@ -98,7 +98,7 @@ export const ClientSidebar = ({
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed top-0 h-screen h-[100dvh] bg-sidebar-background border-border flex flex-col w-64 transition-transform duration-300 ease-in-out",
+          "fixed top-0 h-screen h-[100dvh] bg-sidebar border-sidebar-border flex flex-col w-64 transition-transform duration-300 ease-in-out",
           isRTL ? "right-0 border-l" : "left-0 border-r",
           // Desktop: always visible
           "lg:z-40 lg:translate-x-0",
@@ -110,7 +110,7 @@ export const ClientSidebar = ({
         )}
       >
         {/* Header */}
-        <div className="p-4 border-b border-border flex items-center justify-between">
+        <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1">
             <img src={logo} alt="NutriRehab" className="h-10 w-10 object-contain" />
             <div className="flex-1 min-w-0">
@@ -151,7 +151,7 @@ export const ClientSidebar = ({
         </nav>
 
         {/* User Info & Actions */}
-        <div className="p-4 border-t border-border space-y-3">
+        <div className="p-4 border-t border-sidebar-border space-y-3">
           {userName && (
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">

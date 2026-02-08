@@ -92,7 +92,7 @@ export const AdminSidebar = ({
         initial={{ x: isRTL ? 100 : -100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         className={cn(
-          "fixed top-0 h-[100dvh] bg-sidebar-background border-border z-50 flex flex-col transition-all duration-300 w-full sm:w-80 lg:w-64",
+          "fixed top-0 h-[100dvh] bg-sidebar border-sidebar-border z-50 flex flex-col transition-all duration-300 w-full sm:w-80 lg:w-64",
           isRTL ? "right-0 border-l" : "left-0 border-r",
           "lg:translate-x-0",
           !isOpen && (isRTL ? "translate-x-full" : "-translate-x-full"),
@@ -100,7 +100,7 @@ export const AdminSidebar = ({
         )}
       >
         {/* Header */}
-        <div className="p-4 border-b border-border flex items-center justify-between">
+        <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1">
             <img src={logo} alt="NutriRehab" className="h-10 w-10 object-contain" />
             <div className="flex-1 min-w-0">
@@ -152,7 +152,7 @@ export const AdminSidebar = ({
         </nav>
 
         {/* Admin Info & Actions */}
-        <div className="p-4 border-t border-border space-y-3">
+        <div className="p-4 border-t border-sidebar-border space-y-3">
           {adminName && (
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
