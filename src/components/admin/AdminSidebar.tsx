@@ -74,7 +74,7 @@ export const AdminSidebar = ({
 
   return (
     <>
-      {/* Overlay for mobile */}
+      {/* Overlay for mobile - covers everything when sidebar is open */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -82,29 +82,36 @@ export const AdminSidebar = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] lg:hidden"
           />
         )}
       </AnimatePresence>
 
       {/* Sidebar */}
-      <motion.aside
-        initial={{ x: isRTL ? 100 : -100, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
+      <aside
         className={cn(
-          "fixed top-0 h-[100dvh] bg-sidebar border-sidebar-border z-50 flex flex-col transition-all duration-300 w-full sm:w-80 lg:w-64",
-          isRTL ? "right-0 border-l" : "left-0 border-r",
-          "lg:translate-x-0",
-          !isOpen && (isRTL ? "translate-x-full" : "-translate-x-full"),
+          // Base styles
+          "fixed top-0 h-screen h-[100dvh] bg-sidebar flex flex-col transition-transform duration-300 ease-in-out",
+          // Width: full on mobile, 80 on tablet, 64 on desktop
+          "w-[85vw] max-w-[320px] sm:w-80 lg:w-64",
+          // Border
+          isRTL ? "border-l border-sidebar-border" : "border-r border-sidebar-border",
+          // Position
+          isRTL ? "right-0" : "left-0",
+          // Desktop: always visible
+          "lg:z-40 lg:translate-x-0",
+          // Mobile: higher z-index and slide in/out
+          "z-[70]",
+          !isOpen && (isRTL ? "translate-x-full lg:translate-x-0" : "-translate-x-full lg:translate-x-0"),
           isOpen && "translate-x-0"
         )}
       >
         {/* Header */}
-        <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-1">
-            <img src={logo} alt="NutriRehab" className="h-10 w-10 object-contain" />
+        <div className="p-4 border-b border-sidebar-border flex items-center justify-between flex-shrink-0">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <img src={logo} alt="NutriRehab" className="h-10 w-10 object-contain flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <h1 className="font-bold text-foreground text-sm">
+              <h1 className="font-bold text-foreground text-sm truncate">
                 {isRTL ? 'لوحة تحكم الأدمن' : 'Admin Dashboard'}
               </h1>
               <p className="text-xs text-muted-foreground truncate">
@@ -114,7 +121,8 @@ export const AdminSidebar = ({
           </div>
           <button
             onClick={onClose}
-            className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors"
+            className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors flex-shrink-0"
+            aria-label={isRTL ? 'إغلاق القائمة' : 'Close menu'}
           >
             <X className="h-5 w-5" />
           </button>
@@ -187,7 +195,7 @@ export const AdminSidebar = ({
             </span>
           </button>
         </div>
-      </motion.aside>
+      </aside>
     </>
   );
 };

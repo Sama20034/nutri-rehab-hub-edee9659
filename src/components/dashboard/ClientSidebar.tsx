@@ -98,23 +98,28 @@ export const ClientSidebar = ({
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed top-0 h-screen h-[100dvh] bg-sidebar border-sidebar-border flex flex-col w-64 transition-transform duration-300 ease-in-out",
-          isRTL ? "right-0 border-l" : "left-0 border-r",
+          // Base styles
+          "fixed top-0 h-screen h-[100dvh] bg-sidebar flex flex-col transition-transform duration-300 ease-in-out",
+          // Width: 85vw on mobile (max 320px), 64 on desktop
+          "w-[85vw] max-w-[320px] lg:w-64",
+          // Border
+          isRTL ? "border-l border-sidebar-border" : "border-r border-sidebar-border",
+          // Position
+          isRTL ? "right-0" : "left-0",
           // Desktop: always visible
           "lg:z-40 lg:translate-x-0",
           // Mobile: higher z-index and slide in/out
-          !isOpen && "z-[70]",
-          isOpen && "z-[70]",
+          "z-[70]",
           !isOpen && (isRTL ? "translate-x-full lg:translate-x-0" : "-translate-x-full lg:translate-x-0"),
           isOpen && "translate-x-0"
         )}
       >
         {/* Header */}
-        <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-1">
-            <img src={logo} alt="NutriRehab" className="h-10 w-10 object-contain" />
+        <div className="p-4 border-b border-sidebar-border flex items-center justify-between flex-shrink-0">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <img src={logo} alt="NutriRehab" className="h-10 w-10 object-contain flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <h1 className="font-bold text-foreground text-sm">
+              <h1 className="font-bold text-foreground text-sm truncate">
                 {isRTL ? 'لوحة تحكم العميل' : 'Client Dashboard'}
               </h1>
               <p className="text-xs text-muted-foreground truncate">{userEmail}</p>
@@ -123,7 +128,8 @@ export const ClientSidebar = ({
           {/* Close button for mobile */}
           <button
             onClick={onClose}
-            className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors"
+            className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors flex-shrink-0"
+            aria-label={isRTL ? 'إغلاق القائمة' : 'Close menu'}
           >
             <X className="h-5 w-5" />
           </button>

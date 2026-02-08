@@ -147,7 +147,10 @@ const ClientDashboard = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-background ${isRTL ? 'rtl' : 'ltr'}`}>
+    <div className={cn(
+      "min-h-screen min-h-[100dvh] bg-background overflow-x-hidden w-full",
+      isRTL ? 'rtl' : 'ltr'
+    )}>
       {/* Sidebar */}
       <ClientSidebar
         activeSection={activeSection}
@@ -159,32 +162,44 @@ const ClientDashboard = () => {
         onClose={() => setSidebarOpen(false)}
       />
 
-      {/* Main Content */}
+      {/* Main Content - offset by sidebar on desktop */}
       <div className={cn(
-        "transition-all duration-300 min-h-screen min-h-[100dvh] relative z-10",
-        // Desktop: offset by sidebar width
-        isRTL ? "lg:mr-64 lg:ml-0" : "lg:ml-64 lg:mr-0"
+        "min-h-screen min-h-[100dvh] w-full max-w-full overflow-x-hidden transition-all duration-300",
+        // Desktop: offset by sidebar width (256px = w-64)
+        isRTL ? "lg:mr-64" : "lg:ml-64"
       )}>
         {/* Top Header */}
         <header className="sticky top-0 z-20 bg-card/95 backdrop-blur-xl border-b border-border">
-          <div className="px-4 py-3 flex items-center justify-between">
+          <div className="px-3 sm:px-4 py-3 flex items-center justify-between gap-2">
             {/* Mobile menu button */}
             <button 
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors"
+              className="lg:hidden p-2.5 rounded-lg hover:bg-muted transition-colors flex-shrink-0"
+              aria-label={isRTL ? 'فتح القائمة' : 'Open menu'}
             >
-              <Menu className="h-6 w-6" />
+              <Menu className="h-5 w-5" />
             </button>
 
-            <div className="flex items-center gap-2 sm:gap-4">
-              <button onClick={toggleLanguage} className="p-2 rounded-lg hover:bg-muted transition-colors">
+            {/* Actions */}
+            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 ms-auto">
+              <button 
+                onClick={toggleLanguage} 
+                className="p-2 rounded-lg hover:bg-muted transition-colors"
+                aria-label={isRTL ? 'تغيير اللغة' : 'Change language'}
+              >
                 <Globe className="h-5 w-5" />
               </button>
               <NotificationBell userId={user?.id} />
               <Button variant="ghost" size="icon" className="h-9 w-9">
                 <User className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-9 w-9" onClick={handleSignOut}>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-9 w-9" 
+                onClick={handleSignOut}
+                aria-label={isRTL ? 'تسجيل الخروج' : 'Logout'}
+              >
                 <LogOut className="h-5 w-5" />
               </Button>
             </div>
@@ -192,7 +207,7 @@ const ClientDashboard = () => {
         </header>
 
         {/* Page Content */}
-        <main className="p-4 sm:p-6">
+        <main className="p-3 sm:p-4 lg:p-6 w-full max-w-full overflow-x-hidden">
           {renderSection()}
         </main>
       </div>
