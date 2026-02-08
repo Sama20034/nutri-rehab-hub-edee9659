@@ -1102,6 +1102,7 @@ export type Database = {
           image_url: string
           is_active: boolean | null
           link_url: string | null
+          position: string | null
           title: string | null
           title_ar: string | null
           updated_at: string
@@ -1113,6 +1114,7 @@ export type Database = {
           image_url: string
           is_active?: boolean | null
           link_url?: string | null
+          position?: string | null
           title?: string | null
           title_ar?: string | null
           updated_at?: string
@@ -1124,6 +1126,7 @@ export type Database = {
           image_url?: string
           is_active?: boolean | null
           link_url?: string | null
+          position?: string | null
           title?: string | null
           title_ar?: string | null
           updated_at?: string
