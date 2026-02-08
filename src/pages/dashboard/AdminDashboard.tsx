@@ -62,8 +62,22 @@ const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Lock background scroll when mobile sidebar is open
+  useEffect(() => {
+    if (!sidebarOpen) {
+      document.body.style.overflow = "";
+      return;
+    }
+
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [sidebarOpen]);
+
   // Authentication check disabled for testing
-  // useEffect(() => {
   //   if (!loading && (!user || role !== 'admin')) {
   //     navigate('/auth');
   //   }
