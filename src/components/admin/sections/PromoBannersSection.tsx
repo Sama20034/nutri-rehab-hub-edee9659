@@ -205,18 +205,18 @@ const PromoBannersSection = ({ isRTL }: PromoBannersSectionProps) => {
   const filteredBanners = banners.filter(b => b.position === activeTab || (!b.position && activeTab === 'top'));
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex-shrink-0">
             <ImageIcon className="h-5 w-5 text-primary" />
           </div>
-          <div>
-            <h2 className="text-xl font-bold text-foreground">
+          <div className="min-w-0">
+            <h2 className="text-lg sm:text-xl font-bold text-foreground truncate">
               {isRTL ? 'بانرات المتجر' : 'Store Banners'}
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground truncate">
               {isRTL ? 'إدارة الصور الترويجية في المتجر' : 'Manage promotional banners in the store'}
             </p>
           </div>
@@ -228,7 +228,8 @@ const PromoBannersSection = ({ isRTL }: PromoBannersSectionProps) => {
             resetForm();
             setShowAddDialog(true);
           }}
-          className="gap-2"
+          className="gap-2 flex-shrink-0"
+          size="sm"
         >
           <Plus className="h-4 w-4" />
           {isRTL ? 'إضافة بانر' : 'Add Banner'}
@@ -236,14 +237,15 @@ const PromoBannersSection = ({ isRTL }: PromoBannersSectionProps) => {
       </div>
 
       {/* Position Tabs */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex flex-wrap gap-2 mb-4">
         <Button
           variant={activeTab === 'top' ? 'default' : 'outline'}
           onClick={() => setActiveTab('top')}
           size="sm"
+          className="flex-shrink-0"
         >
           {isRTL ? 'السلايدر العلوي' : 'Top Slider'}
-          <span className="ml-2 px-1.5 py-0.5 text-xs rounded bg-background/20">
+          <span className="ml-1 px-1.5 py-0.5 text-xs rounded bg-background/20">
             {banners.filter(b => b.position === 'top' || !b.position).length}
           </span>
         </Button>
@@ -251,9 +253,10 @@ const PromoBannersSection = ({ isRTL }: PromoBannersSectionProps) => {
           variant={activeTab === 'bottom' ? 'default' : 'outline'}
           onClick={() => setActiveTab('bottom')}
           size="sm"
+          className="flex-shrink-0"
         >
           {isRTL ? 'السلايدر السفلي' : 'Bottom Slider'}
-          <span className="ml-2 px-1.5 py-0.5 text-xs rounded bg-background/20">
+          <span className="ml-1 px-1.5 py-0.5 text-xs rounded bg-background/20">
             {banners.filter(b => b.position === 'bottom').length}
           </span>
         </Button>
