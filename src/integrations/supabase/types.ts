@@ -224,6 +224,44 @@ export type Database = {
           },
         ]
       }
+      client_health_profile_assignments: {
+        Row: {
+          assigned_by: string | null
+          client_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          status: string | null
+          template_id: string
+        }
+        Insert: {
+          assigned_by?: string | null
+          client_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string | null
+          template_id: string
+        }
+        Update: {
+          assigned_by?: string | null
+          client_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string | null
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_health_profile_assignments_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "health_profile_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_meal_plans: {
         Row: {
           assigned_by: string | null
@@ -613,6 +651,63 @@ export type Database = {
           recorded_by?: string | null
           unit?: string
           value?: number
+        }
+        Relationships: []
+      }
+      health_profile_templates: {
+        Row: {
+          allergies: string[] | null
+          attachments: Json | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          diseases: string[] | null
+          disliked_foods: string[] | null
+          favorite_foods: string[] | null
+          id: string
+          medications: string[] | null
+          name: string
+          notes: string | null
+          status: string | null
+          supplements: string[] | null
+          updated_at: string
+          video_urls: string[] | null
+        }
+        Insert: {
+          allergies?: string[] | null
+          attachments?: Json | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          diseases?: string[] | null
+          disliked_foods?: string[] | null
+          favorite_foods?: string[] | null
+          id?: string
+          medications?: string[] | null
+          name: string
+          notes?: string | null
+          status?: string | null
+          supplements?: string[] | null
+          updated_at?: string
+          video_urls?: string[] | null
+        }
+        Update: {
+          allergies?: string[] | null
+          attachments?: Json | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          diseases?: string[] | null
+          disliked_foods?: string[] | null
+          favorite_foods?: string[] | null
+          id?: string
+          medications?: string[] | null
+          name?: string
+          notes?: string | null
+          status?: string | null
+          supplements?: string[] | null
+          updated_at?: string
+          video_urls?: string[] | null
         }
         Relationships: []
       }

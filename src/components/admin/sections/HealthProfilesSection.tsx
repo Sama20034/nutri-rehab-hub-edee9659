@@ -1,20 +1,38 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { 
-  Heart, AlertCircle, Pill, Apple, ThumbsUp, ThumbsDown, 
-  Edit2, User, Search, Eye, Save, X, ChevronDown, ChevronUp
-} from 'lucide-react';
+import { Plus, Edit, Trash2, Heart, Users, Paperclip, Film, Eye, AlertCircle, Pill, Apple, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { MultiSelect } from '@/components/ui/multi-select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/hooks/useAuth';
+import { FileUploadManager } from '@/components/admin/FileUploadManager';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
-interface HealthProfile {
+interface FileAttachment {
+  name: string;
+  url: string;
+  type: string;
+}
+
+interface HealthProfileTemplate {
   id: string;
-  client_id: string;
+  name: string;
+  description: string | null;
   allergies: string[];
   diseases: string[];
   medications: string[];
@@ -22,173 +40,249 @@ interface HealthProfile {
   favorite_foods: string[];
   disliked_foods: string[];
   notes: string | null;
+  attachments: FileAttachment[];
+  video_urls: string[];
+  status: string | null;
+  created_by: string | null;
   created_at: string;
   updated_at: string;
 }
 
-interface ClientWithProfile {
+interface Client {
+  id: string;
   user_id: string;
-  full_name: string | null;
-  phone: string | null;
-  selected_package: string | null;
-  status: string | null;
-  healthProfile?: HealthProfile | null;
+  full_name: string;
 }
+
+const statuses = ['active', 'inactive'];
 
 export const HealthProfilesSection = () => {
   const { isRTL } = useLanguage();
-  const [clients, setClients] = useState<ClientWithProfile[]>([]);
+  const { user } = useAuth();
+  const [templates, setTemplates] = useState<HealthProfileTemplate[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedClient, setSelectedClient] = useState<ClientWithProfile | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [expandedClient, setExpandedClient] = useState<string | null>(null);
-  
-  const [editForm, setEditForm] = useState({
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<HealthProfileTemplate | null>(null);
+  const [viewingTemplate, setViewingTemplate] = useState<HealthProfileTemplate | null>(null);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [selectedClients, setSelectedClients] = useState<string[]>([]);
+
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
     allergies: '',
     diseases: '',
     medications: '',
     supplements: '',
     favorite_foods: '',
     disliked_foods: '',
-    notes: ''
+    notes: '',
+    status: 'active'
   });
 
+  const [attachments, setAttachments] = useState<FileAttachment[]>([]);
+  const [videoUrls, setVideoUrls] = useState<string[]>([]);
+
   useEffect(() => {
-    fetchClientsWithProfiles();
+    fetchTemplates();
+    fetchClients();
   }, []);
 
-  const fetchClientsWithProfiles = async () => {
+  const fetchTemplates = async () => {
     try {
       setLoading(true);
-      
-      // Fetch approved clients
-      const { data: clientsData, error: clientsError } = await supabase
-        .from('profiles')
-        .select('user_id, full_name, phone, selected_package, status')
-        .eq('status', 'approved');
+      const { data, error } = await supabase
+        .from('health_profile_templates')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-      if (clientsError) throw clientsError;
+      if (error) throw error;
 
-      // Fetch health profiles
-      const { data: healthProfiles, error: profilesError } = await supabase
-        .from('health_profiles')
-        .select('*');
+      const transformedData = (data || []).map(template => ({
+        ...template,
+        allergies: template.allergies || [],
+        diseases: template.diseases || [],
+        medications: template.medications || [],
+        supplements: template.supplements || [],
+        favorite_foods: template.favorite_foods || [],
+        disliked_foods: template.disliked_foods || [],
+        attachments: (template.attachments as unknown as FileAttachment[]) || [],
+        video_urls: template.video_urls || []
+      }));
 
-      // Merge data
-      const clientsWithProfiles: ClientWithProfile[] = (clientsData || []).map(client => {
-        const hp = healthProfiles?.find(hp => hp.client_id === client.user_id);
-        return {
-          ...client,
-          healthProfile: hp ? {
-            id: hp.id,
-            client_id: hp.client_id,
-            allergies: hp.allergies || [],
-            diseases: hp.diseases || [],
-            medications: hp.medications || [],
-            supplements: hp.supplements || [],
-            favorite_foods: hp.favorite_foods || [],
-            disliked_foods: hp.disliked_foods || [],
-            notes: hp.notes,
-            created_at: hp.created_at,
-            updated_at: hp.updated_at
-          } : null
-        };
-      });
-
-      setClients(clientsWithProfiles);
+      setTemplates(transformedData);
     } catch (error) {
-      console.error('Error fetching clients:', error);
-      toast({
-        title: isRTL ? 'خطأ' : 'Error',
-        description: isRTL ? 'فشل في تحميل البيانات' : 'Failed to load data',
-        variant: 'destructive'
-      });
+      console.error('Error fetching templates:', error);
+      toast.error(isRTL ? 'فشل في تحميل البيانات' : 'Failed to load data');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleViewProfile = (client: ClientWithProfile) => {
-    setSelectedClient(client);
-    if (client.healthProfile) {
-      setEditForm({
-        allergies: client.healthProfile.allergies?.join(', ') || '',
-        diseases: client.healthProfile.diseases?.join(', ') || '',
-        medications: client.healthProfile.medications?.join(', ') || '',
-        supplements: client.healthProfile.supplements?.join(', ') || '',
-        favorite_foods: client.healthProfile.favorite_foods?.join(', ') || '',
-        disliked_foods: client.healthProfile.disliked_foods?.join(', ') || '',
-        notes: client.healthProfile.notes || ''
-      });
-    } else {
-      setEditForm({
-        allergies: '',
-        diseases: '',
-        medications: '',
-        supplements: '',
-        favorite_foods: '',
-        disliked_foods: '',
-        notes: ''
-      });
+  const fetchClients = async () => {
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, user_id, full_name')
+      .eq('status', 'approved');
+    
+    const { data: roles } = await supabase
+      .from('user_roles')
+      .select('user_id, role')
+      .eq('role', 'client');
+    
+    if (profiles && roles) {
+      const clientUserIds = roles.map(r => r.user_id);
+      const clientProfiles = profiles.filter(p => clientUserIds.includes(p.user_id));
+      setClients(clientProfiles as Client[]);
     }
   };
 
-  const handleSave = async () => {
-    if (!selectedClient) return;
+  const clientOptions = clients.map(c => ({
+    value: c.user_id,
+    label: c.full_name || 'بدون اسم'
+  }));
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      description: '',
+      allergies: '',
+      diseases: '',
+      medications: '',
+      supplements: '',
+      favorite_foods: '',
+      disliked_foods: '',
+      notes: '',
+      status: 'active'
+    });
+    setEditingTemplate(null);
+    setSelectedClients([]);
+    setAttachments([]);
+    setVideoUrls([]);
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.name) {
+      toast.error(isRTL ? 'يرجى إدخال اسم الملف الصحي' : 'Please enter template name');
+      return;
+    }
+
+    const templateData = {
+      name: formData.name,
+      description: formData.description || null,
+      allergies: formData.allergies.split(',').map(s => s.trim()).filter(Boolean),
+      diseases: formData.diseases.split(',').map(s => s.trim()).filter(Boolean),
+      medications: formData.medications.split(',').map(s => s.trim()).filter(Boolean),
+      supplements: formData.supplements.split(',').map(s => s.trim()).filter(Boolean),
+      favorite_foods: formData.favorite_foods.split(',').map(s => s.trim()).filter(Boolean),
+      disliked_foods: formData.disliked_foods.split(',').map(s => s.trim()).filter(Boolean),
+      notes: formData.notes || null,
+      attachments: JSON.parse(JSON.stringify(attachments)),
+      video_urls: videoUrls,
+      status: formData.status,
+      created_by: user?.id || null,
+      updated_at: new Date().toISOString()
+    };
 
     try {
-      const profileData = {
-        client_id: selectedClient.user_id,
-        allergies: editForm.allergies.split(',').map(s => s.trim()).filter(Boolean),
-        diseases: editForm.diseases.split(',').map(s => s.trim()).filter(Boolean),
-        medications: editForm.medications.split(',').map(s => s.trim()).filter(Boolean),
-        supplements: editForm.supplements.split(',').map(s => s.trim()).filter(Boolean),
-        favorite_foods: editForm.favorite_foods.split(',').map(s => s.trim()).filter(Boolean),
-        disliked_foods: editForm.disliked_foods.split(',').map(s => s.trim()).filter(Boolean),
-        notes: editForm.notes || null,
-        updated_at: new Date().toISOString()
-      };
+      let newTemplateId: string | null = null;
 
-      if (selectedClient.healthProfile) {
-        // Update existing
+      if (editingTemplate) {
         const { error } = await supabase
-          .from('health_profiles')
-          .update(profileData)
-          .eq('id', selectedClient.healthProfile.id);
+          .from('health_profile_templates')
+          .update(templateData)
+          .eq('id', editingTemplate.id);
 
         if (error) throw error;
+        newTemplateId = editingTemplate.id;
       } else {
-        // Insert new
-        const { error } = await supabase
-          .from('health_profiles')
-          .insert(profileData);
+        const { data, error } = await supabase
+          .from('health_profile_templates')
+          .insert(templateData)
+          .select('id')
+          .single();
 
         if (error) throw error;
+        newTemplateId = data?.id || null;
       }
 
-      toast({
-        title: isRTL ? 'تم الحفظ' : 'Saved',
-        description: isRTL ? 'تم حفظ الملف الصحي بنجاح' : 'Health profile saved successfully'
-      });
+      // Assign to clients if any selected
+      if (selectedClients.length > 0 && newTemplateId && user) {
+        const assignments = selectedClients.map(clientId => ({
+          template_id: newTemplateId!,
+          client_id: clientId,
+          assigned_by: user.id,
+          status: 'active'
+        }));
 
-      setIsEditing(false);
-      setSelectedClient(null);
-      fetchClientsWithProfiles();
+        const { error: assignError } = await supabase
+          .from('client_health_profile_assignments')
+          .insert(assignments);
+
+        if (assignError) {
+          toast.error(isRTL ? 'تم الحفظ لكن فشل التعيين للعملاء' : 'Saved but failed to assign to clients');
+        } else {
+          toast.success(isRTL ? `تم تعيين الملف لـ ${selectedClients.length} عميل` : `Assigned to ${selectedClients.length} clients`);
+        }
+      }
+
+      toast.success(isRTL ? (editingTemplate ? 'تم تحديث الملف الصحي' : 'تم إضافة الملف الصحي') : (editingTemplate ? 'Template updated' : 'Template added'));
+      setIsDialogOpen(false);
+      resetForm();
+      fetchTemplates();
     } catch (error) {
-      console.error('Error saving health profile:', error);
-      toast({
-        title: isRTL ? 'خطأ' : 'Error',
-        description: isRTL ? 'فشل في حفظ الملف الصحي' : 'Failed to save health profile',
-        variant: 'destructive'
-      });
+      console.error('Error saving template:', error);
+      toast.error(isRTL ? 'فشل في حفظ الملف الصحي' : 'Failed to save template');
     }
   };
 
-  const filteredClients = clients.filter(client => 
-    client.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.phone?.includes(searchTerm)
-  );
+  const handleEdit = (template: HealthProfileTemplate) => {
+    setFormData({
+      name: template.name,
+      description: template.description || '',
+      allergies: template.allergies?.join(', ') || '',
+      diseases: template.diseases?.join(', ') || '',
+      medications: template.medications?.join(', ') || '',
+      supplements: template.supplements?.join(', ') || '',
+      favorite_foods: template.favorite_foods?.join(', ') || '',
+      disliked_foods: template.disliked_foods?.join(', ') || '',
+      notes: template.notes || '',
+      status: template.status || 'active'
+    });
+    setAttachments(template.attachments || []);
+    setVideoUrls(template.video_urls || []);
+    setEditingTemplate(template);
+    setSelectedClients([]);
+    setIsDialogOpen(true);
+  };
+
+  const handleView = (template: HealthProfileTemplate) => {
+    setViewingTemplate(template);
+    setIsViewDialogOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('health_profile_templates')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      toast.success(isRTL ? 'تم حذف الملف الصحي' : 'Template deleted');
+      fetchTemplates();
+    } catch (error) {
+      console.error('Error deleting template:', error);
+      toast.error(isRTL ? 'فشل في حذف الملف الصحي' : 'Failed to delete template');
+    }
+  };
+
+  const getStatusBadge = (status: string | null) => {
+    return status === 'active'
+      ? <Badge variant="default" className="bg-primary/20 text-primary border-primary/30">{isRTL ? 'نشط' : 'Active'}</Badge>
+      : <Badge variant="secondary">{isRTL ? 'غير نشط' : 'Inactive'}</Badge>;
+  };
 
   const InfoCard = ({ 
     title, 
@@ -235,277 +329,379 @@ export const HealthProfilesSection = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Heart className="h-8 w-8 text-primary" />
           <div>
-            <h1 className="text-2xl font-bold">
-              {isRTL ? 'الملفات الصحية' : 'Health Profiles'}
-            </h1>
+            <h1 className="text-2xl font-bold">{isRTL ? 'الملفات الصحية' : 'Health Profiles'}</h1>
             <p className="text-sm text-muted-foreground">
-              {isRTL ? 'عرض وإدارة الملفات الصحية للعملاء' : 'View and manage client health profiles'}
+              {isRTL ? 'إنشاء وإدارة قوالب الملفات الصحية وتعيينها للعملاء' : 'Create and manage health profile templates'}
             </p>
           </div>
         </div>
-      </div>
-
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder={isRTL ? 'بحث بالاسم أو رقم الهاتف...' : 'Search by name or phone...'}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
-        />
+        <Button variant="default" onClick={() => { resetForm(); setIsDialogOpen(true); }}>
+          <Plus className="h-4 w-4" />
+          {isRTL ? 'إضافة ملف صحي جديد' : 'Add New Template'}
+        </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <div className="p-4 rounded-xl bg-card border border-border">
-          <p className="text-2xl font-bold text-primary">{clients.length}</p>
-          <p className="text-sm text-muted-foreground">{isRTL ? 'إجمالي العملاء' : 'Total Clients'}</p>
+          <p className="text-2xl font-bold text-primary">{templates.length}</p>
+          <p className="text-sm text-muted-foreground">{isRTL ? 'إجمالي القوالب' : 'Total Templates'}</p>
         </div>
         <div className="p-4 rounded-xl bg-card border border-border">
           <p className="text-2xl font-bold text-green-500">
-            {clients.filter(c => c.healthProfile).length}
+            {templates.filter(t => t.status === 'active').length}
           </p>
-          <p className="text-sm text-muted-foreground">{isRTL ? 'لديهم ملف صحي' : 'Have Profile'}</p>
+          <p className="text-sm text-muted-foreground">{isRTL ? 'قوالب نشطة' : 'Active'}</p>
         </div>
         <div className="p-4 rounded-xl bg-card border border-border">
-          <p className="text-2xl font-bold text-orange-500">
-            {clients.filter(c => !c.healthProfile).length}
-          </p>
-          <p className="text-sm text-muted-foreground">{isRTL ? 'بدون ملف صحي' : 'No Profile'}</p>
-        </div>
-        <div className="p-4 rounded-xl bg-card border border-border">
-          <p className="text-2xl font-bold text-blue-500">
-            {clients.filter(c => c.healthProfile?.allergies?.length || c.healthProfile?.diseases?.length).length}
-          </p>
-          <p className="text-sm text-muted-foreground">{isRTL ? 'حالات خاصة' : 'Special Cases'}</p>
+          <p className="text-2xl font-bold text-blue-500">{clients.length}</p>
+          <p className="text-sm text-muted-foreground">{isRTL ? 'إجمالي العملاء' : 'Total Clients'}</p>
         </div>
       </div>
 
-      {/* Clients List */}
-      <div className="space-y-3">
-        {filteredClients.map((client) => (
-          <motion.div
-            key={client.user_id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="p-4 rounded-xl bg-card border border-border"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                  <User className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold">{client.full_name || 'Unknown'}</h3>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span>{client.phone || 'No phone'}</span>
-                    {client.selected_package && (
-                      <Badge variant="outline" className="text-xs">
-                        {client.selected_package}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {client.healthProfile ? (
-                  <Badge className="bg-green-500/10 text-green-600 border-green-500/20">
-                    {isRTL ? 'لديه ملف' : 'Has Profile'}
-                  </Badge>
-                ) : (
-                  <Badge className="bg-orange-500/10 text-orange-600 border-orange-500/20">
-                    {isRTL ? 'بدون ملف' : 'No Profile'}
-                  </Badge>
-                )}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setExpandedClient(expandedClient === client.user_id ? null : client.user_id)}
-                >
-                  {expandedClient === client.user_id ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    handleViewProfile(client);
-                    setIsEditing(true);
-                  }}
-                >
-                  <Edit2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Expanded Health Profile View */}
-            {expandedClient === client.user_id && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-4 pt-4 border-t border-border"
-              >
-                {client.healthProfile ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    <InfoCard
-                      title={isRTL ? 'الحساسيات' : 'Allergies'}
-                      icon={<AlertCircle className="h-4 w-4 text-orange-500" />}
-                      items={client.healthProfile.allergies || []}
-                      colorClass="bg-orange-500/20"
-                    />
-                    <InfoCard
-                      title={isRTL ? 'الأمراض' : 'Diseases'}
-                      icon={<Heart className="h-4 w-4 text-red-500" />}
-                      items={client.healthProfile.diseases || []}
-                      colorClass="bg-red-500/20"
-                    />
-                    <InfoCard
-                      title={isRTL ? 'الأدوية' : 'Medications'}
-                      icon={<Pill className="h-4 w-4 text-blue-500" />}
-                      items={client.healthProfile.medications || []}
-                      colorClass="bg-blue-500/20"
-                    />
-                    <InfoCard
-                      title={isRTL ? 'المكملات' : 'Supplements'}
-                      icon={<Apple className="h-4 w-4 text-green-500" />}
-                      items={client.healthProfile.supplements || []}
-                      colorClass="bg-green-500/20"
-                    />
-                    <InfoCard
-                      title={isRTL ? 'الأطعمة المفضلة' : 'Favorite Foods'}
-                      icon={<ThumbsUp className="h-4 w-4 text-primary" />}
-                      items={client.healthProfile.favorite_foods || []}
-                      colorClass="bg-primary/20"
-                    />
-                    <InfoCard
-                      title={isRTL ? 'الأطعمة غير المحببة' : 'Disliked Foods'}
-                      icon={<ThumbsDown className="h-4 w-4 text-destructive" />}
-                      items={client.healthProfile.disliked_foods || []}
-                      colorClass="bg-destructive/20"
-                    />
-                  </div>
-                ) : (
-                  <p className="text-center text-muted-foreground py-4">
-                    {isRTL ? 'لا يوجد ملف صحي لهذا العميل' : 'No health profile for this client'}
-                  </p>
-                )}
-              </motion.div>
+      {/* Table */}
+      <Card className="bg-card border-border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className={isRTL ? 'text-right' : ''}>{isRTL ? 'الاسم' : 'Name'}</TableHead>
+              <TableHead>{isRTL ? 'الوصف' : 'Description'}</TableHead>
+              <TableHead>{isRTL ? 'الحالة' : 'Status'}</TableHead>
+              <TableHead>{isRTL ? 'المرفقات' : 'Attachments'}</TableHead>
+              <TableHead className="text-center">{isRTL ? 'إجراءات' : 'Actions'}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {templates.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-12">
+                  <Heart className="h-12 w-12 mx-auto mb-4 opacity-50 text-muted-foreground" />
+                  <p className="text-muted-foreground">{isRTL ? 'لا توجد ملفات صحية' : 'No health profiles found'}</p>
+                  <Button variant="outline" className="mt-4" onClick={() => { resetForm(); setIsDialogOpen(true); }}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    {isRTL ? 'إضافة أول ملف صحي' : 'Add First Template'}
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ) : (
+              templates.map((template) => (
+                <TableRow key={template.id}>
+                  <TableCell className={`font-medium ${isRTL ? 'text-right' : ''}`}>{template.name}</TableCell>
+                  <TableCell className="max-w-[200px] truncate">{template.description || '-'}</TableCell>
+                  <TableCell>{getStatusBadge(template.status)}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {(template.attachments?.length || 0) > 0 && (
+                        <Badge variant="secondary" className="flex items-center gap-1">
+                          <Paperclip className="h-3 w-3" />
+                          {template.attachments?.length}
+                        </Badge>
+                      )}
+                      {(template.video_urls?.length || 0) > 0 && (
+                        <Badge variant="secondary" className="flex items-center gap-1">
+                          <Film className="h-3 w-3" />
+                          {template.video_urls?.length}
+                        </Badge>
+                      )}
+                      {!(template.attachments?.length || 0) && !(template.video_urls?.length || 0) && '-'}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex justify-center gap-2">
+                      <Button variant="ghost" size="icon" onClick={() => handleView(template)}>
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(template)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(template.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
             )}
-          </motion.div>
-        ))}
+          </TableBody>
+        </Table>
+      </Card>
 
-        {filteredClients.length === 0 && (
-          <div className="text-center py-12 text-muted-foreground">
-            {isRTL ? 'لا يوجد عملاء مطابقين للبحث' : 'No clients match your search'}
-          </div>
-        )}
-      </div>
-
-      {/* Edit Dialog */}
-      <Dialog open={isEditing} onOpenChange={setIsEditing}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+      {/* View Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Heart className="h-5 w-5 text-primary" />
-              {isRTL ? 'تعديل الملف الصحي' : 'Edit Health Profile'}
-              {selectedClient && (
-                <span className="text-muted-foreground font-normal">
-                  - {selectedClient.full_name}
-                </span>
-              )}
+              {viewingTemplate?.name}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          {viewingTemplate && (
+            <div className="space-y-4 py-4">
+              {viewingTemplate.description && (
+                <p className="text-muted-foreground">{viewingTemplate.description}</p>
+              )}
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <InfoCard
+                  title={isRTL ? 'الحساسيات' : 'Allergies'}
+                  icon={<AlertCircle className="h-4 w-4 text-orange-500" />}
+                  items={viewingTemplate.allergies || []}
+                  colorClass="bg-orange-500/20"
+                />
+                <InfoCard
+                  title={isRTL ? 'الأمراض' : 'Diseases'}
+                  icon={<Heart className="h-4 w-4 text-red-500" />}
+                  items={viewingTemplate.diseases || []}
+                  colorClass="bg-red-500/20"
+                />
+                <InfoCard
+                  title={isRTL ? 'الأدوية' : 'Medications'}
+                  icon={<Pill className="h-4 w-4 text-blue-500" />}
+                  items={viewingTemplate.medications || []}
+                  colorClass="bg-blue-500/20"
+                />
+                <InfoCard
+                  title={isRTL ? 'المكملات' : 'Supplements'}
+                  icon={<Apple className="h-4 w-4 text-green-500" />}
+                  items={viewingTemplate.supplements || []}
+                  colorClass="bg-green-500/20"
+                />
+                <InfoCard
+                  title={isRTL ? 'الأطعمة المفضلة' : 'Favorite Foods'}
+                  icon={<ThumbsUp className="h-4 w-4 text-primary" />}
+                  items={viewingTemplate.favorite_foods || []}
+                  colorClass="bg-primary/20"
+                />
+                <InfoCard
+                  title={isRTL ? 'الأطعمة غير المحببة' : 'Disliked Foods'}
+                  icon={<ThumbsDown className="h-4 w-4 text-destructive" />}
+                  items={viewingTemplate.disliked_foods || []}
+                  colorClass="bg-destructive/20"
+                />
+              </div>
+
+              {viewingTemplate.notes && (
+                <div className="p-4 rounded-xl bg-muted/30 border border-border">
+                  <h4 className="font-semibold text-sm mb-2">{isRTL ? 'ملاحظات' : 'Notes'}</h4>
+                  <p className="text-sm text-muted-foreground">{viewingTemplate.notes}</p>
+                </div>
+              )}
+
+              {/* Attachments */}
+              {viewingTemplate.attachments?.length > 0 && (
+                <div className="p-4 rounded-xl bg-muted/30 border border-border">
+                  <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                    <Paperclip className="h-4 w-4" />
+                    {isRTL ? 'المرفقات' : 'Attachments'}
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {viewingTemplate.attachments.map((file, idx) => (
+                      <a
+                        key={idx}
+                        href={file.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-2 bg-background rounded-lg border border-border hover:bg-muted transition-colors text-sm"
+                      >
+                        {file.name}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Videos */}
+              {viewingTemplate.video_urls?.length > 0 && (
+                <div className="p-4 rounded-xl bg-muted/30 border border-border">
+                  <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                    <Film className="h-4 w-4" />
+                    {isRTL ? 'الفيديوهات' : 'Videos'}
+                  </h4>
+                  <div className="space-y-2">
+                    {viewingTemplate.video_urls.map((url, idx) => (
+                      <a
+                        key={idx}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block px-3 py-2 bg-background rounded-lg border border-border hover:bg-muted transition-colors text-sm truncate"
+                      >
+                        {url}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
+              {isRTL ? 'إغلاق' : 'Close'}
+            </Button>
+            <Button onClick={() => {
+              if (viewingTemplate) {
+                handleEdit(viewingTemplate);
+                setIsViewDialogOpen(false);
+              }
+            }}>
+              <Edit className="h-4 w-4 mr-2" />
+              {isRTL ? 'تعديل' : 'Edit'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add/Edit Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) resetForm(); }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingTemplate ? (isRTL ? 'تعديل الملف الصحي' : 'Edit Health Profile') : (isRTL ? 'إضافة ملف صحي جديد' : 'Add New Health Profile')}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">
-                {isRTL ? 'الحساسيات (مفصولة بفاصلة)' : 'Allergies (comma separated)'}
-              </label>
+              <Label>{isRTL ? 'اسم الملف الصحي' : 'Template Name'}</Label>
               <Input
-                value={editForm.allergies}
-                onChange={(e) => setEditForm({ ...editForm, allergies: e.target.value })}
-                placeholder={isRTL ? 'مثال: لاكتوز, جلوتين, مكسرات' : 'e.g., lactose, gluten, nuts'}
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder={isRTL ? 'مثال: ملف مريض سكري' : 'e.g., Diabetic Patient Profile'}
               />
             </div>
+
             <div>
-              <label className="text-sm font-medium mb-2 block">
-                {isRTL ? 'الأمراض (مفصولة بفاصلة)' : 'Diseases (comma separated)'}
-              </label>
-              <Input
-                value={editForm.diseases}
-                onChange={(e) => setEditForm({ ...editForm, diseases: e.target.value })}
-                placeholder={isRTL ? 'مثال: سكري, ضغط, قلب' : 'e.g., diabetes, hypertension, heart'}
+              <Label>{isRTL ? 'الوصف' : 'Description'}</Label>
+              <Textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder={isRTL ? 'وصف الملف الصحي...' : 'Template description...'}
               />
             </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label>{isRTL ? 'الحساسيات (مفصولة بفاصلة)' : 'Allergies (comma separated)'}</Label>
+                <Input
+                  value={formData.allergies}
+                  onChange={(e) => setFormData({ ...formData, allergies: e.target.value })}
+                  placeholder={isRTL ? 'لاكتوز, جلوتين, مكسرات' : 'lactose, gluten, nuts'}
+                />
+              </div>
+              <div>
+                <Label>{isRTL ? 'الأمراض (مفصولة بفاصلة)' : 'Diseases (comma separated)'}</Label>
+                <Input
+                  value={formData.diseases}
+                  onChange={(e) => setFormData({ ...formData, diseases: e.target.value })}
+                  placeholder={isRTL ? 'سكري, ضغط, قلب' : 'diabetes, hypertension'}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label>{isRTL ? 'الأدوية (مفصولة بفاصلة)' : 'Medications (comma separated)'}</Label>
+                <Input
+                  value={formData.medications}
+                  onChange={(e) => setFormData({ ...formData, medications: e.target.value })}
+                  placeholder={isRTL ? 'ميتفورمين, أنسولين' : 'metformin, insulin'}
+                />
+              </div>
+              <div>
+                <Label>{isRTL ? 'المكملات (مفصولة بفاصلة)' : 'Supplements (comma separated)'}</Label>
+                <Input
+                  value={formData.supplements}
+                  onChange={(e) => setFormData({ ...formData, supplements: e.target.value })}
+                  placeholder={isRTL ? 'فيتامين د, أوميجا 3' : 'vitamin D, omega 3'}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label>{isRTL ? 'الأطعمة المفضلة (مفصولة بفاصلة)' : 'Favorite Foods (comma separated)'}</Label>
+                <Input
+                  value={formData.favorite_foods}
+                  onChange={(e) => setFormData({ ...formData, favorite_foods: e.target.value })}
+                  placeholder={isRTL ? 'سمك, دجاج, خضروات' : 'fish, chicken, vegetables'}
+                />
+              </div>
+              <div>
+                <Label>{isRTL ? 'الأطعمة غير المحببة (مفصولة بفاصلة)' : 'Disliked Foods (comma separated)'}</Label>
+                <Input
+                  value={formData.disliked_foods}
+                  onChange={(e) => setFormData({ ...formData, disliked_foods: e.target.value })}
+                  placeholder={isRTL ? 'كشري, فول' : 'beans, lentils'}
+                />
+              </div>
+            </div>
+
             <div>
-              <label className="text-sm font-medium mb-2 block">
-                {isRTL ? 'الأدوية (مفصولة بفاصلة)' : 'Medications (comma separated)'}
-              </label>
-              <Input
-                value={editForm.medications}
-                onChange={(e) => setEditForm({ ...editForm, medications: e.target.value })}
-                placeholder={isRTL ? 'مثال: ميتفورمين, أسبرين' : 'e.g., metformin, aspirin'}
+              <Label>{isRTL ? 'ملاحظات إضافية' : 'Additional Notes'}</Label>
+              <Textarea
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                placeholder={isRTL ? 'ملاحظات عامة عن الحالة الصحية...' : 'General health notes...'}
               />
             </div>
+
             <div>
-              <label className="text-sm font-medium mb-2 block">
-                {isRTL ? 'المكملات (مفصولة بفاصلة)' : 'Supplements (comma separated)'}
-              </label>
-              <Input
-                value={editForm.supplements}
-                onChange={(e) => setEditForm({ ...editForm, supplements: e.target.value })}
-                placeholder={isRTL ? 'مثال: فيتامين د, أوميجا 3' : 'e.g., Vitamin D, Omega 3'}
+              <Label>{isRTL ? 'الحالة' : 'Status'}</Label>
+              <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {statuses.map(s => (
+                    <SelectItem key={s} value={s}>{s === 'active' ? (isRTL ? 'نشط' : 'Active') : (isRTL ? 'غير نشط' : 'Inactive')}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* File Attachments & Videos */}
+            <div className="border-t pt-4 mt-4">
+              <FileUploadManager
+                attachments={attachments}
+                videoUrls={videoUrls}
+                onAttachmentsChange={setAttachments}
+                onVideoUrlsChange={setVideoUrls}
+                isRTL={isRTL}
               />
             </div>
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                {isRTL ? 'الأطعمة المفضلة (مفصولة بفاصلة)' : 'Favorite Foods (comma separated)'}
-              </label>
-              <Input
-                value={editForm.favorite_foods}
-                onChange={(e) => setEditForm({ ...editForm, favorite_foods: e.target.value })}
-                placeholder={isRTL ? 'مثال: دجاج, سمك, خضار' : 'e.g., chicken, fish, vegetables'}
+
+            {/* Client Assignment */}
+            <div className="border-t pt-4 mt-4">
+              <Label className="flex items-center gap-2 mb-2">
+                <Users className="h-4 w-4" />
+                {isRTL ? 'تعيين الملف للعملاء' : 'Assign to Clients'}
+              </Label>
+              <MultiSelect
+                options={clientOptions}
+                selected={selectedClients}
+                onChange={setSelectedClients}
+                placeholder={isRTL ? 'اختر العملاء...' : 'Select clients...'}
+                searchPlaceholder={isRTL ? 'بحث عن عميل...' : 'Search clients...'}
+                emptyText={isRTL ? 'لا يوجد عملاء' : 'No clients found'}
               />
-            </div>
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                {isRTL ? 'الأطعمة غير المحببة (مفصولة بفاصلة)' : 'Disliked Foods (comma separated)'}
-              </label>
-              <Input
-                value={editForm.disliked_foods}
-                onChange={(e) => setEditForm({ ...editForm, disliked_foods: e.target.value })}
-                placeholder={isRTL ? 'مثال: كبدة, بيض' : 'e.g., liver, eggs'}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                {isRTL ? 'ملاحظات إضافية' : 'Additional Notes'}
-              </label>
-              <Input
-                value={editForm.notes}
-                onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
-                placeholder={isRTL ? 'أي ملاحظات إضافية...' : 'Any additional notes...'}
-              />
-            </div>
-            <div className="flex gap-3 pt-4">
-              <Button onClick={handleSave} className="flex-1 gap-2">
-                <Save className="h-4 w-4" />
-                {isRTL ? 'حفظ التغييرات' : 'Save Changes'}
-              </Button>
-              <Button variant="outline" onClick={() => setIsEditing(false)} className="gap-2">
-                <X className="h-4 w-4" />
-                {isRTL ? 'إلغاء' : 'Cancel'}
-              </Button>
+              {selectedClients.length > 0 && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  {isRTL ? `سيتم تعيين الملف لـ ${selectedClients.length} عميل` : `Will assign to ${selectedClients.length} client(s)`}
+                </p>
+              )}
             </div>
           </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              {isRTL ? 'إلغاء' : 'Cancel'}
+            </Button>
+            <Button onClick={handleSubmit}>
+              {editingTemplate ? (isRTL ? 'تحديث' : 'Update') : (isRTL ? 'إضافة' : 'Add')}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
