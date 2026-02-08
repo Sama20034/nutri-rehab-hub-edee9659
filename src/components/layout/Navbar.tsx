@@ -422,8 +422,14 @@ const Navbar = () => {
                                   {category.subcategories.map((sub) => (
                                     <button
                                       key={sub}
-                                      onClick={() => handleCategoryClick(sub)}
-                                      className={`block text-sm text-muted-foreground hover:text-primary py-1 w-full ${isRTL ? 'text-right' : 'text-left'}`}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        setIsOpen(false);
+                                        setExpandedMobileCategory(null);
+                                        navigate(`/store?category=${encodeURIComponent(sub)}`);
+                                      }}
+                                      className={`block text-sm text-muted-foreground hover:text-primary py-2 w-full ${isRTL ? 'text-right' : 'text-left'}`}
                                     >
                                       {sub}
                                     </button>
