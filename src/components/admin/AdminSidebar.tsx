@@ -92,7 +92,7 @@ export const AdminSidebar = ({
         initial={{ x: isRTL ? 100 : -100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         className={cn(
-          "fixed top-0 h-screen bg-sidebar-background border-border z-50 flex flex-col transition-all duration-300 w-64",
+          "fixed top-0 h-screen bg-sidebar-background border-border z-50 flex flex-col transition-all duration-300 w-full sm:w-80 lg:w-64",
           isRTL ? "right-0 border-l" : "left-0 border-r",
           "lg:translate-x-0",
           !isOpen && (isRTL ? "translate-x-full" : "-translate-x-full"),
