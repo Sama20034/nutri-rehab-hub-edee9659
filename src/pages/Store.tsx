@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -66,6 +66,7 @@ const Store = () => {
   const { language } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { setTheme } = useTheme();
   const isRTL = language === 'ar';
   
@@ -89,6 +90,48 @@ const Store = () => {
   const [inStockOnly, setInStockOnly] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  // Read category from URL query params and apply filter
+  useEffect(() => {
+    const categoryParam = searchParams.get('category');
+    if (categoryParam) {
+      // Find matching category in DB (check both EN and AR names)
+      const fetchCategoryMatch = async () => {
+        // First try to find exact match from subcategories
+        const { data: subCats } = await supabase
+          .from('store_categories')
+          .select('name, name_ar')
+          .eq('is_active', true)
+          .not('parent_id', 'is', null);
+        
+        if (subCats) {
+          // Find the subcategory that matches (either by name or name_ar)
+          const matchedSub = subCats.find(
+            c => c.name === categoryParam || c.name_ar === categoryParam
+          );
+          
+          if (matchedSub) {
+            // Use both EN and AR names for robust filtering
+            const filterNames = [matchedSub.name, matchedSub.name_ar].filter(Boolean) as string[];
+            setSelectedCategories(filterNames);
+            // Scroll to products section
+            setTimeout(() => {
+              document.getElementById('products-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+            return;
+          }
+        }
+        
+        // Fallback: use the param directly
+        setSelectedCategories([categoryParam]);
+        setTimeout(() => {
+          document.getElementById('products-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
+      };
+      
+      fetchCategoryMatch();
+    }
+  }, [searchParams]);
 
   // Fetch products
   const { data: products = [], isLoading: loadingProducts } = useQuery({
