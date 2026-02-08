@@ -122,7 +122,7 @@ const PromoBannerSlider = ({ isRTL }: PromoBannerSliderProps) => {
 
         {/* Dots Indicator */}
         {banners.length > 1 && (
-          <div className="flex justify-center gap-2 mt-3">
+          <div className="flex justify-center gap-1.5 mt-2">
             {banners.map((_, index) => (
               <button
                 key={index}
@@ -131,10 +131,10 @@ const PromoBannerSlider = ({ isRTL }: PromoBannerSliderProps) => {
                   setCurrentIndex(index);
                 }}
                 className={cn(
-                  "w-2 h-2 rounded-full transition-all duration-300",
+                  "w-1.5 h-1.5 rounded-full transition-all duration-300",
                   index === currentIndex 
-                    ? "bg-primary scale-110" 
-                    : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                    ? "bg-primary" 
+                    : "bg-muted-foreground/40 hover:bg-muted-foreground/60"
                 )}
                 aria-label={`Go to slide ${index + 1}`}
               />
