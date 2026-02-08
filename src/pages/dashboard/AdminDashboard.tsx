@@ -227,40 +227,84 @@ const AdminDashboard = () => {
       />
 
       {/* Main Content */}
-      <div className={`lg:${isRTL ? 'mr-64' : 'ml-64'} min-h-screen`}>
+      <div
+        className={`lg:${isRTL ? 'mr-64' : 'ml-64'} min-h-screen max-w-full overflow-x-hidden ${
+          sidebarOpen ? 'pointer-events-none lg:pointer-events-auto blur-sm lg:blur-none' : ''
+        }`}
+      >
         {/* Header */}
         <header className="sticky top-0 z-30 bg-card/80 backdrop-blur-xl border-b border-border">
-          <div className="px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="px-4 py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3 min-w-0">
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden"
+                className="lg:hidden flex-shrink-0"
                 onClick={() => setSidebarOpen(true)}
+                aria-label={isRTL ? 'فتح القائمة' : 'Open menu'}
               >
                 <Menu className="h-5 w-5" />
               </Button>
-              <div className="flex items-center gap-2">
-                <img src={logo} alt="NutriRehab" className="h-8 w-8 object-contain" />
-                <div>
-                  <span className="font-bold text-foreground">{isRTL ? 'لوحة تحكم الأدمن' : 'Admin Dashboard'}</span>
-                  <p className="text-xs text-muted-foreground">
+
+              <div className="flex items-center gap-2 min-w-0">
+                <img src={logo} alt="NutriRehab" className="h-8 w-8 object-contain flex-shrink-0" />
+                <div className="min-w-0">
+                  <span className="font-bold text-foreground text-sm sm:text-base truncate block">
+                    {isRTL ? 'لوحة تحكم الأدمن' : 'Admin Dashboard'}
+                  </span>
+                  <p className="text-xs text-muted-foreground truncate hidden sm:block">
                     {isRTL ? 'مرحباً، أنت مسجل كمدير' : 'Welcome, Admin'}
                   </p>
                 </div>
               </div>
             </div>
-            
-            <div className="flex items-center gap-2">
+
+            <div className="flex items-center justify-between sm:justify-end gap-2">
               <NotificationBell userId={user?.id} />
-              <Button variant="outline" size="sm" onClick={toggleLanguage}>
-                <Globe className="h-4 w-4" />
-                {isRTL ? 'EN' : 'عربي'}
-              </Button>
-              <Button variant="destructive" size="sm" onClick={handleSignOut}>
-                <LogOut className="h-4 w-4" />
-                {isRTL ? 'خروج' : 'Logout'}
-              </Button>
+
+              <div className="flex items-center gap-2">
+                {/* Language - mobile icon */}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="sm:hidden"
+                  onClick={toggleLanguage}
+                  aria-label={isRTL ? 'تغيير اللغة' : 'Change language'}
+                >
+                  <Globe className="h-4 w-4" />
+                </Button>
+                {/* Language - desktop/text */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="hidden sm:inline-flex"
+                  onClick={toggleLanguage}
+                >
+                  <Globe className="h-4 w-4" />
+                  {isRTL ? 'EN' : 'عربي'}
+                </Button>
+
+                {/* Logout - mobile icon */}
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="sm:hidden"
+                  onClick={handleSignOut}
+                  aria-label={isRTL ? 'خروج' : 'Logout'}
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+                {/* Logout - desktop/text */}
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="hidden sm:inline-flex"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="h-4 w-4" />
+                  {isRTL ? 'خروج' : 'Logout'}
+                </Button>
+              </div>
             </div>
           </div>
         </header>
