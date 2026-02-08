@@ -188,17 +188,17 @@ export const OverviewSection = ({
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 w-full max-w-full overflow-x-hidden">
       {/* Header */}
       <div className={isRTL ? 'text-right' : 'text-left'}>
-        <h1 className="text-2xl font-bold mb-1">{isRTL ? 'لوحة التحكم الشاملة' : 'Comprehensive Dashboard'}</h1>
-        <p className="text-muted-foreground text-sm">
+        <h1 className="text-xl sm:text-2xl font-bold mb-1">{isRTL ? 'لوحة التحكم الشاملة' : 'Comprehensive Dashboard'}</h1>
+        <p className="text-muted-foreground text-xs sm:text-sm">
           {isRTL ? 'إحصائيات المبيعات والاشتراكات والمستخدمين' : 'Sales, subscriptions, and users statistics'}
         </p>
       </div>
 
       {/* Main Sales Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {mainStats.map((stat, index) => {
           const Icon = stat.icon;
           return (
@@ -209,21 +209,21 @@ export const OverviewSection = ({
               transition={{ delay: index * 0.1 }}
               onClick={() => stat.section && onQuickAction(stat.section)}
             >
-              <Card className={`bg-card border-border hover:border-primary/30 hover:shadow-lg transition-all ${stat.section ? 'cursor-pointer hover:scale-[1.02]' : ''}`}>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className={`p-2 rounded-xl ${stat.bgColor}`}>
-                      <Icon className={`h-5 w-5 ${stat.color}`} />
+              <Card className={`bg-card border-border hover:border-primary/30 hover:shadow-lg transition-all h-full ${stat.section ? 'cursor-pointer hover:scale-[1.02]' : ''}`}>
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex items-center justify-between mb-2 sm:mb-3">
+                    <div className={`p-1.5 sm:p-2 rounded-lg sm:rounded-xl ${stat.bgColor}`}>
+                      <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${stat.color}`} />
                     </div>
                     {stat.trend && (
-                      <div className={`flex items-center gap-1 text-xs font-medium ${stat.trendUp ? 'text-green-500' : 'text-red-500'}`}>
+                      <div className={`flex items-center gap-0.5 text-xs font-medium ${stat.trendUp ? 'text-green-500' : 'text-red-500'}`}>
                         {stat.trendUp ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-                        {stat.trend}
+                        <span className="hidden sm:inline">{stat.trend}</span>
                       </div>
                     )}
                   </div>
-                  <p className="text-xl font-bold">{stat.value}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
+                  <p className="text-base sm:text-xl font-bold truncate">{stat.value}</p>
+                  <p className="text-xs text-muted-foreground mt-1 truncate">{stat.label}</p>
                 </CardContent>
               </Card>
             </motion.div>
@@ -232,7 +232,7 @@ export const OverviewSection = ({
       </div>
 
       {/* Revenue Split & Targets */}
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Revenue Breakdown */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -356,10 +356,10 @@ export const OverviewSection = ({
 
       {/* Users Stats */}
       <div>
-        <h2 className={`text-lg font-semibold mb-4 ${isRTL ? 'text-right' : 'text-left'}`}>
+        <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 ${isRTL ? 'text-right' : 'text-left'}`}>
           {isRTL ? 'إحصائيات المستخدمين' : 'User Statistics'}
         </h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {userStats.map((stat, index) => {
             const Icon = stat.icon;
             return (
@@ -370,14 +370,14 @@ export const OverviewSection = ({
                 transition={{ delay: 0.5 + index * 0.1 }}
                 onClick={() => onQuickAction(stat.section)}
               >
-                <Card className="bg-card border-border hover:border-primary/30 hover:scale-[1.02] hover:shadow-lg transition-all cursor-pointer">
-                  <CardContent className="p-4 flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-xl ${stat.bgColor} flex items-center justify-center`}>
-                      <Icon className={`h-6 w-6 ${stat.color}`} />
+                <Card className="bg-card border-border hover:border-primary/30 hover:scale-[1.02] hover:shadow-lg transition-all cursor-pointer h-full">
+                  <CardContent className="p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl ${stat.bgColor} flex items-center justify-center flex-shrink-0`}>
+                      <Icon className={`h-5 w-5 sm:h-6 sm:w-6 ${stat.color}`} />
                     </div>
-                    <div className={isRTL ? 'text-right flex-1' : 'text-left flex-1'}>
-                      <p className="text-2xl font-bold">{stat.value}</p>
-                      <p className="text-sm text-muted-foreground">{stat.label}</p>
+                    <div className={isRTL ? 'text-right flex-1 min-w-0' : 'text-left flex-1 min-w-0'}>
+                      <p className="text-xl sm:text-2xl font-bold">{stat.value}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground truncate">{stat.label}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -388,7 +388,7 @@ export const OverviewSection = ({
       </div>
 
       {/* Quick Actions */}
-      <div className="grid lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {/* Pending Approvals */}
         {pendingCount > 0 && (
           <motion.div
