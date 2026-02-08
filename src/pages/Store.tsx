@@ -313,6 +313,9 @@ const Store = () => {
         {/* Promo Banner Slider */}
         <PromoBannerSlider isRTL={isRTL} />
 
+        {/* Second Promo Banner Slider */}
+        <PromoBannerSlider isRTL={isRTL} />
+
         {/* Shop By Categories */}
         <ShopByCategories 
           isRTL={isRTL} 
