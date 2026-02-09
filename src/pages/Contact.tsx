@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useFacebookPixel } from '@/hooks/useFacebookPixel';
 import Layout from '@/components/layout/Layout';
 import { toast } from 'sonner';
 
@@ -24,6 +25,7 @@ const ThreadsIcon = ({ className }: { className?: string }) => (
 
 const Contact = () => {
   const { t, isRTL } = useLanguage();
+  const { trackLead } = useFacebookPixel();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
@@ -32,6 +34,9 @@ const Contact = () => {
     setIsSubmitting(true);
     
     await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Track Lead event on form submission
+    trackLead('contact_form');
     
     toast.success(isRTL ? 'تم إرسال رسالتك بنجاح!' : 'Your message has been sent successfully!');
     setIsSubmitting(false);

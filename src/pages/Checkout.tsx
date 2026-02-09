@@ -38,6 +38,7 @@ import { ImageUpload } from '@/components/ui/image-upload';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useCart, GuestCartItem } from '@/hooks/useCart';
+import { useFacebookPixel } from '@/hooks/useFacebookPixel';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Product {
@@ -102,6 +103,7 @@ const Checkout = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { guestCart, clearCart } = useCart();
+  const { trackPurchase, trackInitiateCheckout } = useFacebookPixel();
   const isRTL = language === 'ar';
 
   const [step, setStep] = useState<'details' | 'payment'>('details');
@@ -176,6 +178,13 @@ const Checkout = () => {
       setCheckoutData(prev => ({ ...prev, email: user.email || '' }));
     }
   }, [user]);
+
+  // Track InitiateCheckout when entering checkout page
+  useEffect(() => {
+    if (cartItems.length > 0 && hasCheckedCart) {
+      trackInitiateCheckout(cartTotal, 'EGP');
+    }
+  }, [hasCheckedCart, cartItems.length, cartTotal, trackInitiateCheckout]);
 
   // Validate form
   const validateForm = () => {
@@ -295,7 +304,10 @@ const Checkout = () => {
 
       return order;
     },
-    onSuccess: () => {
+    onSuccess: (order) => {
+      // Track Purchase event with order value
+      trackPurchase(cartTotal, 'EGP', order?.id);
+      
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       toast.success(isRTL ? 'تم إرسال طلبك بنجاح! سنتواصل معك قريباً' : 'Order placed successfully! We will contact you soon');
       navigate('/store');

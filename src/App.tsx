@@ -7,6 +7,7 @@ import { HashRouter, Routes, Route, useLocation } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { useFacebookPixel } from "@/hooks/useFacebookPixel";
 import FloatingCTA from "@/components/FloatingCTA";
 import ScrollToTop from "@/components/ScrollToTop";
 import Index from "./pages/Index";
@@ -29,6 +30,19 @@ import ProductDetail from "./pages/ProductDetail";
 import Checkout from "./pages/Checkout";
 
 const queryClient = new QueryClient();
+
+// Component to track PageView on route changes
+const FacebookPixelTracker = () => {
+  const location = useLocation();
+  const { trackPageView } = useFacebookPixel();
+  
+  useEffect(() => {
+    // Track PageView on every route change
+    trackPageView(location.pathname + location.hash);
+  }, [location, trackPageView]);
+  
+  return null;
+};
 
 // Debug component to track routing
 const RouteDebugger = () => {
@@ -66,6 +80,7 @@ const App = () => (
             <Sonner />
             <HashRouter>
               <RouteDebugger />
+              <FacebookPixelTracker />
               <ScrollToTop />
               <Routes>
                 <Route path="/" element={<Index />} />
