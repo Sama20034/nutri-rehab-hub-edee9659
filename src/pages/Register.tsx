@@ -31,6 +31,7 @@ import { Switch } from "@/components/ui/switch";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
+import { useFacebookPixel } from "@/hooks/useFacebookPixel";
 import { toast } from "sonner";
 import logo from "@/assets/alligator-fit-logo.png";
 
@@ -132,6 +133,7 @@ const Register = () => {
   const navigate = useNavigate();
   const { isRTL } = useLanguage();
   const { signUp } = useAuth();
+  const { trackLead, trackCompleteRegistration } = useFacebookPixel();
 
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -239,6 +241,10 @@ const Register = () => {
           toast.error(error.message);
         }
       } else {
+        // Track Lead and CompleteRegistration events
+        trackLead('registration_form');
+        trackCompleteRegistration();
+        
         toast.success(isRTL ? "تم إنشاء الحساب بنجاح!" : "Account created successfully!");
         navigate("/pending-approval");
       }
