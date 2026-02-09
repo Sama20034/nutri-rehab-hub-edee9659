@@ -1,4 +1,5 @@
 import { useCallback, useRef } from 'react';
+import { isTrackingAllowed } from '@/components/CookieConsent';
 
 // Extend Window interface for fbq
 declare global {
@@ -15,9 +16,16 @@ declare global {
 const firedEvents = new Set<string>();
 
 /**
+ * Check if tracking is allowed based on user consent
+ */
+const canTrack = (): boolean => {
+  return isTrackingAllowed() && typeof window !== 'undefined' && !!window.fbq;
+};
+
+/**
  * Facebook Pixel Hook
  * Provides methods to track standard Facebook Pixel events
- * with built-in duplicate prevention
+ * with built-in duplicate prevention and privacy compliance
  */
 export const useFacebookPixel = () => {
   const lastPageView = useRef<string>('');
@@ -25,8 +33,14 @@ export const useFacebookPixel = () => {
   /**
    * Track PageView event - fires on route changes
    * Prevents duplicate firing for the same path
+   * Only fires if user has given consent
    */
   const trackPageView = useCallback((path?: string) => {
+    if (!canTrack()) {
+      console.log('[FB Pixel] PageView skipped (no consent or fbq not loaded)');
+      return;
+    }
+
     const currentPath = path || window.location.pathname + window.location.hash;
     
     // Prevent duplicate PageView for the same path
@@ -36,17 +50,21 @@ export const useFacebookPixel = () => {
     
     lastPageView.current = currentPath;
     
-    if (typeof window !== 'undefined' && window.fbq) {
-      window.fbq('track', 'PageView');
-      console.log('[FB Pixel] PageView tracked:', currentPath);
-    }
+    window.fbq('track', 'PageView');
+    console.log('[FB Pixel] PageView tracked:', currentPath);
   }, []);
 
   /**
    * Track Lead event - fires when a form is submitted
    * Uses a unique key to prevent duplicate firing
+   * Only fires if user has given consent
    */
   const trackLead = useCallback((uniqueKey?: string) => {
+    if (!canTrack()) {
+      console.log('[FB Pixel] Lead skipped (no consent)');
+      return;
+    }
+
     const eventKey = `Lead_${uniqueKey || Date.now()}`;
     
     // Prevent duplicate Lead events with the same key
@@ -62,17 +80,21 @@ export const useFacebookPixel = () => {
       firedEvents.delete(eventKey);
     }, 5000);
     
-    if (typeof window !== 'undefined' && window.fbq) {
-      window.fbq('track', 'Lead');
-      console.log('[FB Pixel] Lead tracked:', eventKey);
-    }
+    window.fbq('track', 'Lead');
+    console.log('[FB Pixel] Lead tracked:', eventKey);
   }, []);
 
   /**
    * Track Purchase event - fires when a purchase is completed
    * Requires value and currency parameters
+   * Only fires if user has given consent
    */
   const trackPurchase = useCallback((value: number, currency: string = 'EGP', orderId?: string) => {
+    if (!canTrack()) {
+      console.log('[FB Pixel] Purchase skipped (no consent)');
+      return;
+    }
+
     const eventKey = `Purchase_${orderId || Date.now()}`;
     
     // Prevent duplicate Purchase events
@@ -83,32 +105,40 @@ export const useFacebookPixel = () => {
     
     firedEvents.add(eventKey);
     
-    if (typeof window !== 'undefined' && window.fbq) {
-      window.fbq('track', 'Purchase', {
-        value: value,
-        currency: currency,
-      });
-      console.log('[FB Pixel] Purchase tracked:', { value, currency, orderId });
-    }
+    window.fbq('track', 'Purchase', {
+      value: value,
+      currency: currency,
+    });
+    console.log('[FB Pixel] Purchase tracked:', { value, currency, orderId });
   }, []);
 
   /**
    * Track AddToCart event
+   * Only fires if user has given consent
    */
   const trackAddToCart = useCallback((value?: number, currency: string = 'EGP') => {
-    if (typeof window !== 'undefined' && window.fbq) {
-      window.fbq('track', 'AddToCart', {
-        value: value || 0,
-        currency: currency,
-      });
-      console.log('[FB Pixel] AddToCart tracked:', { value, currency });
+    if (!canTrack()) {
+      console.log('[FB Pixel] AddToCart skipped (no consent)');
+      return;
     }
+
+    window.fbq('track', 'AddToCart', {
+      value: value || 0,
+      currency: currency,
+    });
+    console.log('[FB Pixel] AddToCart tracked:', { value, currency });
   }, []);
 
   /**
    * Track InitiateCheckout event
+   * Only fires if user has given consent
    */
   const trackInitiateCheckout = useCallback((value?: number, currency: string = 'EGP') => {
+    if (!canTrack()) {
+      console.log('[FB Pixel] InitiateCheckout skipped (no consent)');
+      return;
+    }
+
     const eventKey = `InitiateCheckout_${Date.now()}`;
     
     if (firedEvents.has(eventKey)) {
@@ -118,19 +148,23 @@ export const useFacebookPixel = () => {
     firedEvents.add(eventKey);
     setTimeout(() => firedEvents.delete(eventKey), 5000);
     
-    if (typeof window !== 'undefined' && window.fbq) {
-      window.fbq('track', 'InitiateCheckout', {
-        value: value || 0,
-        currency: currency,
-      });
-      console.log('[FB Pixel] InitiateCheckout tracked:', { value, currency });
-    }
+    window.fbq('track', 'InitiateCheckout', {
+      value: value || 0,
+      currency: currency,
+    });
+    console.log('[FB Pixel] InitiateCheckout tracked:', { value, currency });
   }, []);
 
   /**
    * Track CompleteRegistration event
+   * Only fires if user has given consent
    */
   const trackCompleteRegistration = useCallback(() => {
+    if (!canTrack()) {
+      console.log('[FB Pixel] CompleteRegistration skipped (no consent)');
+      return;
+    }
+
     const eventKey = `CompleteRegistration_${Date.now()}`;
     
     if (firedEvents.has(eventKey)) {
@@ -140,10 +174,8 @@ export const useFacebookPixel = () => {
     firedEvents.add(eventKey);
     setTimeout(() => firedEvents.delete(eventKey), 5000);
     
-    if (typeof window !== 'undefined' && window.fbq) {
-      window.fbq('track', 'CompleteRegistration');
-      console.log('[FB Pixel] CompleteRegistration tracked');
-    }
+    window.fbq('track', 'CompleteRegistration');
+    console.log('[FB Pixel] CompleteRegistration tracked');
   }, []);
 
   return {
