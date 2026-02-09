@@ -8,6 +8,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { useFacebookPixel } from "@/hooks/useFacebookPixel";
+import CookieConsent from "@/components/CookieConsent";
 import FloatingCTA from "@/components/FloatingCTA";
 import ScrollToTop from "@/components/ScrollToTop";
 import Index from "./pages/Index";
@@ -113,6 +114,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <FloatingCTA />
+              <CookieConsent />
             </HashRouter>
           </TooltipProvider>
         </AuthProvider>

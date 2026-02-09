@@ -1,6 +1,6 @@
 import { useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, MapPin, Phone, Mail, Clock, Truck, RefreshCw, Shield, FileText, Users } from 'lucide-react';
+import { ArrowRight, MapPin, Phone, Mail, Clock, Truck, RefreshCw, Shield, FileText, Users, Cookie } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Layout from '@/components/layout/Layout';
 
@@ -280,6 +280,23 @@ const Policies = () => {
                   ? 'نلتزم باتخاذ كافة التدابير التقنية اللازمة لحماية بياناتك الشخصية من الوصول غير المصرح به.'
                   : 'We are committed to taking all necessary technical measures to protect your personal data from unauthorized access.'}
               </p>
+            </div>
+
+            <div className="p-5 rounded-xl bg-card border border-border">
+              <h3 className="font-bold mb-2 flex items-center gap-2">
+                <Cookie className="h-5 w-5 text-primary" />
+                {isRTL ? 'ملفات تعريف الارتباط والتتبع' : 'Cookies & Tracking'}
+              </h3>
+              <p className="text-muted-foreground mb-3">
+                {isRTL 
+                  ? 'نستخدم ملفات تعريف الارتباط وتقنيات التتبع (مثل Facebook Pixel) لتحسين تجربتك وتحليل استخدام الموقع. يمكنك التحكم في هذه التقنيات عبر:'
+                  : 'We use cookies and tracking technologies (such as Facebook Pixel) to improve your experience and analyze site usage. You can control these technologies through:'}
+              </p>
+              <ul className="text-muted-foreground space-y-1 text-sm">
+                <li>• {isRTL ? 'شريط الموافقة على ملفات تعريف الارتباط عند زيارتك الأولى' : 'The cookie consent banner on your first visit'}</li>
+                <li>• {isRTL ? 'إعدادات المتصفح الخاص بك' : 'Your browser settings'}</li>
+                <li>• {isRTL ? 'إعدادات الخصوصية في فيسبوك' : 'Facebook privacy settings'}</li>
+              </ul>
             </div>
           </div>
         </div>
