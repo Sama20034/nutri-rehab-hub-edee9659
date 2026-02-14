@@ -134,7 +134,7 @@ const HeroTransformationCard = () => {
 
             {/* Client Info */}
             <div className="absolute bottom-4 left-4 right-4">
-              <div className="text-white/70 text-xs">{isRTL ? 'خسارة الوزن' : 'Weight Loss'}</div>
+              <div className="text-white/70 text-xs">{transformation.category === 'health' ? (isRTL ? 'صحة عامة' : 'General Health') : transformation.category === 'muscle_building' ? (isRTL ? 'بناء عضلات' : 'Muscle Building') : (isRTL ? 'خسارة الوزن' : 'Weight Loss')}</div>
               <div className="text-white font-bold text-sm sm:text-base">{transformation.client_name}</div>
             </div>
           </div>
