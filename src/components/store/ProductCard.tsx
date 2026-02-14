@@ -173,7 +173,7 @@ const ProductCard = ({
               <Button 
                 size="icon"
                 className={`${isFeatured ? 'h-14 w-14' : 'h-11 w-11'} rounded-full bg-primary shadow-xl shadow-primary/40 hover:shadow-primary/60 hover:scale-110 transition-all duration-300`}
-                onClick={(e) => onAddToCart(product, e)}
+                onClick={(e) => { e.stopPropagation(); e.preventDefault(); onAddToCart(product, e); }}
                 disabled={isLoading}
               >
                 <Plus className={`${isFeatured ? 'h-6 w-6' : 'h-5 w-5'}`} />
