@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, MessageCircle, Phone, Star, Check, ChevronLeft, ChevronRight, ShoppingBag, Target, Users, Award, Zap, Clock, Shield, Instagram, Facebook, Twitter, Youtube, Dumbbell, Heart, Crown, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -56,21 +57,15 @@ const HeroTransformationCard = () => {
     isRTL
   } = useLanguage();
   const [isFlipped, setIsFlipped] = useState(false);
-  const [transformations, setTransformations] = useState<any[]>([]);
+  const { data: transformations = [] } = useQuery({
+    queryKey: ['transformations', true],
+    queryFn: async () => {
+      const { data } = await supabase.from('transformations').select('*').eq('is_active', true).order('display_order', { ascending: true });
+      return data || [];
+    },
+    staleTime: 30 * 1000,
+  });
   const [currentIndex, setCurrentIndex] = useState(0);
-  useEffect(() => {
-    const fetchTransformations = async () => {
-      const {
-        data
-      } = await supabase.from('transformations').select('*').eq('is_active', true).order('display_order', {
-        ascending: true
-      });
-      if (data && data.length > 0) {
-        setTransformations(data);
-      }
-    };
-    fetchTransformations();
-  }, []);
 
   // Auto-rotate every 5 seconds
   useEffect(() => {
@@ -555,22 +550,16 @@ const BeforeAfterFlipCards = () => {
   const {
     isRTL
   } = useLanguage();
-  const [transformations, setTransformations] = useState<any[]>([]);
+  const { data: transformations = [] } = useQuery({
+    queryKey: ['transformations', true],
+    queryFn: async () => {
+      const { data } = await supabase.from('transformations').select('*').eq('is_active', true).order('display_order', { ascending: true });
+      return data || [];
+    },
+    staleTime: 30 * 1000,
+  });
   const [flippedCards, setFlippedCards] = useState<Record<number, boolean>>({});
   const [currentIndex, setCurrentIndex] = useState(0);
-  useEffect(() => {
-    const fetchTransformations = async () => {
-      const {
-        data
-      } = await supabase.from('transformations').select('*').eq('is_active', true).order('display_order', {
-        ascending: true
-      });
-      if (data && data.length > 0) {
-        setTransformations(data);
-      }
-    };
-    fetchTransformations();
-  }, []);
 
   // Auto-slide every 5 seconds
   useEffect(() => {
