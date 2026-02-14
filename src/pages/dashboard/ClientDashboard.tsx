@@ -164,7 +164,7 @@ const ClientDashboard = () => {
 
       {/* Main Content - offset by sidebar on desktop */}
       <div className={cn(
-        "min-h-screen min-h-[100dvh] w-full max-w-full overflow-x-hidden transition-all duration-300",
+        "min-h-screen min-h-[100dvh] overflow-x-hidden transition-all duration-300",
         // Desktop: offset by sidebar width (256px = w-64)
         isRTL ? "lg:mr-64" : "lg:ml-64"
       )}>
@@ -207,7 +207,7 @@ const ClientDashboard = () => {
         </header>
 
         {/* Page Content */}
-        <main className="p-3 sm:p-4 lg:p-6 w-full max-w-full overflow-x-hidden">
+        <main className="p-3 sm:p-4 lg:p-6 overflow-x-hidden">
           {renderSection()}
         </main>
       </div>
