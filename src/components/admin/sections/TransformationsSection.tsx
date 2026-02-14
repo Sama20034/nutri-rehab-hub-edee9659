@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Plus, Edit, Trash2, Image, Eye, EyeOff, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,6 +49,7 @@ const categories = [
 
 export const TransformationsSection = () => {
   const { isRTL } = useLanguage();
+  const queryClient = useQueryClient();
   const [transformations, setTransformations] = useState<Transformation[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -190,6 +192,7 @@ export const TransformationsSection = () => {
     setIsDialogOpen(false);
     resetForm();
     fetchTransformations();
+    queryClient.invalidateQueries({ queryKey: ['transformations'] });
   };
 
   const handleEdit = (item: Transformation) => {
@@ -224,6 +227,7 @@ export const TransformationsSection = () => {
     } else {
       setTransformations(transformations.filter(t => t.id !== id));
       toast.success(isRTL ? 'تم الحذف' : 'Deleted');
+      queryClient.invalidateQueries({ queryKey: ['transformations'] });
     }
   };
 
@@ -240,6 +244,7 @@ export const TransformationsSection = () => {
         t.id === id ? { ...t, is_active: !currentStatus } : t
       ));
       toast.success(isRTL ? 'تم التحديث' : 'Updated');
+      queryClient.invalidateQueries({ queryKey: ['transformations'] });
     }
   };
 
