@@ -174,6 +174,21 @@ const ProductDetail = () => {
   const suitableFor = isRTL ? product.suitable_for_ar || product.suitable_for : product.suitable_for;
   const medicalNotes = isRTL ? product.medical_followup_notes_ar || product.medical_followup_notes : product.medical_followup_notes;
 
+  // Convert YouTube URL to embed format
+  const getYoutubeEmbedUrl = (url: string) => {
+    try {
+      const urlObj = new URL(url);
+      let videoId: string | null = null;
+      if (urlObj.hostname.includes('youtu.be')) {
+        videoId = urlObj.pathname.substring(1);
+      } else if (urlObj.hostname.includes('youtube.com')) {
+        videoId = urlObj.searchParams.get('v');
+      }
+      if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+    } catch (_) {}
+    return url; // fallback to original
+  };
+
   return (
     <Layout>
       <div className={`min-h-screen pt-24 pb-20 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
@@ -206,19 +221,9 @@ const ProductDetail = () => {
               transition={{ duration: 0.6 }}
               className="space-y-4"
             >
-              {/* Main Image/Video */}
+              {/* Main Image */}
               <div className="relative rounded-3xl overflow-hidden bg-card border border-border/50 shadow-2xl">
-                {product.video_url ? (
-                  <div className="aspect-square sm:aspect-video lg:aspect-square">
-                    <iframe
-                      src={product.video_url}
-                      className="w-full h-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      title={productName}
-                    />
-                  </div>
-                ) : product.image_url ? (
+                {product.image_url ? (
                   <div className="aspect-square relative group">
                     <img 
                       src={product.image_url} 
@@ -257,14 +262,16 @@ const ProductDetail = () => {
                 </div>
               </div>
 
-              {/* Thumbnail (if video exists, show image as thumbnail) */}
-              {product.video_url && product.image_url && (
-                <div className="grid grid-cols-4 gap-3">
-                  <div className="aspect-square rounded-xl overflow-hidden border-2 border-primary cursor-pointer">
-                    <img 
-                      src={product.image_url} 
-                      alt={productName}
-                      className="w-full h-full object-cover"
+              {/* Video Section (below image) */}
+              {product.video_url && (
+                <div className="rounded-2xl overflow-hidden bg-card border border-border/50 shadow-lg">
+                  <div className="aspect-video">
+                    <iframe
+                      src={getYoutubeEmbedUrl(product.video_url)}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      title={productName}
                     />
                   </div>
                 </div>
