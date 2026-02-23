@@ -652,6 +652,7 @@ export const StoreSection = ({
           </DialogHeader>
           {editingProduct && (
             <EditProductForm
+              key={editingProduct.id + editingProduct.video_url}
               product={editingProduct}
               categories={getSubcategories()}
               isRTL={isRTL}
@@ -669,7 +670,6 @@ export const StoreSection = ({
                     description: isRTL ? 'تم تحديث المنتج' : 'Product updated successfully'
                   });
                   setEditingProduct(null);
-                  window.location.reload();
                 }
               }}
               onCancel={() => setEditingProduct(null)}
