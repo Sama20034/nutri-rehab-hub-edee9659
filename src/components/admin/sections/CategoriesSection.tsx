@@ -374,14 +374,14 @@ export const CategoriesSection = () => {
         <div>
           <Label>{isRTL ? 'التصنيف الرئيسي' : 'Parent Category'}</Label>
           <Select
-            value={formData.parent_id}
-            onValueChange={(value) => setFormData({ ...formData, parent_id: value })}
+            value={formData.parent_id || 'none'}
+            onValueChange={(value) => setFormData({ ...formData, parent_id: value === 'none' ? '' : value })}
           >
             <SelectTrigger>
               <SelectValue placeholder={isRTL ? 'اختر (اختياري)' : 'Select (optional)'} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">{isRTL ? 'بدون (تصنيف رئيسي)' : 'None (Main Category)'}</SelectItem>
+              <SelectItem value="none">{isRTL ? 'بدون (تصنيف رئيسي)' : 'None (Main Category)'}</SelectItem>
               {getMainCategories()
                 .filter(c => c.id !== selectedCategory?.id)
                 .map(cat => (
