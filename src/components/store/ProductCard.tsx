@@ -39,18 +39,19 @@ interface ProductCardProps {
 const getYoutubeEmbedUrl = (url: string): string | null => {
   if (!url) return null;
   
-  // Handle various YouTube URL formats
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
-  
-  if (match && match[2].length === 11) {
-    return `https://www.youtube.com/embed/${match[2]}`;
-  }
-  
-  // If it's already an embed URL
-  if (url.includes('youtube.com/embed/')) {
-    return url;
-  }
+  try {
+    const urlObj = new URL(url);
+    let videoId: string | null = null;
+    
+    if (urlObj.hostname.includes('youtu.be')) {
+      videoId = urlObj.pathname.substring(1);
+    } else if (urlObj.hostname.includes('youtube.com')) {
+      if (url.includes('/embed/')) return url;
+      videoId = urlObj.searchParams.get('v');
+    }
+    
+    if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+  } catch (_) {}
   
   return url;
 };
