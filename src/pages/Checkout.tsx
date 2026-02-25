@@ -21,7 +21,10 @@ import {
   Utensils,
   Sparkles,
   Camera,
-  AlertCircle
+  AlertCircle,
+  Plus,
+  Minus,
+  Trash2
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -102,7 +105,7 @@ const Checkout = () => {
   const { language } = useLanguage();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { guestCart, clearCart } = useCart();
+  const { guestCart, clearCart, updateQuantity, removeFromCart, isLoading: cartLoading } = useCart();
   const { trackPurchase, trackInitiateCheckout } = useFacebookPixel();
   const isRTL = language === 'ar';
 
@@ -419,9 +422,36 @@ const Checkout = () => {
                       <h4 className="font-medium text-foreground text-sm sm:text-base truncate">
                         {isRTL ? item.product.name_ar || item.product.name : item.product.name}
                       </h4>
-                      <p className="text-xs sm:text-sm text-muted-foreground">
-                        {isRTL ? 'الكمية:' : 'Qty:'} {item.quantity}
-                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-6 w-6 rounded-md"
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          disabled={cartLoading}
+                        >
+                          <Minus className="h-3 w-3" />
+                        </Button>
+                        <span className="text-sm font-medium w-6 text-center">{item.quantity}</span>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-6 w-6 rounded-md"
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          disabled={cartLoading}
+                        >
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 rounded-md text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => removeFromCart(item.id)}
+                          disabled={cartLoading}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-primary text-sm sm:text-base">
