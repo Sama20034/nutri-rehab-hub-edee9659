@@ -585,7 +585,7 @@ const Register = () => {
                     <>
                       <li>{isRTL ? 'افتح تطبيق البنك' : 'Open your bank app'}</li>
                       <li>{isRTL ? 'اختر InstaPay' : 'Choose InstaPay'}</li>
-                      <li>{isRTL ? 'حول إلى: mahmoud.sayed@instapay' : 'Transfer to: mahmoud.sayed@instapay'}</li>
+                      <li>{isRTL ? 'حول إلى: mahmoudreaky@instapay' : 'Transfer to: mahmoudreaky@instapay'}</li>
                       <li>{isRTL ? 'ارفع سكرين شوت التحويل أدناه' : 'Upload transfer screenshot below'}</li>
                     </>
                   ) : (
