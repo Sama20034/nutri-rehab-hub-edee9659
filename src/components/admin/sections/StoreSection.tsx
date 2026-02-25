@@ -815,7 +815,12 @@ const EditProductForm = ({ product, categories, isRTL, onSave, onCancel }: EditP
               if (formData.video_url.includes('/embed/')) {
                 videoId = urlObj.pathname.split('/embed/')[1];
               } else {
-                videoId = urlObj.searchParams.get('v');
+                const shortsMatch = urlObj.pathname.match(/\/shorts\/([^/?]+)/);
+                if (shortsMatch) {
+                  videoId = shortsMatch[1];
+                } else {
+                  videoId = urlObj.searchParams.get('v');
+                }
               }
             }
             if (videoId) {
