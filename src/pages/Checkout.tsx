@@ -804,12 +804,12 @@ const Checkout = () => {
                               <h4 className="font-bold text-foreground text-sm sm:text-base flex items-center gap-2 mb-2">
                                 <Camera className="h-4 w-4 text-secondary sm:hidden" />
                                 <AlertCircle className="h-4 w-4 text-secondary hidden sm:block" />
-                                {isRTL ? 'ارفع صورة إيصال التحويل' : 'Upload Transfer Receipt'}
+                                {isRTL ? 'ارفع صورة إيصال التحويل (إجباري)' : 'Upload Transfer Receipt (Required)'}
                               </h4>
                               <p className="text-xs sm:text-sm text-muted-foreground mb-3 leading-relaxed">
                                 {isRTL 
-                                  ? 'بعد تحويل المبلغ، ارفع سكرين شوت للمعاملة هنا للتأكيد السريع ✅'
-                                  : 'After transferring, upload a screenshot of the transaction here for quick confirmation ✅'}
+                                  ? 'بعد تحويل المبلغ، ارفع سكرين شوت للمعاملة هنا (إجباري) ⚠️'
+                                  : 'After transferring, upload a screenshot of the transaction here (required) ⚠️'}
                               </p>
                               
                               {/* Image Upload Component */}
@@ -859,6 +859,21 @@ const Checkout = () => {
                       </motion.div>
                     )}
 
+                     {paymentMethod !== 'cash_on_delivery' && !receiptUrl && (
+                       <motion.div
+                         initial={{ opacity: 0 }}
+                         animate={{ opacity: 1 }}
+                         className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/30 rounded-xl"
+                       >
+                         <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0" />
+                         <p className="text-xs sm:text-sm text-destructive font-medium">
+                           {isRTL 
+                             ? 'يجب رفع صورة إيصال التحويل قبل تأكيد الطلب'
+                             : 'You must upload the transfer receipt before confirming the order'}
+                         </p>
+                       </motion.div>
+                     )}
+
                     <Separator />
 
                     <div className="flex gap-2 sm:gap-3">
@@ -874,7 +889,7 @@ const Checkout = () => {
                         className="flex-1 h-10 sm:h-12 text-sm sm:text-base"
                         size="lg"
                         onClick={() => placeOrder.mutate()}
-                        disabled={placeOrder.isPending}
+                        disabled={placeOrder.isPending || (paymentMethod !== 'cash_on_delivery' && !receiptUrl)}
                       >
                         {placeOrder.isPending 
                           ? (isRTL ? 'جارٍ الإرسال...' : 'Processing...') 
