@@ -178,13 +178,13 @@ const Footer = () => {
 
               {/* Email */}
               <li>
-                <a href="mailto:dr.mahmoudreaky@gmail.com" className="flex items-center gap-3 text-muted-foreground text-sm hover:text-primary transition-colors group">
+                <a href="mailto:Mahmoudreaky@gmail.com" className="flex items-center gap-3 text-muted-foreground text-sm hover:text-primary transition-colors group">
                   <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                     <Mail className="h-5 w-5 text-primary" />
                   </div>
                   <div>
                     <span className="block font-medium text-foreground">{isRTL ? 'البريد الإلكتروني' : 'Email'}</span>
-                    <span>dr.mahmoudreaky@gmail.com</span>
+                    <span>Mahmoudreaky@gmail.com</span>
                   </div>
                 </a>
               </li>

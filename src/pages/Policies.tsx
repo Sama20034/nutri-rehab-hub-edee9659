@@ -75,13 +75,13 @@ const Policies = () => {
               </div>
             </a>
             
-            <a href="mailto:mahmoudreagy@gmail.com" className="flex items-center gap-4 p-4 rounded-xl bg-card border border-border hover:border-primary transition-colors">
+            <a href="mailto:Mahmoudreaky@gmail.com" className="flex items-center gap-4 p-4 rounded-xl bg-card border border-border hover:border-primary transition-colors">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <Mail className="h-6 w-6 text-primary" />
               </div>
               <div>
                 <span className="block font-semibold">{isRTL ? 'البريد الإلكتروني' : 'Email'}</span>
-                <span className="text-muted-foreground">mahmoudreagy@gmail.com</span>
+                <span className="text-muted-foreground">Mahmoudreaky@gmail.com</span>
               </div>
             </a>
             
