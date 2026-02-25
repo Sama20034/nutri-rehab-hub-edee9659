@@ -793,12 +793,51 @@ const EditProductForm = ({ product, categories, isRTL, onSave, onCancel }: EditP
           folder="products"
         />
       </div>
+      {/* Additional Images Manager for existing products */}
+      <ProductImagesManager
+        productId={product.id}
+        isRTL={isRTL}
+      />
       <div>
-        <Label>{isRTL ? 'رابط الفيديو' : 'Video URL'}</Label>
+        <Label>{isRTL ? 'فيديو' : 'Video'}</Label>
         <Input
           value={formData.video_url}
           onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+          placeholder={isRTL ? 'رابط يوتيوب مثل: https://www.youtube.com/watch?v=...' : 'YouTube URL e.g. https://www.youtube.com/watch?v=...'}
         />
+        {formData.video_url && (() => {
+          try {
+            const urlObj = new URL(formData.video_url);
+            let videoId: string | null = null;
+            if (urlObj.hostname.includes('youtu.be')) {
+              videoId = urlObj.pathname.substring(1);
+            } else if (urlObj.hostname.includes('youtube.com')) {
+              if (formData.video_url.includes('/embed/')) {
+                videoId = urlObj.pathname.split('/embed/')[1];
+              } else {
+                videoId = urlObj.searchParams.get('v');
+              }
+            }
+            if (videoId) {
+              return (
+                <div className="mt-2 rounded-lg overflow-hidden border border-border aspect-video max-h-48">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${videoId}`}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    title="Video preview"
+                  />
+                </div>
+              );
+            }
+          } catch (_) {}
+          return (
+            <p className="text-xs text-destructive mt-1">
+              {isRTL ? 'رابط غير صالح - استخدم رابط يوتيوب فقط' : 'Invalid URL - use YouTube links only'}
+            </p>
+          );
+        })()}
       </div>
       <div>
         <Label>{isRTL ? 'طريقة الاستخدام' : 'Usage Instructions'}</Label>
