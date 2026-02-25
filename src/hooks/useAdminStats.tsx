@@ -260,12 +260,21 @@ export const useAdminStats = () => {
 
   const deleteProduct = async (id: string) => {
     try {
-      const { error } = await supabase
+      // Delete related records first (foreign key constraints)
+      await supabase.from('product_images').delete().eq('product_id', id);
+      await supabase.from('cart_items').delete().eq('product_id', id);
+      
+      // Delete order_items referencing this product
+      await supabase.from('order_items').delete().eq('product_id', id);
+
+      const { error, count } = await supabase
         .from('products')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .select('id');
 
       if (error) throw error;
+      
       await fetchStats();
       return { error: null };
     } catch (err) {
