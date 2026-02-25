@@ -78,14 +78,14 @@ const AdminDashboard = () => {
     };
   }, [sidebarOpen]);
 
-  // Authentication check disabled for testing
-  //   if (!loading && (!user || role !== 'admin')) {
-  //     navigate('/auth');
-  //   }
-  //   if (!loading && status !== 'approved' && role !== 'admin') {
-  //     navigate('/pending-approval');
-  //   }
-  // }, [user, role, loading, status, navigate]);
+  useEffect(() => {
+    if (!loading && (!user || role !== 'admin')) {
+      navigate('/auth');
+    }
+    if (!loading && user && status !== 'approved' && role !== 'admin') {
+      navigate('/pending-approval');
+    }
+  }, [user, role, loading, status, navigate]);
 
   const handleSignOut = async () => {
     await signOut();
