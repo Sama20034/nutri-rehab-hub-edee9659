@@ -275,7 +275,7 @@ const Contact = () => {
 
                 {/* Email */}
                 <a
-                  href="mailto:dr.mahmoudreaky@gmail.com"
+                  href="mailto:Mahmoudreaky@gmail.com"
                   className="flex items-center gap-4 p-4 rounded-xl bg-card border border-border hover:border-primary/50 transition-colors group"
                 >
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -283,7 +283,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-medium">{isRTL ? 'البريد الإلكتروني' : 'Email'}</h3>
-                    <p className="text-muted-foreground">dr.mahmoudreaky@gmail.com</p>
+                    <p className="text-muted-foreground">Mahmoudreaky@gmail.com</p>
                   </div>
                 </a>
 
