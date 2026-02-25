@@ -798,7 +798,7 @@ const Store = () => {
                                 variant="outline"
                                 className="h-7 w-7 rounded-lg"
                                 onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
-                                disabled={item.quantity <= 1 || cartLoading}
+                                disabled={cartLoading}
                               >
                                 <Minus className="h-3 w-3" />
                               </Button>

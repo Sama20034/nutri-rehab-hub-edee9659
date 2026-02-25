@@ -81,8 +81,8 @@ const PAYMENT_METHODS = {
     id: 'vodafone_cash',
     name: 'Vodafone Cash',
     name_ar: 'فودافون كاش',
-    description: 'Transfer to: 01012345678',
-    description_ar: 'حول إلى: 01012345678',
+    description: 'Transfer to: 01016111733',
+    description_ar: 'حول إلى: 01016111733',
     icon: Smartphone,
     color: 'text-red-500'
   },
@@ -90,8 +90,8 @@ const PAYMENT_METHODS = {
     id: 'instapay',
     name: 'InstaPay',
     name_ar: 'انستاباي',
-    description: 'Transfer to: mahmoud.sayed@instapay',
-    description_ar: 'حول إلى: mahmoud.sayed@instapay',
+    description: 'Transfer to: mahmoudreaky@instapay',
+    description_ar: 'حول إلى: mahmoudreaky@instapay',
     icon: Wallet,
     color: 'text-blue-500'
   }
@@ -749,7 +749,7 @@ const Checkout = () => {
                             {paymentMethod === 'vodafone_cash' ? (
                               <>
                                 <li>{isRTL ? 'افتح تطبيق فودافون كاش' : 'Open Vodafone Cash app'}</li>
-                                <li>{isRTL ? 'حول المبلغ إلى: 01012345678' : 'Transfer to: 01012345678'}</li>
+                                <li>{isRTL ? 'حول المبلغ إلى: 01016111733' : 'Transfer to: 01016111733'}</li>
                                 <li>{isRTL ? 'احتفظ برقم العملية' : 'Keep the transaction number'}</li>
                                 <li>{isRTL ? 'سنتواصل معك للتأكيد' : 'We will contact you'}</li>
                               </>
@@ -757,7 +757,7 @@ const Checkout = () => {
                               <>
                                 <li>{isRTL ? 'افتح تطبيق البنك' : 'Open your bank app'}</li>
                                 <li>{isRTL ? 'اختر InstaPay' : 'Choose InstaPay'}</li>
-                                <li>{isRTL ? 'حول إلى: mahmoud.sayed@instapay' : 'Transfer to: mahmoud.sayed@instapay'}</li>
+                                <li>{isRTL ? 'حول إلى: mahmoudreaky@instapay' : 'Transfer to: mahmoudreaky@instapay'}</li>
                                 <li>{isRTL ? 'سنتواصل معك للتأكيد' : 'We will contact you'}</li>
                               </>
                             )}
