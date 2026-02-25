@@ -182,7 +182,12 @@ const ProductDetail = () => {
       if (urlObj.hostname.includes('youtu.be')) {
         videoId = urlObj.pathname.substring(1);
       } else if (urlObj.hostname.includes('youtube.com')) {
-        videoId = urlObj.searchParams.get('v');
+        const shortsMatch = urlObj.pathname.match(/\/shorts\/([^/?]+)/);
+        if (shortsMatch) {
+          videoId = shortsMatch[1];
+        } else {
+          videoId = urlObj.searchParams.get('v');
+        }
       }
       if (videoId) return `https://www.youtube.com/embed/${videoId}`;
     } catch (_) {}
