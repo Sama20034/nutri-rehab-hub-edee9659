@@ -1255,19 +1255,40 @@ const SupplementsPreview = () => {
   const {
     isRTL
   } = useLanguage();
-  const products = [{
+  const [products, setProducts] = useState<any[]>([]);
+  
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const { data } = await supabase
+        .from('products')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(3);
+      if (data) setProducts(data);
+    };
+    fetchProducts();
+  }, []);
+
+  const fallbackProducts = [{
     name: isRTL ? 'واي بروتين' : 'Whey Protein',
+    name_ar: 'واي بروتين',
     price: 199,
-    image: 'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=300'
+    image_url: 'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=300'
   }, {
     name: isRTL ? 'كرياتين' : 'Creatine',
+    name_ar: 'كرياتين',
     price: 89,
-    image: 'https://images.unsplash.com/photo-1594381898411-846e7d193883?w=300'
+    image_url: 'https://images.unsplash.com/photo-1594381898411-846e7d193883?w=300'
   }, {
     name: isRTL ? 'أوميجا 3' : 'Omega 3',
+    name_ar: 'أوميجا 3',
     price: 59,
-    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300'
+    image_url: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300'
   }];
+
+  const displayProducts = products.length > 0 ? products : fallbackProducts;
+
   return <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-muted/30 to-background">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-center">
@@ -1306,16 +1327,16 @@ const SupplementsPreview = () => {
         }} viewport={{
           once: true
         }} className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
-            {products.map((product, index) => <motion.div key={index} whileHover={{
+            {displayProducts.map((product, index) => <motion.div key={product.id || index} whileHover={{
             y: -5
           }} className="group">
                 <Card className="overflow-hidden border-border hover:border-primary/50 transition-colors">
                   <div className="aspect-square relative">
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    <img src={product.image_url || '/placeholder.svg'} alt={isRTL ? (product.name_ar || product.name) : product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   </div>
                   <CardContent className="p-3">
-                    <h4 className="font-semibold text-sm truncate">{product.name}</h4>
-                    <p className="text-primary font-bold">{product.price} {isRTL ? 'ر.س' : 'SAR'}</p>
+                    <h4 className="font-semibold text-sm truncate">{isRTL ? (product.name_ar || product.name) : product.name}</h4>
+                    <p className="text-primary font-bold">{product.price} {isRTL ? 'ج.م' : 'EGP'}</p>
                   </CardContent>
                 </Card>
               </motion.div>)}
