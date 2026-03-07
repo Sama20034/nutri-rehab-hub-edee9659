@@ -71,7 +71,7 @@ const FloatingCTA = () => {
           className="relative"
         >
           {/* Pulse Animation */}
-          <div className="absolute inset-0 bg-[#25D366] rounded-full animate-ping opacity-25" />
+          <div className="absolute inset-0 bg-[#25D366] rounded-full animate-pulse opacity-40" />
           
           <button
             onClick={() => setIsOpen(!isOpen)}
