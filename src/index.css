@@ -380,10 +380,25 @@ img {
   perspective: 1000px;
 }
 
-/* Fix for iOS Safari 100vh issue */
+/* Fix for iOS Safari and in-app browsers (Facebook/Instagram) 100vh issue */
 .full-height {
   height: 100vh;
-  height: 100dvh;
+  height: -webkit-fill-available;
+}
+@supports (height: 100dvh) {
+  .full-height {
+    height: 100dvh;
+  }
+}
+
+/* In-app browser (Facebook/Instagram WebView) compatibility */
+/* Reduce heavy effects that cause glitches in WebViews */
+@supports not (backdrop-filter: blur(1px)) {
+  .glass-effect {
+    background: hsl(var(--card) / 0.95) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
 }
 
 /* Prevent text zoom on input focus (iOS) */
