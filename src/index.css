@@ -145,7 +145,10 @@
     overflow-x: hidden;
     width: 100%;
     min-height: 100vh;
-    min-height: 100dvh; /* Dynamic viewport height for mobile */
+    /* Use dvh with vh fallback for in-app browsers (Facebook/Instagram WebView) */
+    @supports (min-height: 100dvh) {
+      min-height: 100dvh;
+    }
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -280,22 +283,6 @@
     padding-right: 1rem;
     max-width: 100vw;
   }
-  
-  /* Smaller text on mobile */
-  h1 {
-    font-size: 1.5rem !important;
-    line-height: 2rem !important;
-  }
-  
-  h2 {
-    font-size: 1.25rem !important;
-    line-height: 1.75rem !important;
-  }
-
-  h3 {
-    font-size: 1.125rem !important;
-    line-height: 1.5rem !important;
-  }
 
   /* Better touch targets */
   button, a {
@@ -352,9 +339,6 @@
     padding-right: 0.75rem;
   }
   
-  h1 {
-    font-size: 1.35rem !important;
-  }
 }
 
 /* Tablet */
@@ -377,8 +361,8 @@
   }
 }
 
-/* Improved scrolling */
-* {
+/* Improved scrolling - only apply to scroll containers, not all elements */
+.scroll-container {
   -webkit-overflow-scrolling: touch;
 }
 
@@ -393,10 +377,25 @@ img {
   perspective: 1000px;
 }
 
-/* Fix for iOS Safari 100vh issue */
+/* Fix for iOS Safari and in-app browsers (Facebook/Instagram) 100vh issue */
 .full-height {
   height: 100vh;
-  height: 100dvh;
+  height: -webkit-fill-available;
+}
+@supports (height: 100dvh) {
+  .full-height {
+    height: 100dvh;
+  }
+}
+
+/* In-app browser (Facebook/Instagram WebView) compatibility */
+/* Reduce heavy effects that cause glitches in WebViews */
+@supports not (backdrop-filter: blur(1px)) {
+  .glass-effect {
+    background: hsl(var(--card) / 0.95) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
 }
 
 /* Prevent text zoom on input focus (iOS) */
