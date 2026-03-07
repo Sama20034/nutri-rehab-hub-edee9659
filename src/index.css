@@ -364,8 +364,8 @@
   }
 }
 
-/* Improved scrolling */
-* {
+/* Improved scrolling - only apply to scroll containers, not all elements */
+.scroll-container {
   -webkit-overflow-scrolling: touch;
 }
 
