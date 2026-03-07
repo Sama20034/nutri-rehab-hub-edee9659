@@ -145,7 +145,10 @@
     overflow-x: hidden;
     width: 100%;
     min-height: 100vh;
-    min-height: 100dvh; /* Dynamic viewport height for mobile */
+    /* Use dvh with vh fallback for in-app browsers (Facebook/Instagram WebView) */
+    @supports (min-height: 100dvh) {
+      min-height: 100dvh;
+    }
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
