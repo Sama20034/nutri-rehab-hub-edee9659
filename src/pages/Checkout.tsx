@@ -97,6 +97,15 @@ const PAYMENT_METHODS = {
     description_ar: 'حول إلى: mahmoudreaky@instapay',
     icon: Wallet,
     color: 'text-blue-500'
+  },
+  paymob: {
+    id: 'paymob',
+    name: 'Online Payment',
+    name_ar: 'دفع إلكتروني',
+    description: 'Visa / Mastercard / Mobile Wallets',
+    description_ar: 'فيزا / ماستركارد / محافظ إلكترونية',
+    icon: CreditCard,
+    color: 'text-purple-500'
   }
 };
 
