@@ -59,7 +59,7 @@ interface CartItem {
   product: Product;
 }
 
-type PaymentMethod = 'cash_on_delivery' | 'vodafone_cash' | 'instapay';
+type PaymentMethod = 'cash_on_delivery' | 'vodafone_cash' | 'instapay' | 'paymob';
 
 // Validation schema
 const checkoutSchema = z.object({
