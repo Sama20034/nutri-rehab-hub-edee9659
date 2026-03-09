@@ -12,8 +12,12 @@ serve(async (req) => {
 
   try {
     const secretKey = Deno.env.get('PAYMOB_SECRET_KEY');
+    const integrationId = Deno.env.get('PAYMOB_INTEGRATION_ID');
     if (!secretKey) {
       throw new Error('PAYMOB_SECRET_KEY not configured');
+    }
+    if (!integrationId) {
+      throw new Error('PAYMOB_INTEGRATION_ID not configured');
     }
 
     const { amount, currency = 'EGP', items, billing_data, order_id, extras } = await req.json();
@@ -43,7 +47,7 @@ serve(async (req) => {
     const intentionPayload = {
       amount: Math.round(amount * 100), // Paymob expects amount in cents
       currency,
-      payment_methods: [], // Empty array = all available methods
+      payment_methods: [parseInt(integrationId)],
       items: intentionItems,
       billing_data: {
         first_name: billing_data.first_name || 'N/A',
