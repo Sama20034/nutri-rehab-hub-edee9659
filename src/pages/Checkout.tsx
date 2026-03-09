@@ -235,7 +235,125 @@ const Checkout = () => {
     }
   };
 
-  // Place order mutation
+  // Handle Paymob electronic payment
+  const handlePaymobPayment = async () => {
+    if (!validateForm()) return;
+    if (cartItems.length === 0) return;
+    
+    setPaymobLoading(true);
+    try {
+      // First create the order in DB
+      const addOns: string[] = [];
+      if (freeUsagePlan) addOns.push('✅ Optimal Usage Plan (FREE)');
+      if (monthlyNutritionPlan) addOns.push(`✅ Monthly Nutrition Plan (+${NUTRITION_PLAN_PRICE} EGP)`);
+      const addOnsText = addOns.length > 0 ? `\n\nAdd-ons:\n${addOns.join('\n')}` : '';
+
+      const orderData: any = {
+        total_amount: cartTotal,
+        shipping_address: checkoutData.shipping_address,
+        phone: checkoutData.phone,
+        notes: `${checkoutData.notes || ''}${addOnsText}\n\nPayment Method: Paymob (Online)`,
+        status: 'pending_payment',
+        grants_content_access: grantsAccess
+      };
+
+      if (user) {
+        orderData.user_id = user.id;
+      } else {
+        orderData.guest_name = checkoutData.full_name;
+        orderData.guest_email = checkoutData.email;
+      }
+
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert(orderData)
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Create order items
+      const orderItems = cartItems.map(item => ({
+        order_id: order.id,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        unit_price: item.product.price
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      // Prepare names
+      const nameParts = (checkoutData.full_name || user?.email || 'Customer').split(' ');
+      const firstName = nameParts[0] || 'Customer';
+      const lastName = nameParts.slice(1).join(' ') || 'N/A';
+
+      // Call edge function to create Paymob intention
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/create-paymob-intention`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${anonKey}`,
+          },
+          body: JSON.stringify({
+            amount: cartTotal,
+            currency: 'EGP',
+            order_id: order.id,
+            items: cartItems.map(item => ({
+              name: item.product.name,
+              amount: item.product.price,
+              quantity: item.quantity,
+              description: item.product.name,
+            })),
+            billing_data: {
+              first_name: firstName,
+              last_name: lastName,
+              email: checkoutData.email || user?.email || 'customer@example.com',
+              phone: checkoutData.phone,
+              address: checkoutData.shipping_address,
+              city: 'Cairo',
+              country: 'EG',
+            },
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok || !result.client_secret) {
+        throw new Error(result.error || 'Failed to create payment session');
+      }
+
+      // Clear cart before redirecting
+      if (user) {
+        await supabase.from('cart_items').delete().eq('user_id', user.id);
+      } else {
+        clearCart();
+      }
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+
+      // Redirect to Paymob Unified Checkout
+      const publicKey = import.meta.env.VITE_PAYMOB_PUBLIC_KEY;
+      const paymobUrl = `https://accept.paymob.com/unifiedcheckout/?publicKey=${publicKey}&clientSecret=${result.client_secret}`;
+      
+      window.location.href = paymobUrl;
+    } catch (error: any) {
+      console.error('Paymob payment error:', error);
+      toast.error(error.message || (isRTL ? 'حدث خطأ في الدفع' : 'Payment error occurred'));
+    } finally {
+      setPaymobLoading(false);
+    }
+  };
+
+
   const placeOrder = useMutation({
     mutationFn: async () => {
       if (cartItems.length === 0) throw new Error(isRTL ? 'السلة فارغة' : 'Cart is empty');
