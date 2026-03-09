@@ -12,8 +12,12 @@ serve(async (req) => {
 
   try {
     const secretKey = Deno.env.get('PAYMOB_SECRET_KEY');
+    const integrationId = Deno.env.get('PAYMOB_INTEGRATION_ID');
     if (!secretKey) {
       throw new Error('PAYMOB_SECRET_KEY not configured');
+    }
+    if (!integrationId) {
+      throw new Error('PAYMOB_INTEGRATION_ID not configured');
     }
 
     const { amount, currency = 'EGP', items, billing_data, order_id, extras } = await req.json();
