@@ -59,7 +59,7 @@ interface CartItem {
   product: Product;
 }
 
-type PaymentMethod = 'cash_on_delivery' | 'vodafone_cash' | 'instapay';
+type PaymentMethod = 'cash_on_delivery' | 'vodafone_cash' | 'instapay' | 'paymob';
 
 // Validation schema
 const checkoutSchema = z.object({
@@ -97,6 +97,15 @@ const PAYMENT_METHODS = {
     description_ar: 'حول إلى: mahmoudreaky@instapay',
     icon: Wallet,
     color: 'text-blue-500'
+  },
+  paymob: {
+    id: 'paymob',
+    name: 'Online Payment',
+    name_ar: 'دفع إلكتروني',
+    description: 'Visa / Mastercard / Mobile Wallets',
+    description_ar: 'فيزا / ماستركارد / محافظ إلكترونية',
+    icon: CreditCard,
+    color: 'text-purple-500'
   }
 };
 
@@ -127,6 +136,9 @@ const Checkout = () => {
   
   // Receipt screenshot
   const [receiptUrl, setReceiptUrl] = useState('');
+  
+  // Paymob loading state
+  const [paymobLoading, setPaymobLoading] = useState(false);
 
   // Fetch cart items for logged-in users
   const { data: dbCartItems = [], isLoading: loadingDbCart } = useQuery({
@@ -223,7 +235,125 @@ const Checkout = () => {
     }
   };
 
-  // Place order mutation
+  // Handle Paymob electronic payment
+  const handlePaymobPayment = async () => {
+    if (!validateForm()) return;
+    if (cartItems.length === 0) return;
+    
+    setPaymobLoading(true);
+    try {
+      // First create the order in DB
+      const addOns: string[] = [];
+      if (freeUsagePlan) addOns.push('✅ Optimal Usage Plan (FREE)');
+      if (monthlyNutritionPlan) addOns.push(`✅ Monthly Nutrition Plan (+${NUTRITION_PLAN_PRICE} EGP)`);
+      const addOnsText = addOns.length > 0 ? `\n\nAdd-ons:\n${addOns.join('\n')}` : '';
+
+      const orderData: any = {
+        total_amount: cartTotal,
+        shipping_address: checkoutData.shipping_address,
+        phone: checkoutData.phone,
+        notes: `${checkoutData.notes || ''}${addOnsText}\n\nPayment Method: Paymob (Online)`,
+        status: 'pending_payment',
+        grants_content_access: grantsAccess
+      };
+
+      if (user) {
+        orderData.user_id = user.id;
+      } else {
+        orderData.guest_name = checkoutData.full_name;
+        orderData.guest_email = checkoutData.email;
+      }
+
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert(orderData)
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Create order items
+      const orderItems = cartItems.map(item => ({
+        order_id: order.id,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        unit_price: item.product.price
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      // Prepare names
+      const nameParts = (checkoutData.full_name || user?.email || 'Customer').split(' ');
+      const firstName = nameParts[0] || 'Customer';
+      const lastName = nameParts.slice(1).join(' ') || 'N/A';
+
+      // Call edge function to create Paymob intention
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/create-paymob-intention`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${anonKey}`,
+          },
+          body: JSON.stringify({
+            amount: cartTotal,
+            currency: 'EGP',
+            order_id: order.id,
+            items: cartItems.map(item => ({
+              name: item.product.name,
+              amount: item.product.price,
+              quantity: item.quantity,
+              description: item.product.name,
+            })),
+            billing_data: {
+              first_name: firstName,
+              last_name: lastName,
+              email: checkoutData.email || user?.email || 'customer@example.com',
+              phone: checkoutData.phone,
+              address: checkoutData.shipping_address,
+              city: 'Cairo',
+              country: 'EG',
+            },
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok || !result.client_secret) {
+        throw new Error(result.error || 'Failed to create payment session');
+      }
+
+      // Clear cart before redirecting
+      if (user) {
+        await supabase.from('cart_items').delete().eq('user_id', user.id);
+      } else {
+        clearCart();
+      }
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+
+      // Redirect to Paymob Unified Checkout
+      const publicKey = import.meta.env.VITE_PAYMOB_PUBLIC_KEY;
+      const paymobUrl = `https://accept.paymob.com/unifiedcheckout/?publicKey=${publicKey}&clientSecret=${result.client_secret}`;
+      
+      window.location.href = paymobUrl;
+    } catch (error: any) {
+      console.error('Paymob payment error:', error);
+      toast.error(error.message || (isRTL ? 'حدث خطأ في الدفع' : 'Payment error occurred'));
+    } finally {
+      setPaymobLoading(false);
+    }
+  };
+
+
   const placeOrder = useMutation({
     mutationFn: async () => {
       if (cartItems.length === 0) throw new Error(isRTL ? 'السلة فارغة' : 'Cart is empty');
@@ -764,8 +894,8 @@ const Checkout = () => {
                       })}
                     </RadioGroup>
 
-                    {/* Payment Instructions */}
-                    {paymentMethod !== 'cash_on_delivery' && (
+                    {/* Payment Instructions - only for manual methods */}
+                    {(paymentMethod === 'vodafone_cash' || paymentMethod === 'instapay') && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
@@ -797,9 +927,6 @@ const Checkout = () => {
                         {/* Screenshot Upload Section */}
                         <div className="p-3 sm:p-4 bg-secondary/10 border-2 border-secondary/30 rounded-xl">
                           <div className="flex flex-col items-start gap-3">
-                            <div className="p-2 rounded-full bg-secondary/20 flex-shrink-0 hidden">
-                              <Camera className="h-5 w-5 sm:h-6 sm:w-6 text-secondary" />
-                            </div>
                             <div className="flex-1 w-full">
                               <h4 className="font-bold text-foreground text-sm sm:text-base flex items-center gap-2 mb-2">
                                 <Camera className="h-4 w-4 text-secondary sm:hidden" />
@@ -812,7 +939,6 @@ const Checkout = () => {
                                   : 'After transferring, upload a screenshot of the transaction here (required) ⚠️'}
                               </p>
                               
-                              {/* Image Upload Component */}
                               <div className="w-full">
                                 <ImageUpload
                                   value={receiptUrl}
@@ -859,7 +985,29 @@ const Checkout = () => {
                       </motion.div>
                     )}
 
-                     {paymentMethod !== 'cash_on_delivery' && !receiptUrl && (
+                    {/* Paymob info */}
+                    {paymentMethod === 'paymob' && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        className="p-3 sm:p-4 bg-primary/5 border border-primary/20 rounded-xl"
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <CreditCard className="h-4 w-4 text-primary" />
+                          <h4 className="font-semibold text-foreground text-sm sm:text-base">
+                            {isRTL ? 'دفع آمن عبر الإنترنت' : 'Secure Online Payment'}
+                          </h4>
+                        </div>
+                        <p className="text-xs sm:text-sm text-muted-foreground">
+                          {isRTL 
+                            ? 'سيتم تحويلك لصفحة الدفع الآمنة لإتمام العملية عبر فيزا أو ماستركارد أو محفظة إلكترونية'
+                            : 'You will be redirected to a secure payment page to complete via Visa, Mastercard, or Mobile Wallet'}
+                        </p>
+                      </motion.div>
+                    )}
+
+                    {/* Receipt required warning - only for manual methods */}
+                    {(paymentMethod === 'vodafone_cash' || paymentMethod === 'instapay') && !receiptUrl && (
                        <motion.div
                          initial={{ opacity: 0 }}
                          animate={{ opacity: 1 }}
@@ -885,22 +1033,36 @@ const Checkout = () => {
                         <PrevIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
                         {isRTL ? 'السابق' : 'Back'}
                       </Button>
-                      <Button 
-                        className="flex-1 h-10 sm:h-12 text-sm sm:text-base"
-                        size="lg"
-                        onClick={() => placeOrder.mutate()}
-                        disabled={placeOrder.isPending || (paymentMethod !== 'cash_on_delivery' && !receiptUrl)}
-                      >
-                        {placeOrder.isPending 
-                          ? (isRTL ? 'جارٍ الإرسال...' : 'Processing...') 
-                          : (isRTL ? 'تأكيد الطلب' : 'Confirm')}
-                      </Button>
+                      {paymentMethod === 'paymob' ? (
+                        <Button 
+                          className="flex-1 h-10 sm:h-12 text-sm sm:text-base gap-2"
+                          size="lg"
+                          onClick={handlePaymobPayment}
+                          disabled={paymobLoading}
+                        >
+                          {paymobLoading 
+                            ? (isRTL ? 'جارٍ التحويل...' : 'Redirecting...') 
+                            : (isRTL ? 'ادفع الآن' : 'Pay Now')}
+                          <CreditCard className="h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <Button 
+                          className="flex-1 h-10 sm:h-12 text-sm sm:text-base"
+                          size="lg"
+                          onClick={() => placeOrder.mutate()}
+                          disabled={placeOrder.isPending || ((paymentMethod === 'vodafone_cash' || paymentMethod === 'instapay') && !receiptUrl)}
+                        >
+                          {placeOrder.isPending 
+                            ? (isRTL ? 'جارٍ الإرسال...' : 'Processing...') 
+                            : (isRTL ? 'تأكيد الطلب' : 'Confirm')}
+                        </Button>
+                      )}
                     </div>
 
                     <p className="text-[10px] sm:text-xs text-center text-muted-foreground">
-                      {isRTL 
-                        ? 'بالضغط على تأكيد الطلب، ستتلقى اتصالاً للتأكيد'
-                        : 'By confirming, you will receive a call to confirm'}
+                      {paymentMethod === 'paymob'
+                        ? (isRTL ? 'سيتم تحويلك لصفحة دفع آمنة من Paymob' : 'You will be redirected to a secure Paymob payment page')
+                        : (isRTL ? 'بالضغط على تأكيد الطلب، ستتلقى اتصالاً للتأكيد' : 'By confirming, you will receive a call to confirm')}
                     </p>
                   </CardContent>
                 </Card>
