@@ -261,8 +261,11 @@ const Checkout = () => {
         orderData.user_id = user.id;
       } else {
         orderData.guest_name = checkoutData.full_name;
-        orderData.guest_email = checkoutData.email;
+        orderData.guest_email = checkoutData.email || 'guest@checkout.com';
       }
+
+      console.log('📦 Creating order with data:', JSON.stringify(orderData, null, 2));
+      console.log('👤 User:', user ? `Logged in as ${user.id}` : 'Guest');
 
       const { data: order, error: orderError } = await supabase
         .from('orders')
@@ -392,14 +395,16 @@ const Checkout = () => {
         grants_content_access: grantsAccess
       };
 
-      // If user is logged in, include user_id
       if (user) {
         orderData.user_id = user.id;
       } else {
         // Guest order - store guest info in dedicated columns
         orderData.guest_name = checkoutData.full_name;
-        orderData.guest_email = checkoutData.email;
+        orderData.guest_email = checkoutData.email || 'guest@checkout.com';
       }
+
+      console.log('📦 [placeOrder] Creating order with data:', JSON.stringify(orderData, null, 2));
+      console.log('👤 [placeOrder] User:', user ? `Logged in as ${user.id}` : 'Guest');
 
       const { data: order, error: orderError } = await supabase
         .from('orders')
