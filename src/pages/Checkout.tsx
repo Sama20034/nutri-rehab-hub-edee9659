@@ -261,8 +261,11 @@ const Checkout = () => {
         orderData.user_id = user.id;
       } else {
         orderData.guest_name = checkoutData.full_name;
-        orderData.guest_email = checkoutData.email;
+        orderData.guest_email = checkoutData.email || 'guest@checkout.com';
       }
+
+      console.log('📦 Creating order with data:', JSON.stringify(orderData, null, 2));
+      console.log('👤 User:', user ? `Logged in as ${user.id}` : 'Guest');
 
       const { data: order, error: orderError } = await supabase
         .from('orders')
