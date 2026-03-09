@@ -894,8 +894,8 @@ const Checkout = () => {
                       })}
                     </RadioGroup>
 
-                    {/* Payment Instructions */}
-                    {paymentMethod !== 'cash_on_delivery' && (
+                    {/* Payment Instructions - only for manual methods */}
+                    {(paymentMethod === 'vodafone_cash' || paymentMethod === 'instapay') && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
@@ -927,9 +927,6 @@ const Checkout = () => {
                         {/* Screenshot Upload Section */}
                         <div className="p-3 sm:p-4 bg-secondary/10 border-2 border-secondary/30 rounded-xl">
                           <div className="flex flex-col items-start gap-3">
-                            <div className="p-2 rounded-full bg-secondary/20 flex-shrink-0 hidden">
-                              <Camera className="h-5 w-5 sm:h-6 sm:w-6 text-secondary" />
-                            </div>
                             <div className="flex-1 w-full">
                               <h4 className="font-bold text-foreground text-sm sm:text-base flex items-center gap-2 mb-2">
                                 <Camera className="h-4 w-4 text-secondary sm:hidden" />
@@ -942,7 +939,6 @@ const Checkout = () => {
                                   : 'After transferring, upload a screenshot of the transaction here (required) ⚠️'}
                               </p>
                               
-                              {/* Image Upload Component */}
                               <div className="w-full">
                                 <ImageUpload
                                   value={receiptUrl}
@@ -989,7 +985,29 @@ const Checkout = () => {
                       </motion.div>
                     )}
 
-                     {paymentMethod !== 'cash_on_delivery' && !receiptUrl && (
+                    {/* Paymob info */}
+                    {paymentMethod === 'paymob' && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        className="p-3 sm:p-4 bg-primary/5 border border-primary/20 rounded-xl"
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <CreditCard className="h-4 w-4 text-primary" />
+                          <h4 className="font-semibold text-foreground text-sm sm:text-base">
+                            {isRTL ? 'دفع آمن عبر الإنترنت' : 'Secure Online Payment'}
+                          </h4>
+                        </div>
+                        <p className="text-xs sm:text-sm text-muted-foreground">
+                          {isRTL 
+                            ? 'سيتم تحويلك لصفحة الدفع الآمنة لإتمام العملية عبر فيزا أو ماستركارد أو محفظة إلكترونية'
+                            : 'You will be redirected to a secure payment page to complete via Visa, Mastercard, or Mobile Wallet'}
+                        </p>
+                      </motion.div>
+                    )}
+
+                    {/* Receipt required warning - only for manual methods */}
+                    {(paymentMethod === 'vodafone_cash' || paymentMethod === 'instapay') && !receiptUrl && (
                        <motion.div
                          initial={{ opacity: 0 }}
                          animate={{ opacity: 1 }}
@@ -1015,22 +1033,36 @@ const Checkout = () => {
                         <PrevIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
                         {isRTL ? 'السابق' : 'Back'}
                       </Button>
-                      <Button 
-                        className="flex-1 h-10 sm:h-12 text-sm sm:text-base"
-                        size="lg"
-                        onClick={() => placeOrder.mutate()}
-                        disabled={placeOrder.isPending || (paymentMethod !== 'cash_on_delivery' && !receiptUrl)}
-                      >
-                        {placeOrder.isPending 
-                          ? (isRTL ? 'جارٍ الإرسال...' : 'Processing...') 
-                          : (isRTL ? 'تأكيد الطلب' : 'Confirm')}
-                      </Button>
+                      {paymentMethod === 'paymob' ? (
+                        <Button 
+                          className="flex-1 h-10 sm:h-12 text-sm sm:text-base gap-2"
+                          size="lg"
+                          onClick={handlePaymobPayment}
+                          disabled={paymobLoading}
+                        >
+                          {paymobLoading 
+                            ? (isRTL ? 'جارٍ التحويل...' : 'Redirecting...') 
+                            : (isRTL ? 'ادفع الآن' : 'Pay Now')}
+                          <CreditCard className="h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <Button 
+                          className="flex-1 h-10 sm:h-12 text-sm sm:text-base"
+                          size="lg"
+                          onClick={() => placeOrder.mutate()}
+                          disabled={placeOrder.isPending || ((paymentMethod === 'vodafone_cash' || paymentMethod === 'instapay') && !receiptUrl)}
+                        >
+                          {placeOrder.isPending 
+                            ? (isRTL ? 'جارٍ الإرسال...' : 'Processing...') 
+                            : (isRTL ? 'تأكيد الطلب' : 'Confirm')}
+                        </Button>
+                      )}
                     </div>
 
                     <p className="text-[10px] sm:text-xs text-center text-muted-foreground">
-                      {isRTL 
-                        ? 'بالضغط على تأكيد الطلب، ستتلقى اتصالاً للتأكيد'
-                        : 'By confirming, you will receive a call to confirm'}
+                      {paymentMethod === 'paymob'
+                        ? (isRTL ? 'سيتم تحويلك لصفحة دفع آمنة من Paymob' : 'You will be redirected to a secure Paymob payment page')
+                        : (isRTL ? 'بالضغط على تأكيد الطلب، ستتلقى اتصالاً للتأكيد' : 'By confirming, you will receive a call to confirm')}
                     </p>
                   </CardContent>
                 </Card>
