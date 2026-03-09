@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -13,28 +14,69 @@ serve(async (req) => {
   try {
     const secretKey = Deno.env.get('PAYMOB_SECRET_KEY');
     const integrationId = Deno.env.get('PAYMOB_INTEGRATION_ID');
-    if (!secretKey) {
-      throw new Error('PAYMOB_SECRET_KEY not configured');
-    }
-    if (!integrationId) {
-      throw new Error('PAYMOB_INTEGRATION_ID not configured');
-    }
+    if (!secretKey) throw new Error('PAYMOB_SECRET_KEY not configured');
+    if (!integrationId) throw new Error('PAYMOB_INTEGRATION_ID not configured');
 
-    const { amount, currency = 'EGP', items, billing_data, order_id, extras } = await req.json();
+    const { amount, currency = 'EGP', items, billing_data, extras, order_data } = await req.json();
 
     if (!amount || !billing_data) {
       throw new Error('Missing required fields: amount, billing_data');
     }
 
-    // Build intention items from cart items
+    // Create order in DB using service role key (bypasses RLS)
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    );
+
+    let orderId: string;
+
+    if (order_data) {
+      console.log('Creating order in DB with service role...');
+      
+      const { data: order, error: orderError } = await supabaseAdmin
+        .from('orders')
+        .insert(order_data.order)
+        .select()
+        .single();
+
+      if (orderError) {
+        console.error('Order creation error:', orderError);
+        throw new Error(`Failed to create order: ${orderError.message}`);
+      }
+
+      orderId = order.id;
+
+      // Create order items
+      if (order_data.items && order_data.items.length > 0) {
+        const orderItems = order_data.items.map((item: any) => ({
+          ...item,
+          order_id: orderId,
+        }));
+
+        const { error: itemsError } = await supabaseAdmin
+          .from('order_items')
+          .insert(orderItems);
+
+        if (itemsError) {
+          console.error('Order items error:', itemsError);
+          throw new Error(`Failed to create order items: ${itemsError.message}`);
+        }
+      }
+
+      console.log('Order created successfully:', orderId);
+    } else {
+      orderId = '';
+    }
+
+    // Build intention items
     const intentionItems = (items || []).map((item: any) => ({
       name: item.name?.substring(0, 100) || 'Product',
-      amount: Math.round(item.amount * 100), // Paymob expects amount in cents
+      amount: Math.round(item.amount * 100),
       description: item.description?.substring(0, 200) || '',
       quantity: item.quantity || 1,
     }));
 
-    // If no items provided, create a single item
     if (intentionItems.length === 0) {
       intentionItems.push({
         name: 'Order',
@@ -45,7 +87,7 @@ serve(async (req) => {
     }
 
     const intentionPayload = {
-      amount: Math.round(amount * 100), // Paymob expects amount in cents
+      amount: Math.round(amount * 100),
       currency,
       payment_methods: [parseInt(integrationId)],
       items: intentionItems,
@@ -64,14 +106,14 @@ serve(async (req) => {
       },
       extras: {
         ...(extras || {}),
-        order_id: order_id || '',
+        order_id: orderId || '',
       },
-      special_reference: order_id || undefined,
+      special_reference: orderId || undefined,
       notification_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/paymob-webhook`,
       redirection_url: `${req.headers.get('origin') || 'https://nutri-rehab-hub.lovable.app'}/#/store?payment_status=success`,
     };
 
-    console.log('Creating Paymob intention with payload:', JSON.stringify(intentionPayload, null, 2));
+    console.log('Creating Paymob intention...');
 
     const response = await fetch('https://accept.paymob.com/v1/intention/', {
       method: 'POST',
@@ -89,13 +131,14 @@ serve(async (req) => {
       throw new Error(`Paymob API error: ${JSON.stringify(data)}`);
     }
 
-    console.log('Paymob intention created successfully:', data.client_secret ? 'client_secret received' : 'no client_secret');
+    console.log('Paymob intention created successfully');
 
     return new Response(
       JSON.stringify({
         client_secret: data.client_secret,
         intention_id: data.id,
         payment_keys: data.payment_keys,
+        order_id: orderId,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -103,7 +146,7 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error('Error creating Paymob intention:', error.message);
+    console.error('Error:', error.message);
     return new Response(
       JSON.stringify({ error: error.message }),
       {
