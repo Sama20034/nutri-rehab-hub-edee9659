@@ -136,6 +136,9 @@ const Checkout = () => {
   
   // Receipt screenshot
   const [receiptUrl, setReceiptUrl] = useState('');
+  
+  // Paymob loading state
+  const [paymobLoading, setPaymobLoading] = useState(false);
 
   // Fetch cart items for logged-in users
   const { data: dbCartItems = [], isLoading: loadingDbCart } = useQuery({
