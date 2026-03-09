@@ -47,7 +47,7 @@ serve(async (req) => {
     const intentionPayload = {
       amount: Math.round(amount * 100), // Paymob expects amount in cents
       currency,
-      payment_methods: [], // Empty array = all available methods
+      payment_methods: [parseInt(integrationId)],
       items: intentionItems,
       billing_data: {
         first_name: billing_data.first_name || 'N/A',
