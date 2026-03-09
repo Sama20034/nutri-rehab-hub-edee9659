@@ -346,7 +346,6 @@ const Checkout = () => {
         throw new Error(isRTL ? 'يرجى تصحيح الأخطاء' : 'Please fix the errors');
       }
 
-      // Build add-ons notes
       const addOns: string[] = [];
       if (freeUsagePlan) {
         addOns.push(isRTL ? '✅ خطة الاستخدام الأمثل (مجاناً)' : '✅ Optimal Usage Plan (FREE)');
@@ -359,13 +358,11 @@ const Checkout = () => {
         ? `\n\nAdd-ons:\n${addOns.join('\n')}` 
         : '';
 
-      // Receipt URL if uploaded
       const receiptText = receiptUrl 
         ? `\n\n📸 Receipt Screenshot: ${receiptUrl}` 
         : '';
 
-      // Create order data
-      const orderData: any = {
+      const orderPayload: any = {
         total_amount: cartTotal,
         shipping_address: checkoutData.shipping_address,
         phone: checkoutData.phone,
@@ -377,56 +374,53 @@ const Checkout = () => {
       };
 
       if (user) {
-        orderData.user_id = user.id;
+        orderPayload.user_id = user.id;
       } else {
-        // Guest order - store guest info in dedicated columns
-        orderData.guest_name = checkoutData.full_name;
-        orderData.guest_email = checkoutData.email || 'guest@checkout.com';
+        orderPayload.guest_name = checkoutData.full_name;
+        orderPayload.guest_email = checkoutData.email || 'guest@checkout.com';
       }
 
-      console.log('📦 [placeOrder] Creating order with data:', JSON.stringify(orderData, null, 2));
-      console.log('👤 [placeOrder] User:', user ? `Logged in as ${user.id}` : 'Guest');
-
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert(orderData)
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
-      // Create order items
       const orderItems = cartItems.map(item => ({
-        order_id: order.id,
         product_id: item.product_id,
         quantity: item.quantity,
         unit_price: item.product.price
       }));
 
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
+      // Call edge function to create order server-side (bypasses RLS)
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/create-order`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${anonKey}`,
+          },
+          body: JSON.stringify({
+            order: orderPayload,
+            items: orderItems,
+            clear_cart_user_id: user?.id || null,
+          }),
+        }
+      );
 
-      if (itemsError) throw itemsError;
+      const result = await response.json();
 
-      // Clear cart
-      if (user) {
-        const { error: clearError } = await supabase
-          .from('cart_items')
-          .delete()
-          .eq('user_id', user.id);
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to create order');
+      }
 
-        if (clearError) throw clearError;
-      } else {
+      // Clear guest cart
+      if (!user) {
         clearCart();
       }
 
-      return order;
+      return result.order;
     },
     onSuccess: (order) => {
-      // Track Purchase event with order value
       trackPurchase(cartTotal, 'EGP', order?.id);
-      
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       toast.success(isRTL ? 'تم إرسال طلبك بنجاح! سنتواصل معك قريباً' : 'Order placed successfully! We will contact you soon');
       navigate('/store');
