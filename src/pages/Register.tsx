@@ -104,6 +104,14 @@ const packages: PackageOption[] = [
 
 const paymentMethods: PaymentMethod[] = [
   {
+    id: "electronic",
+    name: "دفع إلكتروني",
+    nameEn: "Online Payment",
+    icon: <CreditCard className="w-6 h-6" />,
+    description: "فيزا / ماستركارد / محافظ إلكترونية",
+    descriptionEn: "Visa / Mastercard / Mobile Wallets",
+  },
+  {
     id: "vodafone-cash",
     name: "فودافون كاش",
     nameEn: "Vodafone Cash",
