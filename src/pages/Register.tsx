@@ -234,7 +234,7 @@ const Register = () => {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      const { error } = await signUp(email, password, "client", {
+      const { error, data } = await signUp(email, password, "client", {
         full_name: fullName,
         phone,
         selected_package: selectedPackage || undefined,
@@ -248,14 +248,82 @@ const Register = () => {
         } else {
           toast.error(error.message);
         }
-      } else {
-        // Track Lead and CompleteRegistration events
-        trackLead('registration_form');
-        trackCompleteRegistration();
-        
-        toast.success(isRTL ? "تم إنشاء الحساب بنجاح!" : "Account created successfully!");
-        navigate("/pending-approval");
+        return;
       }
+
+      // Track Lead and CompleteRegistration events
+      trackLead('registration_form');
+      trackCompleteRegistration();
+
+      // If electronic payment selected, create Paymob intention
+      if (selectedPayment === 'electronic') {
+        try {
+          const price = calculatePrice();
+          const pkg = getSelectedPackage();
+          const nameParts = fullName.split(' ');
+          const firstName = nameParts[0] || 'Customer';
+          const lastName = nameParts.slice(1).join(' ') || 'N/A';
+
+          const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+          const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+          const response = await fetch(
+            `https://${projectId}.supabase.co/functions/v1/create-paymob-intention`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${anonKey}`,
+              },
+              body: JSON.stringify({
+                amount: price,
+                currency: 'EGP',
+                items: [{
+                  name: pkg?.nameEn || 'Subscription',
+                  amount: price,
+                  quantity: 1,
+                  description: `${pkg?.nameEn} - ${medicalFollowup ? 'Medical' : 'Regular'}`,
+                }],
+                billing_data: {
+                  first_name: firstName,
+                  last_name: lastName,
+                  email: email,
+                  phone: phone,
+                  address: 'N/A',
+                  city: 'Cairo',
+                  country: 'EG',
+                },
+                extras: {
+                  type: 'subscription',
+                  package_id: selectedPackage,
+                  medical_followup: medicalFollowup ? 'true' : 'false',
+                  user_email: email,
+                },
+              }),
+            }
+          );
+
+          const result = await response.json();
+
+          if (!response.ok || !result.client_secret) {
+            throw new Error(result.error || 'Failed to create payment session');
+          }
+
+          // Redirect to Paymob
+          const publicKey = import.meta.env.VITE_PAYMOB_PUBLIC_KEY;
+          const paymobUrl = `https://accept.paymob.com/unifiedcheckout/?publicKey=${publicKey}&clientSecret=${result.client_secret}`;
+          window.location.href = paymobUrl;
+          return;
+        } catch (paymentError: any) {
+          console.error('Paymob payment error:', paymentError);
+          toast.error(isRTL ? 'حدث خطأ في بوابة الدفع، تم إنشاء حسابك - يمكنك الدفع لاحقاً' : 'Payment gateway error, account created - you can pay later');
+          navigate("/pending-approval");
+          return;
+        }
+      }
+      
+      toast.success(isRTL ? "تم إنشاء الحساب بنجاح!" : "Account created successfully!");
+      navigate("/pending-approval");
     } catch {
       toast.error(isRTL ? "حدث خطأ غير متوقع" : "An unexpected error occurred");
     } finally {
