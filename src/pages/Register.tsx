@@ -104,6 +104,14 @@ const packages: PackageOption[] = [
 
 const paymentMethods: PaymentMethod[] = [
   {
+    id: "electronic",
+    name: "دفع إلكتروني",
+    nameEn: "Online Payment",
+    icon: <CreditCard className="w-6 h-6" />,
+    description: "فيزا / ماستركارد / محافظ إلكترونية",
+    descriptionEn: "Visa / Mastercard / Mobile Wallets",
+  },
+  {
     id: "vodafone-cash",
     name: "فودافون كاش",
     nameEn: "Vodafone Cash",
@@ -240,14 +248,82 @@ const Register = () => {
         } else {
           toast.error(error.message);
         }
-      } else {
-        // Track Lead and CompleteRegistration events
-        trackLead('registration_form');
-        trackCompleteRegistration();
-        
-        toast.success(isRTL ? "تم إنشاء الحساب بنجاح!" : "Account created successfully!");
-        navigate("/pending-approval");
+        return;
       }
+
+      // Track Lead and CompleteRegistration events
+      trackLead('registration_form');
+      trackCompleteRegistration();
+
+      // If electronic payment selected, create Paymob intention
+      if (selectedPayment === 'electronic') {
+        try {
+          const price = calculatePrice();
+          const pkg = getSelectedPackage();
+          const nameParts = fullName.split(' ');
+          const firstName = nameParts[0] || 'Customer';
+          const lastName = nameParts.slice(1).join(' ') || 'N/A';
+
+          const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+          const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+          const response = await fetch(
+            `https://${projectId}.supabase.co/functions/v1/create-paymob-intention`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${anonKey}`,
+              },
+              body: JSON.stringify({
+                amount: price,
+                currency: 'EGP',
+                items: [{
+                  name: pkg?.nameEn || 'Subscription',
+                  amount: price,
+                  quantity: 1,
+                  description: `${pkg?.nameEn} - ${medicalFollowup ? 'Medical' : 'Regular'}`,
+                }],
+                billing_data: {
+                  first_name: firstName,
+                  last_name: lastName,
+                  email: email,
+                  phone: phone,
+                  address: 'N/A',
+                  city: 'Cairo',
+                  country: 'EG',
+                },
+                extras: {
+                  type: 'subscription',
+                  package_id: selectedPackage,
+                  medical_followup: medicalFollowup ? 'true' : 'false',
+                  user_email: email,
+                },
+              }),
+            }
+          );
+
+          const result = await response.json();
+
+          if (!response.ok || !result.client_secret) {
+            throw new Error(result.error || 'Failed to create payment session');
+          }
+
+          // Redirect to Paymob
+          const publicKey = import.meta.env.VITE_PAYMOB_PUBLIC_KEY;
+          const paymobUrl = `https://accept.paymob.com/unifiedcheckout/?publicKey=${publicKey}&clientSecret=${result.client_secret}`;
+          window.location.href = paymobUrl;
+          return;
+        } catch (paymentError: any) {
+          console.error('Paymob payment error:', paymentError);
+          toast.error(isRTL ? 'حدث خطأ في بوابة الدفع، تم إنشاء حسابك - يمكنك الدفع لاحقاً' : 'Payment gateway error, account created - you can pay later');
+          navigate("/pending-approval");
+          return;
+        }
+      }
+      
+      toast.success(isRTL ? "تم إنشاء الحساب بنجاح!" : "Account created successfully!");
+      navigate("/pending-approval");
     } catch {
       toast.error(isRTL ? "حدث خطأ غير متوقع" : "An unexpected error occurred");
     } finally {
@@ -567,8 +643,8 @@ const Register = () => {
               </div>
             </div>
 
-            {/* Payment Instructions */}
-            {selectedPayment && selectedPayment !== 'cash' && (
+            {/* Payment Instructions - only for manual payments */}
+            {selectedPayment && selectedPayment !== 'electronic' && (
               <div className="p-3 bg-muted/50 rounded-xl border space-y-2">
                 <h4 className="font-semibold text-foreground text-sm flex items-center gap-2">
                   📝 {isRTL ? 'تعليمات الدفع' : 'Payment Instructions'}
@@ -599,8 +675,23 @@ const Register = () => {
               </div>
             )}
 
-            {/* Screenshot Upload Section */}
-            {selectedPayment && selectedPayment !== 'cash' && (
+            {/* Electronic payment info */}
+            {selectedPayment === 'electronic' && (
+              <div className="p-3 bg-primary/10 rounded-xl border border-primary/30 space-y-2">
+                <h4 className="font-semibold text-primary text-sm flex items-center gap-2">
+                  <CreditCard className="w-4 h-4" />
+                  {isRTL ? 'الدفع الإلكتروني' : 'Online Payment'}
+                </h4>
+                <p className="text-xs text-muted-foreground">
+                  {isRTL 
+                    ? 'بعد التأكيد سيتم تحويلك لبوابة الدفع الإلكتروني لإتمام عملية الدفع بأمان'
+                    : 'After confirmation, you will be redirected to the payment gateway to complete your payment securely'}
+                </p>
+              </div>
+            )}
+
+            {/* Screenshot Upload Section - only for manual payments */}
+            {selectedPayment && selectedPayment !== 'electronic' && (
               <div className="p-3 bg-secondary/10 border-2 border-secondary/30 rounded-xl">
                 <div className="flex flex-col items-start gap-2">
                   <div className="flex-1 w-full">
@@ -614,7 +705,6 @@ const Register = () => {
                         : 'After transferring, upload a screenshot of the transaction here for quick confirmation ✅'}
                     </p>
                     
-                    {/* Image Upload Component */}
                     <div className="w-full">
                       <ImageUpload
                         value={receiptUrl}
@@ -647,7 +737,7 @@ const Register = () => {
                         href="https://wa.me/201016111733" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-3 py-2 bg-[#25D366] text-white text-xs font-medium rounded-lg hover:bg-[#20bd5a] transition-colors w-full justify-center"
+                        className="inline-flex items-center gap-2 px-3 py-2 bg-[#25D366] text-primary-foreground text-xs font-medium rounded-lg hover:opacity-90 transition-opacity w-full justify-center"
                       >
                         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
@@ -664,9 +754,13 @@ const Register = () => {
             <div className="p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
               <p className="text-xs text-yellow-600 dark:text-yellow-400 text-center flex items-center justify-center gap-1">
                 <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                {isRTL
-                  ? "سيتم مراجعة طلبك وتفعيل حسابك بعد تأكيد الدفع"
-                  : "Your account will be activated after payment confirmation"}
+                {selectedPayment === 'electronic'
+                  ? (isRTL
+                    ? "سيتم تفعيل حسابك فوراً بعد إتمام الدفع الإلكتروني"
+                    : "Your account will be activated instantly after completing online payment")
+                  : (isRTL
+                    ? "سيتم مراجعة طلبك وتفعيل حسابك بعد تأكيد الدفع"
+                    : "Your account will be activated after payment confirmation")}
               </p>
             </div>
           </motion.div>
@@ -754,8 +848,10 @@ const Register = () => {
                   <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white" />
                 ) : (
                   <>
-                    {isRTL ? "تأكيد الطلب" : "Confirm Order"}
-                    <Check className="w-4 h-4" />
+                    {selectedPayment === 'electronic' 
+                      ? (isRTL ? "ادفع الآن" : "Pay Now") 
+                      : (isRTL ? "تأكيد الطلب" : "Confirm Order")}
+                    {selectedPayment === 'electronic' ? <CreditCard className="w-4 h-4" /> : <Check className="w-4 h-4" />}
                   </>
                 )}
               </Button>
