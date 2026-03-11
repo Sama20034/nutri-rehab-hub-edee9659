@@ -848,8 +848,10 @@ const Register = () => {
                   <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white" />
                 ) : (
                   <>
-                    {isRTL ? "تأكيد الطلب" : "Confirm Order"}
-                    <Check className="w-4 h-4" />
+                    {selectedPayment === 'electronic' 
+                      ? (isRTL ? "ادفع الآن" : "Pay Now") 
+                      : (isRTL ? "تأكيد الطلب" : "Confirm Order")}
+                    {selectedPayment === 'electronic' ? <CreditCard className="w-4 h-4" /> : <Check className="w-4 h-4" />}
                   </>
                 )}
               </Button>
