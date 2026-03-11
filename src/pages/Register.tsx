@@ -234,7 +234,7 @@ const Register = () => {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      const { error, data } = await signUp(email, password, "client", {
+      const { error } = await signUp(email, password, "client", {
         full_name: fullName,
         phone,
         selected_package: selectedPackage || undefined,
