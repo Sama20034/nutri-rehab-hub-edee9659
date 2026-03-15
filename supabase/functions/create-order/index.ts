@@ -36,8 +36,22 @@ serve(async (req) => {
       throw new Error(`Failed to create order: ${orderError.message}`);
     }
 
-    // Create order items
-    const orderItems = items.map((item: any) => ({
+    // Validate product_ids exist before inserting order items
+    const productIds = items.map((item: any) => item.product_id);
+    const { data: validProducts } = await supabaseAdmin
+      .from('products')
+      .select('id')
+      .in('id', productIds);
+    
+    const validProductIds = new Set((validProducts || []).map((p: any) => p.id));
+    const validItems = items.filter((item: any) => validProductIds.has(item.product_id));
+
+    if (validItems.length === 0) {
+      console.error('No valid products found. Product IDs:', productIds);
+      throw new Error('None of the products in your cart exist anymore. Please refresh your cart.');
+    }
+
+    const orderItems = validItems.map((item: any) => ({
       ...item,
       order_id: createdOrder.id,
     }));

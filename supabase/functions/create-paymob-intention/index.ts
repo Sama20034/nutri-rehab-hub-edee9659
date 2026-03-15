@@ -47,9 +47,23 @@ serve(async (req) => {
 
       orderId = order.id;
 
-      // Create order items
+      // Create order items - validate product_ids first
       if (order_data.items && order_data.items.length > 0) {
-        const orderItems = order_data.items.map((item: any) => ({
+        const productIds = order_data.items.map((item: any) => item.product_id);
+        const { data: validProducts } = await supabaseAdmin
+          .from('products')
+          .select('id')
+          .in('id', productIds);
+        
+        const validProductIds = new Set((validProducts || []).map((p: any) => p.id));
+        const validItems = order_data.items.filter((item: any) => validProductIds.has(item.product_id));
+
+        if (validItems.length === 0) {
+          console.error('No valid products found for order items. Product IDs:', productIds);
+          throw new Error('None of the products in your cart exist anymore. Please refresh your cart.');
+        }
+
+        const orderItems = validItems.map((item: any) => ({
           ...item,
           order_id: orderId,
         }));
