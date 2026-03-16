@@ -3,7 +3,8 @@ import { ImageUpload } from '@/components/ui/image-upload';
 import { motion } from 'framer-motion';
 import { 
   Package, Plus, Edit, Trash2, Eye, Search, Filter,
-  ShoppingCart, CheckCircle, XCircle, Clock, Truck, Play, Image, ExternalLink
+  ShoppingCart, CheckCircle, XCircle, Clock, Truck, Play, Image, ExternalLink,
+  MapPin, Phone, Mail, User, FileText, ShoppingBag
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
