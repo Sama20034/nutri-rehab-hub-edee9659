@@ -330,6 +330,9 @@ export const StoreSection = ({
                       <TableHead>{isRTL ? 'رقم الطلب' : 'Order ID'}</TableHead>
                       <TableHead>{isRTL ? 'العميل' : 'Customer'}</TableHead>
                       <TableHead>{isRTL ? 'المبلغ' : 'Amount'}</TableHead>
+                      <TableHead>{isRTL ? 'الحالة' : 'Status'}</TableHead>
+                      <TableHead>{isRTL ? 'التاريخ' : 'Date'}</TableHead>
+                      <TableHead>{isRTL ? 'إجراءات' : 'Actions'}</TableHead>
                       <TableHead>{isRTL ? 'الإيصال' : 'Receipt'}</TableHead>
                       <TableHead>{isRTL ? 'الحالة' : 'Status'}</TableHead>
                       <TableHead>{isRTL ? 'التاريخ' : 'Date'}</TableHead>
