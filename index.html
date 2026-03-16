@@ -31,6 +31,16 @@
   <!-- iOS Splash Screens -->
   <link rel="apple-touch-icon" href="/favicon.png">
   
+  <!-- Prevent theme flash (FOUC) - apply dark class immediately -->
+  <script>
+    (function() {
+      var theme = localStorage.getItem('theme') || 'dark';
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+      document.documentElement.style.colorScheme = theme;
+    })();
+  </script>
   <style>
     /* Critical CSS for preventing layout shift */
     html, body {
@@ -38,6 +48,10 @@
       padding: 0;
       overflow-x: hidden;
       width: 100%;
+      background-color: hsl(220 25% 6%);
+    }
+    html.dark body {
+      background-color: hsl(220 25% 6%);
     }
     
     /* Safe areas for notched devices */
