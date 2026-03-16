@@ -416,7 +416,7 @@ export const MealPlansSection = () => {
     }
   };
 
-  const handleEditPlan = (plan: MealPlan) => {
+  const handleEditPlan = async (plan: MealPlan) => {
     setPlanFormData({
       name: plan.name,
       description: plan.description || '',
@@ -429,6 +429,13 @@ export const MealPlansSection = () => {
     });
     setEditingPlan(plan);
     setIsDialogOpen(true);
+
+    // Fetch currently assigned clients
+    const { data } = await supabase
+      .from('client_meal_plans')
+      .select('client_id')
+      .eq('meal_plan_id', plan.id);
+    setSelectedClients(data?.map(d => d.client_id) || []);
   };
 
   const handleEditRecipe = (recipe: Recipe) => {
