@@ -348,7 +348,7 @@ export const CategoriesSection = () => {
     );
   };
 
-  const CategoryForm = () => (
+  const categoryFormJSX = (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div>
@@ -402,7 +402,6 @@ export const CategoriesSection = () => {
         </div>
       </div>
 
-      {/* Category Image - Only for main categories */}
       {!formData.parent_id && (
         <div>
           <Label className="flex items-center gap-2 mb-2">
