@@ -17,6 +17,7 @@ import { NutritionSection } from '@/components/dashboard/sections/NutritionSecti
 import { VideosSection } from '@/components/dashboard/sections/VideosSection';
 import { MedicalFollowupSection } from '@/components/dashboard/sections/MedicalFollowupSection';
 import { ProgressSection } from '@/components/dashboard/sections/ProgressSection';
+import { OrdersSection } from '@/components/dashboard/sections/OrdersSection';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { cn } from '@/lib/utils';
 
