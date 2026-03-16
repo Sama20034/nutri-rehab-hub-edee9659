@@ -234,9 +234,16 @@ const Footer = () => {
         </div>
 
         {/* Copyright */}
-        <div className="mt-8 pt-8 border-t border-border text-center">
+        <div className="mt-8 pt-8 border-t border-border text-center space-y-2">
           <p className="text-muted-foreground text-sm">
             © {new Date().getFullYear()} Dr. Mahmoud Al-Reaky. {t('footer.rights')}
+          </p>
+          <p className="text-muted-foreground text-sm">
+            © Created by{' '}
+            <a href="https://digitfans.site/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
+              Digitfans
+            </a>{' '}
+            {new Date().getFullYear()}
           </p>
         </div>
       </div>
