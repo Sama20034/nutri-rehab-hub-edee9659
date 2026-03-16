@@ -366,12 +366,7 @@ const Checkout = () => {
         grants_content_access: grantsAccess
       };
 
-      if (user) {
-        orderPayload.user_id = user.id;
-      } else {
-        orderPayload.guest_name = checkoutData.full_name;
-        orderPayload.guest_email = checkoutData.email || 'guest@checkout.com';
-      }
+      orderPayload.user_id = user!.id;
 
       const orderItems = cartItems.map(item => ({
         product_id: item.product_id,
