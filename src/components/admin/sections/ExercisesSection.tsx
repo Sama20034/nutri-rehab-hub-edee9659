@@ -184,7 +184,7 @@ export const ExercisesSection = ({
     }
   };
 
-  const handleEditExercise = (exercise: Exercise) => {
+  const handleEditExercise = async (exercise: Exercise) => {
     setExerciseForm({
       name: exercise.name,
       description: exercise.description || '',
@@ -195,8 +195,14 @@ export const ExercisesSection = ({
       duration_minutes: exercise.duration_minutes?.toString() || ''
     });
     setEditingExercise(exercise);
-    setSelectedClients([]);
     setIsExerciseDialogOpen(true);
+
+    // Fetch currently assigned clients
+    const { data } = await supabase
+      .from('client_exercises')
+      .select('client_id')
+      .eq('exercise_id', exercise.id);
+    setSelectedClients(data?.map(d => d.client_id) || []);
   };
 
   const handleDeleteExercise = async (id: string) => {
