@@ -71,11 +71,24 @@ const Store = () => {
   const { setTheme } = useTheme();
   const isRTL = language === 'ar';
   
-  // Force light theme on Store page
+  // Force light theme on Store page — suppress transitions to prevent flash
   useEffect(() => {
+    document.documentElement.setAttribute('data-theme-switching', '');
     setTheme('light');
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.documentElement.removeAttribute('data-theme-switching');
+      });
+    });
     return () => {
-      setTheme('dark'); // Restore dark theme when leaving
+      cancelAnimationFrame(raf);
+      document.documentElement.setAttribute('data-theme-switching', '');
+      setTheme('dark');
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          document.documentElement.removeAttribute('data-theme-switching');
+        });
+      });
     };
   }, [setTheme]);
   

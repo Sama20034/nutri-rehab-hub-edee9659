@@ -72,7 +72,7 @@ const RouteDebugger = () => {
 };
 
 const App = () => (
-  <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+  <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <AuthProvider>

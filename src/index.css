@@ -128,6 +128,14 @@
   }
 }
 
+/* Prevent all transitions during theme switching to avoid flash */
+[data-theme-switching] *,
+[data-theme-switching] *::before,
+[data-theme-switching] *::after {
+  transition-duration: 0s !important;
+  animation-duration: 0s !important;
+}
+
 @layer base {
   * {
     @apply border-border;
