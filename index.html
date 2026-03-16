@@ -48,10 +48,15 @@
       padding: 0;
       overflow-x: hidden;
       width: 100%;
-      background-color: hsl(220 25% 6%);
     }
-    html.dark body {
-      background-color: hsl(220 25% 6%);
+    /* Default to dark background to prevent flash */
+    html.dark, html.dark body {
+      background-color: hsl(220, 25%, 6%);
+      color-scheme: dark;
+    }
+    html:not(.dark), html:not(.dark) body {
+      background-color: hsl(0, 0%, 100%);
+      color-scheme: light;
     }
     
     /* Safe areas for notched devices */
