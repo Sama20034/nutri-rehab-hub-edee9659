@@ -112,7 +112,7 @@ const PAYMENT_METHODS = {
 const Checkout = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const queryClient = useQueryClient();
   const { guestCart, clearCart, updateQuantity, removeFromCart, isLoading: cartLoading } = useCart();
   const { trackPurchase, trackInitiateCheckout } = useFacebookPixel();
