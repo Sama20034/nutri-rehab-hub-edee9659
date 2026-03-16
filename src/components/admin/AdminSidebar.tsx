@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, Dumbbell, Video, Star,
-  Utensils, FileText, ClipboardList, UserPlus, X, LogOut, Home, CreditCard, Tag, ChefHat, TrendingUp, FolderTree, Image, Heart
+  Utensils, FileText, ClipboardList, UserPlus, X, LogOut, Home, CreditCard, Tag, ChefHat, TrendingUp, FolderTree, Image, Heart, Facebook
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
