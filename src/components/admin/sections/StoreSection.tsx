@@ -41,6 +41,14 @@ import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import ProductImagesManager from '@/components/admin/ProductImagesManager';
 
+interface OrderItem {
+  id: string;
+  product_id: string;
+  quantity: number;
+  unit_price: number;
+  product_name?: string;
+}
+
 interface Order {
   id: string;
   user_id: string;
@@ -51,10 +59,13 @@ interface Order {
   phone: string | null;
   grants_content_access: boolean;
   notes: string | null;
+  guest_name: string | null;
+  guest_email: string | null;
   profile?: {
     full_name: string | null;
     phone: string | null;
   };
+  order_items?: OrderItem[];
 }
 
 interface Product {
