@@ -212,7 +212,7 @@ export const VideosSection = () => {
     resetForm();
   };
 
-  const handleEdit = (video: Video) => {
+  const handleEdit = async (video: Video) => {
     setFormData({
       title: video.title,
       url: video.url,
@@ -222,8 +222,14 @@ export const VideosSection = () => {
       thumbnail_url: video.thumbnail_url || ''
     });
     setEditingVideo(video);
-    setSelectedClients([]);
     setIsDialogOpen(true);
+
+    // Fetch currently assigned clients
+    const { data } = await supabase
+      .from('client_videos')
+      .select('client_id')
+      .eq('video_id', video.id);
+    setSelectedClients(data?.map(d => d.client_id) || []);
   };
 
   const handleDelete = async (id: string) => {
