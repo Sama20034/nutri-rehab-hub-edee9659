@@ -416,13 +416,29 @@ export const MealPlansSection = () => {
         toast.success(isRTL ? 'تم إضافة الوصفة' : 'Recipe added');
       }
 
-      // Assign to clients if any selected
-      if (selectedRecipeClients.length > 0 && newRecipeId) {
-        const assignResult = await assignRecipeToClients(newRecipeId, selectedRecipeClients);
-        if (assignResult.error) {
-          toast.error(isRTL ? 'تم حفظ الوصفة لكن فشل التعيين للعملاء' : 'Recipe saved but failed to assign to clients');
-        } else {
-          toast.success(isRTL ? `تم تعيين الوصفة لـ ${selectedRecipeClients.length} عميل` : `Assigned to ${selectedRecipeClients.length} clients`);
+      // Sync client assignments for recipe
+      if (newRecipeId && user) {
+        const { data: currentAssignments } = await supabase
+          .from('client_recipes')
+          .select('client_id')
+          .eq('recipe_id', newRecipeId);
+        const currentIds = currentAssignments?.map(a => a.client_id) || [];
+
+        const toAdd = selectedRecipeClients.filter(id => !currentIds.includes(id));
+        const toRemove = currentIds.filter(id => !selectedRecipeClients.includes(id));
+
+        if (toRemove.length > 0) {
+          await supabase.from('client_recipes').delete()
+            .eq('recipe_id', newRecipeId)
+            .in('client_id', toRemove);
+        }
+        if (toAdd.length > 0) {
+          const newAssignments = toAdd.map(clientId => ({
+            recipe_id: newRecipeId!,
+            client_id: clientId,
+            assigned_by: user.id
+          }));
+          await supabase.from('client_recipes').upsert(newAssignments, { onConflict: 'client_id,recipe_id', ignoreDuplicates: true });
         }
       }
 

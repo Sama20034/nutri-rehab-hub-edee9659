@@ -181,22 +181,29 @@ export const VideosSection = () => {
       toast.success(isRTL ? 'تم إضافة الفيديو' : 'Video added');
     }
 
-    // Assign to clients if any selected
-    if (videoId && selectedClients.length > 0 && user) {
-      const assignments = selectedClients.map(clientId => ({
-        client_id: clientId,
-        video_id: videoId!,
-        assigned_by: user.id
-      }));
-
-      const { error: assignError } = await supabase
+    // Sync client assignments
+    if (videoId && user) {
+      const { data: currentAssignments } = await supabase
         .from('client_videos')
-        .insert(assignments);
+        .select('client_id')
+        .eq('video_id', videoId);
+      const currentIds = currentAssignments?.map(a => a.client_id) || [];
 
-      if (assignError) {
-        toast.error(isRTL ? 'تم حفظ الفيديو لكن فشل التعيين للعملاء' : 'Video saved but failed to assign to clients');
-      } else {
-        toast.success(isRTL ? `تم تعيين الفيديو لـ ${selectedClients.length} عميل` : `Assigned to ${selectedClients.length} clients`);
+      const toAdd = selectedClients.filter(id => !currentIds.includes(id));
+      const toRemove = currentIds.filter(id => !selectedClients.includes(id));
+
+      if (toRemove.length > 0) {
+        await supabase.from('client_videos').delete()
+          .eq('video_id', videoId)
+          .in('client_id', toRemove);
+      }
+      if (toAdd.length > 0) {
+        const newAssignments = toAdd.map(clientId => ({
+          client_id: clientId,
+          video_id: videoId!,
+          assigned_by: user.id
+        }));
+        await supabase.from('client_videos').upsert(newAssignments, { onConflict: 'client_id,video_id', ignoreDuplicates: true });
       }
     }
 

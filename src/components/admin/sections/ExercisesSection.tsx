@@ -168,13 +168,31 @@ export const ExercisesSection = ({
     if (result.error) {
       toast.error(result.error.message);
     } else {
-      // Assign to clients if any selected
-      if (selectedClients.length > 0 && onAssignToClients && user && exerciseId) {
-        const assignResult = await onAssignToClients(exerciseId, selectedClients, user.id);
-        if (assignResult.error) {
-          toast.error(isRTL ? 'تم حفظ التمرين لكن فشل التعيين للعملاء' : 'Exercise saved but failed to assign to clients');
-        } else {
-          toast.success(isRTL ? `تم تعيين التمرين لـ ${selectedClients.length} عميل` : `Assigned to ${selectedClients.length} clients`);
+      // Sync client assignments
+      if (user && exerciseId) {
+        // Get current assignments
+        const { data: currentAssignments } = await supabase
+          .from('client_exercises')
+          .select('client_id')
+          .eq('exercise_id', exerciseId);
+        const currentIds = currentAssignments?.map(a => a.client_id) || [];
+        
+        const toAdd = selectedClients.filter(id => !currentIds.includes(id));
+        const toRemove = currentIds.filter(id => !selectedClients.includes(id));
+
+        if (toRemove.length > 0) {
+          await supabase.from('client_exercises').delete()
+            .eq('exercise_id', exerciseId)
+            .in('client_id', toRemove);
+        }
+        if (toAdd.length > 0) {
+          const newAssignments = toAdd.map(clientId => ({
+            exercise_id: exerciseId,
+            client_id: clientId,
+            assigned_by: user.id,
+            completed: false
+          }));
+          await supabase.from('client_exercises').upsert(newAssignments, { onConflict: 'client_id,exercise_id', ignoreDuplicates: true });
         }
       }
       
