@@ -526,7 +526,7 @@ export const CategoriesSection = () => {
           <DialogHeader>
             <DialogTitle>{isRTL ? 'إضافة تصنيف جديد' : 'Add New Category'}</DialogTitle>
           </DialogHeader>
-          <CategoryForm />
+          {categoryFormJSX}
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
               {isRTL ? 'إلغاء' : 'Cancel'}
