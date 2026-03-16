@@ -167,8 +167,10 @@ export const StoreSection = ({
   };
 
   const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const customerName = order.profile?.full_name || order.guest_name || '';
+    const matchesSearch = customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.guest_email?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
