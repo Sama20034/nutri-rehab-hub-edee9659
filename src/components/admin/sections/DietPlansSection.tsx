@@ -151,13 +151,31 @@ export const DietPlansSection = ({
       }
     }
     
-    // Assign to clients if any selected
-    if (!result.error && selectedClients.length > 0 && onAssignToClients && user && newPlanId) {
-      const assignResult = await onAssignToClients(newPlanId, selectedClients, user.id);
-      if (assignResult.error) {
-        toast.error(isRTL ? 'تم حفظ النظام لكن فشل التعيين للعملاء' : 'Plan saved but failed to assign to clients');
-      } else {
-        toast.success(isRTL ? `تم تعيين النظام لـ ${selectedClients.length} عميل` : `Assigned to ${selectedClients.length} clients`);
+    // Sync client assignments
+    if (!result.error && user && newPlanId) {
+      const { data: currentAssignments } = await supabase
+        .from('client_diet_plans')
+        .select('client_id')
+        .eq('diet_plan_id', newPlanId);
+      const currentIds = currentAssignments?.map(a => a.client_id) || [];
+
+      const toAdd = selectedClients.filter(id => !currentIds.includes(id));
+      const toRemove = currentIds.filter(id => !selectedClients.includes(id));
+
+      if (toRemove.length > 0) {
+        await supabase.from('client_diet_plans').delete()
+          .eq('diet_plan_id', newPlanId)
+          .in('client_id', toRemove);
+      }
+      if (toAdd.length > 0) {
+        const newAssignments = toAdd.map(clientId => ({
+          diet_plan_id: newPlanId!,
+          client_id: clientId,
+          assigned_by: user.id,
+          status: 'active',
+          start_date: new Date().toISOString().split('T')[0]
+        }));
+        await supabase.from('client_diet_plans').upsert(newAssignments, { onConflict: 'client_id,diet_plan_id', ignoreDuplicates: true });
       }
     }
 
@@ -170,7 +188,7 @@ export const DietPlansSection = ({
     }
   };
 
-  const handleEdit = (plan: DietPlan) => {
+  const handleEdit = async (plan: DietPlan) => {
     setFormData({
       name: plan.name,
       goal: plan.goal || 'تخسيس',
@@ -183,8 +201,14 @@ export const DietPlansSection = ({
     setAttachments(plan.attachments || []);
     setVideoUrls(plan.video_urls || []);
     setEditingPlan(plan);
-    setSelectedClients([]);
     setIsDialogOpen(true);
+
+    // Fetch currently assigned clients
+    const { data } = await supabase
+      .from('client_diet_plans')
+      .select('client_id')
+      .eq('diet_plan_id', plan.id);
+    setSelectedClients(data?.map(d => d.client_id) || []);
   };
 
   const handleDelete = async (id: string) => {

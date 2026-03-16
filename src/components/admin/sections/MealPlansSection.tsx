@@ -331,13 +331,31 @@ export const MealPlansSection = () => {
         toast.success(isRTL ? 'تم إضافة الخطة' : 'Plan added');
       }
 
-      // Assign to clients if any selected
-      if (selectedClients.length > 0 && newPlanId) {
-        const assignResult = await assignMealPlanToClients(newPlanId, selectedClients);
-        if (assignResult.error) {
-          toast.error(isRTL ? 'تم حفظ الخطة لكن فشل التعيين للعملاء' : 'Plan saved but failed to assign to clients');
-        } else {
-          toast.success(isRTL ? `تم تعيين الخطة لـ ${selectedClients.length} عميل` : `Assigned to ${selectedClients.length} clients`);
+      // Sync client assignments
+      if (newPlanId && user) {
+        const { data: currentAssignments } = await supabase
+          .from('client_meal_plans')
+          .select('client_id')
+          .eq('meal_plan_id', newPlanId);
+        const currentIds = currentAssignments?.map(a => a.client_id) || [];
+
+        const toAdd = selectedClients.filter(id => !currentIds.includes(id));
+        const toRemove = currentIds.filter(id => !selectedClients.includes(id));
+
+        if (toRemove.length > 0) {
+          await supabase.from('client_meal_plans').delete()
+            .eq('meal_plan_id', newPlanId)
+            .in('client_id', toRemove);
+        }
+        if (toAdd.length > 0) {
+          const newAssignments = toAdd.map(clientId => ({
+            meal_plan_id: newPlanId!,
+            client_id: clientId,
+            assigned_by: user.id,
+            status: 'active',
+            start_date: new Date().toISOString().split('T')[0]
+          }));
+          await supabase.from('client_meal_plans').upsert(newAssignments, { onConflict: 'client_id,meal_plan_id', ignoreDuplicates: true });
         }
       }
 
@@ -398,13 +416,29 @@ export const MealPlansSection = () => {
         toast.success(isRTL ? 'تم إضافة الوصفة' : 'Recipe added');
       }
 
-      // Assign to clients if any selected
-      if (selectedRecipeClients.length > 0 && newRecipeId) {
-        const assignResult = await assignRecipeToClients(newRecipeId, selectedRecipeClients);
-        if (assignResult.error) {
-          toast.error(isRTL ? 'تم حفظ الوصفة لكن فشل التعيين للعملاء' : 'Recipe saved but failed to assign to clients');
-        } else {
-          toast.success(isRTL ? `تم تعيين الوصفة لـ ${selectedRecipeClients.length} عميل` : `Assigned to ${selectedRecipeClients.length} clients`);
+      // Sync client assignments for recipe
+      if (newRecipeId && user) {
+        const { data: currentAssignments } = await supabase
+          .from('client_recipes')
+          .select('client_id')
+          .eq('recipe_id', newRecipeId);
+        const currentIds = currentAssignments?.map(a => a.client_id) || [];
+
+        const toAdd = selectedRecipeClients.filter(id => !currentIds.includes(id));
+        const toRemove = currentIds.filter(id => !selectedRecipeClients.includes(id));
+
+        if (toRemove.length > 0) {
+          await supabase.from('client_recipes').delete()
+            .eq('recipe_id', newRecipeId)
+            .in('client_id', toRemove);
+        }
+        if (toAdd.length > 0) {
+          const newAssignments = toAdd.map(clientId => ({
+            recipe_id: newRecipeId!,
+            client_id: clientId,
+            assigned_by: user.id
+          }));
+          await supabase.from('client_recipes').upsert(newAssignments, { onConflict: 'client_id,recipe_id', ignoreDuplicates: true });
         }
       }
 
@@ -416,7 +450,7 @@ export const MealPlansSection = () => {
     }
   };
 
-  const handleEditPlan = (plan: MealPlan) => {
+  const handleEditPlan = async (plan: MealPlan) => {
     setPlanFormData({
       name: plan.name,
       description: plan.description || '',
@@ -429,9 +463,16 @@ export const MealPlansSection = () => {
     });
     setEditingPlan(plan);
     setIsDialogOpen(true);
+
+    // Fetch currently assigned clients
+    const { data } = await supabase
+      .from('client_meal_plans')
+      .select('client_id')
+      .eq('meal_plan_id', plan.id);
+    setSelectedClients(data?.map(d => d.client_id) || []);
   };
 
-  const handleEditRecipe = (recipe: Recipe) => {
+  const handleEditRecipe = async (recipe: Recipe) => {
     setRecipeFormData({
       name: recipe.name,
       description: recipe.description || '',
@@ -452,6 +493,13 @@ export const MealPlansSection = () => {
     });
     setEditingRecipe(recipe);
     setIsRecipeDialogOpen(true);
+
+    // Fetch currently assigned clients
+    const { data } = await supabase
+      .from('client_recipes')
+      .select('client_id')
+      .eq('recipe_id', recipe.id);
+    setSelectedRecipeClients(data?.map(d => d.client_id) || []);
   };
 
   const handleDeletePlan = async (id: string) => {
