@@ -289,15 +289,27 @@ const Packages = () => {
   const isRTL = language === "ar";
   const { setTheme, theme } = useTheme();
 
-  // Force dark theme for Packages page
+  // Force dark theme for Packages page — suppress transitions to prevent flash
   useEffect(() => {
     const previousTheme = theme;
+    document.documentElement.setAttribute('data-theme-switching', '');
     setTheme("dark");
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.documentElement.removeAttribute('data-theme-switching');
+      });
+    });
     
     return () => {
-      // Restore previous theme when leaving the page
+      cancelAnimationFrame(raf);
       if (previousTheme && previousTheme !== "dark") {
+        document.documentElement.setAttribute('data-theme-switching', '');
         setTheme(previousTheme);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            document.documentElement.removeAttribute('data-theme-switching');
+          });
+        });
       }
     };
   }, []);
