@@ -210,15 +210,7 @@ const Checkout = () => {
   // Validate form
   const validateForm = () => {
     try {
-      // For logged-in users, email is optional (we have their user_id)
-      const schemaToUse = user 
-        ? checkoutSchema.extend({
-            email: z.string().optional(),
-            full_name: z.string().optional()
-          })
-        : checkoutSchema;
-      
-      schemaToUse.parse(checkoutData);
+      checkoutSchema.parse(checkoutData);
       setErrors({});
       return true;
     } catch (error) {
