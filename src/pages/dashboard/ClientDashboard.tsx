@@ -142,6 +142,13 @@ const ClientDashboard = () => {
             hasMedicalFollowup={profile?.medical_followup || false}
           />
         );
+      case 'orders':
+        return (
+          <OrdersSection 
+            isRTL={isRTL}
+            clientId={user?.id || ''}
+          />
+        );
       default:
         return null;
     }

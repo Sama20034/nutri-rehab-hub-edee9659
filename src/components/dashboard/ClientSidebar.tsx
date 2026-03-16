@@ -45,6 +45,7 @@ const sidebarItems: SidebarItem[] = [
   { id: 'health-profile', labelAr: 'ملفي الصحي', labelEn: 'Health Profile', icon: <Heart className="h-5 w-5" /> },
   { id: 'medical-followup', labelAr: 'المتابعة الطبية', labelEn: 'Medical Follow-up', icon: <Stethoscope className="h-5 w-5" /> },
   { id: 'progress', labelAr: 'متابعة التقدم', labelEn: 'Progress', icon: <TrendingUp className="h-5 w-5" /> },
+  { id: 'orders', labelAr: 'طلباتي', labelEn: 'My Orders', icon: <ShoppingBag className="h-5 w-5" /> },
   { id: 'videos', labelAr: 'الفيديوهات', labelEn: 'Videos', icon: <Video className="h-5 w-5" /> },
 ];
 
