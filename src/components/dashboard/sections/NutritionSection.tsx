@@ -353,83 +353,121 @@ export const NutritionSection = ({ isRTL, clientId, packageType = 'basic' }: Nut
             ))}
           </div>
 
-          {/* Daily Summary */}
-          <Card className="bg-gradient-to-br from-primary/10 to-primary/5">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className={`${isRTL ? 'text-right' : ''}`}>
-                  <p className="text-sm text-muted-foreground">{isRTL ? 'إجمالي السعرات اليوم' : 'Total Calories Today'}</p>
-                  <p className="text-3xl font-bold">1,500 <span className="text-sm font-normal text-muted-foreground">/ 1,800</span></p>
-                </div>
-                <div className="w-24">
-                  <Progress value={83} className="h-3" />
-                  <p className="text-xs text-muted-foreground text-center mt-1">83%</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Meals Grid */}
-          <div className="grid gap-4">
-            {Object.entries(mealTypeConfig).map(([type, config]) => {
-              const Icon = config.icon;
-              const meal = demoMeals.find(m => m.type === type);
-              
+          {(() => {
+            const currentDayPlan = mealPlans.find(p => p.day_number === selectedDay);
+            
+            if (!currentDayPlan) {
               return (
-                <motion.div
-                  key={type}
-                  initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: Object.keys(mealTypeConfig).indexOf(type) * 0.1 }}
-                >
-                  <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-                    <div className={`flex ${isRTL ? 'flex-row-reverse' : ''}`}>
-                      {/* Meal Image */}
-                      <div className="relative w-28 h-28 sm:w-36 sm:h-36 flex-shrink-0">
-                        <img 
-                          src={meal?.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300'} 
-                          alt={config.label[isRTL ? 'ar' : 'en']}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className={`absolute inset-0 bg-gradient-to-t ${config.color} opacity-20`} />
-                        <div className={`absolute top-2 ${isRTL ? 'right-2' : 'left-2'}`}>
-                          <div className={`p-1.5 rounded-lg ${config.bgColor}`}>
-                            <Icon className="h-4 w-4" />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Meal Content */}
-                      <div className={`flex-1 p-4 ${isRTL ? 'text-right' : ''}`}>
-                        <div className={`flex items-start justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
-                          <div>
-                            <Badge variant="secondary" className="mb-2">
-                              {config.label[isRTL ? 'ar' : 'en']}
-                            </Badge>
-                            <h3 className="font-semibold text-lg">{meal?.title}</h3>
-                          </div>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <Check className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        
-                        <div className={`flex items-center gap-4 mt-3 text-sm text-muted-foreground ${isRTL ? 'flex-row-reverse' : ''}`}>
-                          <span className={`flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                            <Clock className="h-3.5 w-3.5" />
-                            {meal?.time}
-                          </span>
-                          <span className={`flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                            <Flame className="h-3.5 w-3.5" />
-                            {meal?.calories} {isRTL ? 'سعرة' : 'cal'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                </motion.div>
+                <Card className="p-8 text-center">
+                  <Utensils className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">
+                    {isRTL ? 'لا يوجد نظام غذائي لهذا اليوم' : 'No meal plan for this day'}
+                  </h3>
+                  <p className="text-muted-foreground text-sm">
+                    {isRTL ? 'لم يتم تخصيص وجبات لهذا اليوم بعد. تواصل مع طبيبك.' : 'No meals assigned for this day yet. Contact your doctor.'}
+                  </p>
+                </Card>
               );
-            })}
-          </div>
+            }
+
+            const getMealData = (mealJson: any) => {
+              if (!mealJson) return null;
+              if (typeof mealJson === 'string') {
+                try { return JSON.parse(mealJson); } catch { return { name: mealJson }; }
+              }
+              return mealJson;
+            };
+
+            const meals = [
+              { type: 'breakfast' as const, data: getMealData(currentDayPlan.breakfast) },
+              { type: 'lunch' as const, data: getMealData(currentDayPlan.lunch) },
+              { type: 'dinner' as const, data: getMealData(currentDayPlan.dinner) },
+              ...(currentDayPlan.snacks || []).map((s: any, i: number) => ({ 
+                type: 'snack' as const, 
+                data: getMealData(s),
+                key: `snack-${i}`
+              }))
+            ].filter(m => m.data);
+
+            const totalCalories = currentDayPlan.total_calories || 0;
+
+            return (
+              <>
+                {/* Daily Summary */}
+                {totalCalories > 0 && (
+                  <Card className="bg-gradient-to-br from-primary/10 to-primary/5">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className={`${isRTL ? 'text-right' : ''}`}>
+                          <p className="text-sm text-muted-foreground">{isRTL ? 'إجمالي السعرات اليوم' : 'Total Calories Today'}</p>
+                          <p className="text-3xl font-bold">{totalCalories.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">{isRTL ? 'سعرة' : 'cal'}</span></p>
+                        </div>
+                        <div className="p-3 rounded-xl bg-primary/20">
+                          <Flame className="h-6 w-6 text-primary" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Meals Grid */}
+                <div className="grid gap-4">
+                  {meals.map((meal, index) => {
+                    const config = mealTypeConfig[meal.type];
+                    const Icon = config.icon;
+                    const mealName = meal.data?.name || meal.data?.title || config.label[isRTL ? 'ar' : 'en'];
+                    const mealDesc = meal.data?.description || meal.data?.items?.join('، ') || '';
+                    const mealCalories = meal.data?.calories || meal.data?.cal || null;
+
+                    return (
+                      <motion.div
+                        key={(meal as any).key || meal.type}
+                        initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                      >
+                        <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+                          <div className={`flex ${isRTL ? 'flex-row-reverse' : ''}`}>
+                            <div className={`w-3 bg-gradient-to-b ${config.color}`} />
+                            <div className={`flex-1 p-4 ${isRTL ? 'text-right' : ''}`}>
+                              <div className={`flex items-start justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
+                                <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                                  <div className={`p-2 rounded-lg ${config.bgColor}`}>
+                                    <Icon className="h-5 w-5" />
+                                  </div>
+                                  <div>
+                                    <Badge variant="secondary" className="mb-1 text-xs">
+                                      {config.label[isRTL ? 'ar' : 'en']}
+                                    </Badge>
+                                    <h3 className="font-semibold">{mealName}</h3>
+                                  </div>
+                                </div>
+                                {mealCalories && (
+                                  <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                                    <Flame className="h-3.5 w-3.5" />
+                                    {mealCalories} {isRTL ? 'سعرة' : 'cal'}
+                                  </span>
+                                )}
+                              </div>
+                              {mealDesc && (
+                                <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{mealDesc}</p>
+                              )}
+                              {meal.data?.time && (
+                                <div className={`flex items-center gap-1 mt-2 text-xs text-muted-foreground ${isRTL ? 'flex-row-reverse' : ''}`}>
+                                  <Clock className="h-3 w-3" />
+                                  {meal.data.time}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </>
+            );
+          })()}
         </TabsContent>
 
         {/* Diet Plans Tab */}
