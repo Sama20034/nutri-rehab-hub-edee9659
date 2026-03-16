@@ -171,6 +171,14 @@ const Checkout = () => {
   // Track if we've done the initial check
   const [hasCheckedCart, setHasCheckedCart] = useState(false);
 
+  // Redirect unauthenticated users to login
+  useEffect(() => {
+    if (!user && !loading) {
+      toast.error(isRTL ? 'يرجى تسجيل الدخول أولاً لإتمام عملية الشراء' : 'Please log in first to complete your purchase');
+      navigate('/auth?redirect=/checkout');
+    }
+  }, [user, loading, navigate, isRTL]);
+
   // Redirect if cart is empty (with delay to allow localStorage to load)
   useEffect(() => {
     // Give localStorage time to load for guest users
