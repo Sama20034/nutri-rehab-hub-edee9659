@@ -16,6 +16,14 @@ export interface SalesStats {
   monthlySales: number;
 }
 
+export interface OrderItem {
+  id: string;
+  product_id: string;
+  quantity: number;
+  unit_price: number;
+  product_name?: string;
+}
+
 export interface Order {
   id: string;
   user_id: string;
@@ -26,10 +34,13 @@ export interface Order {
   phone: string | null;
   grants_content_access: boolean;
   notes: string | null;
+  guest_name: string | null;
+  guest_email: string | null;
   profile?: {
     full_name: string | null;
     phone: string | null;
   };
+  order_items?: OrderItem[];
 }
 
 export interface Payment {
