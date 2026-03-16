@@ -545,7 +545,7 @@ export const CategoriesSection = () => {
           <DialogHeader>
             <DialogTitle>{isRTL ? 'تعديل التصنيف' : 'Edit Category'}</DialogTitle>
           </DialogHeader>
-          <CategoryForm />
+          {categoryFormJSX}
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
               {isRTL ? 'إلغاء' : 'Cancel'}
