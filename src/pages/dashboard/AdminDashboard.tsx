@@ -25,6 +25,7 @@ import { ProgressTrackingSection } from '@/components/admin/sections/ProgressTra
 import { CategoriesSection } from '@/components/admin/sections/CategoriesSection';
 import PromoBannersSection from '@/components/admin/sections/PromoBannersSection';
 import { HealthProfilesSection } from '@/components/admin/sections/HealthProfilesSection';
+import { PixelSection } from '@/components/admin/sections/PixelSection';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { cn } from '@/lib/utils';
 import logo from '@/assets/logo.png';
@@ -210,6 +211,8 @@ const AdminDashboard = () => {
         return <CategoriesSection />;
       case 'banners':
         return <PromoBannersSection isRTL={isRTL} />;
+      case 'pixel':
+        return <PixelSection />;
       default:
         return null;
     }

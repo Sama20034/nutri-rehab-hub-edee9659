@@ -49,20 +49,30 @@
     }
   </style>
   
-  <!-- Meta Pixel Code -->
+  <!-- Dynamic Meta Pixel Loader -->
   <script>
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '891541746797169');
-    fbq('track', 'PageView');
+    (function() {
+      var SUPA_URL = 'https://evfoljpyhcfwjgwljhyg.supabase.co';
+      var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zm9sanB5aGNmd2pnd2xqaHlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2MjA4NDEsImV4cCI6MjA4NDE5Njg0MX0.YPflfLSaKfyP6SUonURUkz9a8inHVYnGfOw4GNk6cBg';
+      fetch(SUPA_URL + '/rest/v1/site_settings?key=eq.facebook_pixel_id&select=value', {
+        headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (!d || !d[0] || !d[0].value) return;
+        var pid = d[0].value;
+        !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+        n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', pid);
+        fbq('track', 'PageView');
+        window.__fbPixelId = pid;
+      })
+      .catch(function() {});
+    })();
   </script>
-  <!-- End Meta Pixel Code -->
+  <!-- End Dynamic Meta Pixel -->
   
   <!-- Route persistence for mobile refresh -->
   <script>
@@ -113,10 +123,7 @@
 </head>
 
   <body>
-    <!-- Meta Pixel noscript fallback -->
-    <noscript><img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id=891541746797169&ev=PageView&noscript=1"
-    /></noscript>
+    <!-- noscript pixel fallback removed — dynamic loading only -->
     
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
