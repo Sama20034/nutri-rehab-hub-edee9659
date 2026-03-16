@@ -37,6 +37,11 @@ const Auth = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (!loading && user && role) {
+      const redirectTo = searchParams.get('redirect');
+      if (redirectTo) {
+        navigate(redirectTo);
+        return;
+      }
       // Check if user is approved
       if (status === 'approved' || role === 'admin') {
         const dashboardRoutes: Record<AppRole, string> = {
