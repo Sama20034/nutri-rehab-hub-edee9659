@@ -61,10 +61,8 @@ interface CartItem {
 
 type PaymentMethod = 'cash_on_delivery' | 'vodafone_cash' | 'instapay' | 'paymob';
 
-// Validation schema
+// Validation schema (no longer needs guest fields since login is required)
 const checkoutSchema = z.object({
-  full_name: z.string().trim().min(2, 'Name must be at least 2 characters').max(100),
-  email: z.string().trim().email('Invalid email address').max(255),
   shipping_address: z.string().trim().min(10, 'Address must be at least 10 characters').max(500),
   phone: z.string().trim().regex(/^01[0125][0-9]{8}$/, 'Invalid Egyptian phone number'),
   notes: z.string().max(500).optional()
