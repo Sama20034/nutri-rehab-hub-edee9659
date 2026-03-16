@@ -61,10 +61,8 @@ interface CartItem {
 
 type PaymentMethod = 'cash_on_delivery' | 'vodafone_cash' | 'instapay' | 'paymob';
 
-// Validation schema
+// Validation schema (no longer needs guest fields since login is required)
 const checkoutSchema = z.object({
-  full_name: z.string().trim().min(2, 'Name must be at least 2 characters').max(100),
-  email: z.string().trim().email('Invalid email address').max(255),
   shipping_address: z.string().trim().min(10, 'Address must be at least 10 characters').max(500),
   phone: z.string().trim().regex(/^01[0125][0-9]{8}$/, 'Invalid Egyptian phone number'),
   notes: z.string().max(500).optional()
@@ -112,7 +110,7 @@ const PAYMENT_METHODS = {
 const Checkout = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const queryClient = useQueryClient();
   const { guestCart, clearCart, updateQuantity, removeFromCart, isLoading: cartLoading } = useCart();
   const { trackPurchase, trackInitiateCheckout } = useFacebookPixel();
@@ -171,6 +169,14 @@ const Checkout = () => {
   // Track if we've done the initial check
   const [hasCheckedCart, setHasCheckedCart] = useState(false);
 
+  // Redirect unauthenticated users to login
+  useEffect(() => {
+    if (!user && !loading) {
+      toast.error(isRTL ? 'يرجى تسجيل الدخول أولاً لإتمام عملية الشراء' : 'Please log in first to complete your purchase');
+      navigate('/auth?redirect=/checkout');
+    }
+  }, [user, loading, navigate, isRTL]);
+
   // Redirect if cart is empty (with delay to allow localStorage to load)
   useEffect(() => {
     // Give localStorage time to load for guest users
@@ -204,15 +210,7 @@ const Checkout = () => {
   // Validate form
   const validateForm = () => {
     try {
-      // For logged-in users, email is optional (we have their user_id)
-      const schemaToUse = user 
-        ? checkoutSchema.extend({
-            email: z.string().optional(),
-            full_name: z.string().optional()
-          })
-        : checkoutSchema;
-      
-      schemaToUse.parse(checkoutData);
+      checkoutSchema.parse(checkoutData);
       setErrors({});
       return true;
     } catch (error) {
@@ -256,12 +254,7 @@ const Checkout = () => {
         grants_content_access: grantsAccess
       };
 
-      if (user) {
-        orderPayload.user_id = user.id;
-      } else {
-        orderPayload.guest_name = checkoutData.full_name;
-        orderPayload.guest_email = checkoutData.email || 'guest@checkout.com';
-      }
+      orderPayload.user_id = user!.id;
 
       const orderItems = cartItems.map(item => ({
         product_id: item.product_id,
@@ -373,12 +366,7 @@ const Checkout = () => {
         grants_content_access: grantsAccess
       };
 
-      if (user) {
-        orderPayload.user_id = user.id;
-      } else {
-        orderPayload.guest_name = checkoutData.full_name;
-        orderPayload.guest_email = checkoutData.email || 'guest@checkout.com';
-      }
+      orderPayload.user_id = user!.id;
 
       const orderItems = cartItems.map(item => ({
         product_id: item.product_id,
@@ -719,45 +707,7 @@ const Checkout = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4 sm:space-y-5">
-                    {/* Guest fields - only show if not logged in */}
-                    {!user && (
-                      <>
-                        <div className="space-y-1.5 sm:space-y-2">
-                          <label className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1.5 sm:gap-2">
-                            <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
-                            {isRTL ? 'الاسم الكامل' : 'Full Name'}
-                            <span className="text-destructive">*</span>
-                          </label>
-                          <Input
-                            value={checkoutData.full_name}
-                            onChange={(e) => setCheckoutData(prev => ({ ...prev, full_name: e.target.value }))}
-                            placeholder={isRTL ? 'أدخل اسمك الكامل' : 'Enter your full name'}
-                            className={`h-10 sm:h-11 text-sm sm:text-base ${errors.full_name ? 'border-destructive' : ''}`}
-                          />
-                          {errors.full_name && (
-                            <p className="text-xs sm:text-sm text-destructive">{errors.full_name}</p>
-                          )}
-                        </div>
-
-                        <div className="space-y-1.5 sm:space-y-2">
-                          <label className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1.5 sm:gap-2">
-                            <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
-                            {isRTL ? 'البريد الإلكتروني' : 'Email'}
-                            <span className="text-destructive">*</span>
-                          </label>
-                          <Input
-                            type="email"
-                            value={checkoutData.email}
-                            onChange={(e) => setCheckoutData(prev => ({ ...prev, email: e.target.value }))}
-                            placeholder="example@email.com"
-                            className={`h-10 sm:h-11 text-sm sm:text-base ${errors.email ? 'border-destructive' : ''}`}
-                          />
-                          {errors.email && (
-                            <p className="text-xs sm:text-sm text-destructive">{errors.email}</p>
-                          )}
-                        </div>
-                      </>
-                    )}
+                    {/* All users are now logged in - no guest fields needed */}
 
                     <div className="space-y-1.5 sm:space-y-2">
                       <label className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1.5 sm:gap-2">

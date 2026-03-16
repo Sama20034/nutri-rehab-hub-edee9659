@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTheme } from "next-themes";
@@ -278,6 +279,12 @@ const Store = () => {
   };
 
   const handleCheckout = () => {
+    if (!user) {
+      toast.info(isRTL ? 'يرجى تسجيل الدخول أولاً لإتمام عملية الشراء' : 'Please log in first to complete your purchase');
+      setShowCart(false);
+      navigate('/auth?redirect=/checkout');
+      return;
+    }
     setShowCart(false);
     navigate('/checkout');
   };
