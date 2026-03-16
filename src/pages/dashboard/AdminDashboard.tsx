@@ -211,6 +211,8 @@ const AdminDashboard = () => {
         return <CategoriesSection />;
       case 'banners':
         return <PromoBannersSection isRTL={isRTL} />;
+      case 'pixel':
+        return <PixelSection />;
       default:
         return null;
     }
