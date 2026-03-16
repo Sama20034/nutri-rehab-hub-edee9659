@@ -333,24 +333,19 @@ export const StoreSection = ({
                       <TableHead>{isRTL ? 'الحالة' : 'Status'}</TableHead>
                       <TableHead>{isRTL ? 'التاريخ' : 'Date'}</TableHead>
                       <TableHead>{isRTL ? 'إجراءات' : 'Actions'}</TableHead>
-                      <TableHead>{isRTL ? 'الإيصال' : 'Receipt'}</TableHead>
-                      <TableHead>{isRTL ? 'الحالة' : 'Status'}</TableHead>
-                      <TableHead>{isRTL ? 'التاريخ' : 'Date'}</TableHead>
-                      <TableHead>{isRTL ? 'إجراءات' : 'Actions'}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredOrders.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                           {isRTL ? 'لا توجد طلبات' : 'No orders found'}
                         </TableCell>
                       </TableRow>
                     ) : (
                       filteredOrders.map((order) => {
-                        // Extract receipt URL from notes
-                        const receiptMatch = order.notes?.match(/📸 Receipt Screenshot: (https?:\/\/[^\s\n]+)/);
-                        const receiptUrl = receiptMatch ? receiptMatch[1] : null;
+                        const customerName = order.profile?.full_name || order.guest_name || (isRTL ? 'زائر' : 'Guest');
+                        const customerPhone = order.phone || order.profile?.phone;
                         
                         return (
                           <TableRow key={order.id}>
@@ -359,8 +354,11 @@ export const StoreSection = ({
                             </TableCell>
                             <TableCell>
                               <div>
-                                <p className="font-medium">{order.profile?.full_name || 'N/A'}</p>
-                                <p className="text-xs text-muted-foreground">{order.phone || order.profile?.phone}</p>
+                                <p className="font-medium">{customerName}</p>
+                                <p className="text-xs text-muted-foreground">{customerPhone || '-'}</p>
+                                {order.guest_email && (
+                                  <p className="text-xs text-muted-foreground">{order.guest_email}</p>
+                                )}
                               </div>
                             </TableCell>
                             <TableCell>
@@ -368,55 +366,6 @@ export const StoreSection = ({
                                 <span className="font-bold">{order.total_amount.toLocaleString()}</span>
                                 <span className="text-xs text-muted-foreground">{isRTL ? 'ج.م' : 'EGP'}</span>
                               </div>
-                              {order.grants_content_access && (
-                                <Badge variant="outline" className="text-xs mt-1 bg-green-500/10 text-green-500 border-green-500/20">
-                                  {isRTL ? 'محتوى مجاني' : 'Free Content'}
-                                </Badge>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              {receiptUrl ? (
-                                <Dialog>
-                                  <DialogTrigger asChild>
-                                    <Button variant="outline" size="sm" className="flex items-center gap-1">
-                                      <Image className="h-4 w-4" />
-                                      {isRTL ? 'عرض' : 'View'}
-                                    </Button>
-                                  </DialogTrigger>
-                                  <DialogContent className="max-w-2xl">
-                                    <DialogHeader>
-                                      <DialogTitle className="flex items-center gap-2">
-                                        <Image className="h-5 w-5" />
-                                        {isRTL ? 'صورة إيصال الدفع' : 'Payment Receipt'}
-                                      </DialogTitle>
-                                    </DialogHeader>
-                                    <div className="space-y-4">
-                                      <div className="rounded-lg overflow-hidden border border-border">
-                                        <img 
-                                          src={receiptUrl} 
-                                          alt="Receipt" 
-                                          className="w-full h-auto max-h-[60vh] object-contain bg-muted"
-                                        />
-                                      </div>
-                                      <div className="flex justify-end">
-                                        <Button 
-                                          variant="outline" 
-                                          size="sm" 
-                                          onClick={() => window.open(receiptUrl, '_blank')}
-                                          className="flex items-center gap-2"
-                                        >
-                                          <ExternalLink className="h-4 w-4" />
-                                          {isRTL ? 'فتح في تبويب جديد' : 'Open in new tab'}
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  </DialogContent>
-                                </Dialog>
-                              ) : (
-                                <span className="text-xs text-muted-foreground">
-                                  {isRTL ? 'لا يوجد' : 'None'}
-                                </span>
-                              )}
                             </TableCell>
                             <TableCell>
                               <Badge className={`${getStatusColor(order.status || 'pending')} flex items-center gap-1 w-fit`}>
@@ -428,21 +377,32 @@ export const StoreSection = ({
                               {new Date(order.created_at).toLocaleDateString(isRTL ? 'ar-EG' : 'en-US')}
                             </TableCell>
                             <TableCell>
-                              <Select
-                                value={order.status || 'pending'}
-                                onValueChange={(value) => handleUpdateOrder(order.id, value)}
-                              >
-                                <SelectTrigger className="w-[130px] h-8">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="pending">{isRTL ? 'معلق' : 'Pending'}</SelectItem>
-                                  <SelectItem value="confirmed">{isRTL ? 'مؤكد' : 'Confirmed'}</SelectItem>
-                                  <SelectItem value="shipped">{isRTL ? 'تم الشحن' : 'Shipped'}</SelectItem>
-                                  <SelectItem value="delivered">{isRTL ? 'تم التوصيل' : 'Delivered'}</SelectItem>
-                                  <SelectItem value="cancelled">{isRTL ? 'ملغي' : 'Cancelled'}</SelectItem>
-                                </SelectContent>
-                              </Select>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setSelectedOrder(order)}
+                                  className="flex items-center gap-1"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                  {isRTL ? 'التفاصيل' : 'Details'}
+                                </Button>
+                                <Select
+                                  value={order.status || 'pending'}
+                                  onValueChange={(value) => handleUpdateOrder(order.id, value)}
+                                >
+                                  <SelectTrigger className="w-[120px] h-8">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="pending">{isRTL ? 'معلق' : 'Pending'}</SelectItem>
+                                    <SelectItem value="confirmed">{isRTL ? 'مؤكد' : 'Confirmed'}</SelectItem>
+                                    <SelectItem value="shipped">{isRTL ? 'تم الشحن' : 'Shipped'}</SelectItem>
+                                    <SelectItem value="delivered">{isRTL ? 'تم التوصيل' : 'Delivered'}</SelectItem>
+                                    <SelectItem value="cancelled">{isRTL ? 'ملغي' : 'Cancelled'}</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
                             </TableCell>
                           </TableRow>
                         );
@@ -451,6 +411,177 @@ export const StoreSection = ({
                   </TableBody>
                 </Table>
               </div>
+
+              {/* Order Details Dialog */}
+              <Dialog open={!!selectedOrder} onOpenChange={(open) => !open && setSelectedOrder(null)}>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                      <ShoppingBag className="h-5 w-5" />
+                      {isRTL ? 'تفاصيل الطلب' : 'Order Details'}
+                      <span className="font-mono text-sm text-muted-foreground">
+                        #{selectedOrder?.id.slice(0, 8)}
+                      </span>
+                    </DialogTitle>
+                  </DialogHeader>
+                  {selectedOrder && (() => {
+                    const receiptMatch = selectedOrder.notes?.match(/📸 Receipt Screenshot: (https?:\/\/[^\s\n]+)/);
+                    const receiptUrl = receiptMatch ? receiptMatch[1] : null;
+                    const cleanNotes = selectedOrder.notes
+                      ?.replace(/💳 Payment Method:.*\n?/g, '')
+                      .replace(/📸 Receipt Screenshot:.*\n?/g, '')
+                      .replace(/🛒 Add-ons:.*\n?/g, '')
+                      .trim();
+                    const paymentMethodMatch = selectedOrder.notes?.match(/💳 Payment Method: (.+)/);
+                    const paymentMethod = paymentMethodMatch ? paymentMethodMatch[1] : null;
+
+                    return (
+                      <div className="space-y-5">
+                        {/* Customer Info */}
+                        <div className="rounded-lg border border-border p-4 space-y-3">
+                          <h3 className="font-semibold flex items-center gap-2 text-sm">
+                            <User className="h-4 w-4" />
+                            {isRTL ? 'بيانات العميل' : 'Customer Info'}
+                          </h3>
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div className="flex items-center gap-2">
+                              <User className="h-3.5 w-3.5 text-muted-foreground" />
+                              <span className="text-muted-foreground">{isRTL ? 'الاسم:' : 'Name:'}</span>
+                              <span className="font-medium">
+                                {selectedOrder.profile?.full_name || selectedOrder.guest_name || (isRTL ? 'غير معروف' : 'Unknown')}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                              <span className="text-muted-foreground">{isRTL ? 'التلفون:' : 'Phone:'}</span>
+                              <span className="font-medium" dir="ltr">
+                                {selectedOrder.phone || selectedOrder.profile?.phone || '-'}
+                              </span>
+                            </div>
+                            {selectedOrder.guest_email && (
+                              <div className="flex items-center gap-2 col-span-2">
+                                <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                                <span className="text-muted-foreground">{isRTL ? 'الإيميل:' : 'Email:'}</span>
+                                <span className="font-medium">{selectedOrder.guest_email}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Shipping Address */}
+                        {selectedOrder.shipping_address && (
+                          <div className="rounded-lg border border-border p-4 space-y-2">
+                            <h3 className="font-semibold flex items-center gap-2 text-sm">
+                              <MapPin className="h-4 w-4" />
+                              {isRTL ? 'عنوان الشحن' : 'Shipping Address'}
+                            </h3>
+                            <p className="text-sm">{selectedOrder.shipping_address}</p>
+                          </div>
+                        )}
+
+                        {/* Order Items */}
+                        <div className="rounded-lg border border-border p-4 space-y-3">
+                          <h3 className="font-semibold flex items-center gap-2 text-sm">
+                            <ShoppingCart className="h-4 w-4" />
+                            {isRTL ? 'المنتجات المطلوبة' : 'Ordered Products'}
+                          </h3>
+                          {selectedOrder.order_items && selectedOrder.order_items.length > 0 ? (
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="text-xs">{isRTL ? 'المنتج' : 'Product'}</TableHead>
+                                  <TableHead className="text-xs">{isRTL ? 'الكمية' : 'Qty'}</TableHead>
+                                  <TableHead className="text-xs">{isRTL ? 'السعر' : 'Price'}</TableHead>
+                                  <TableHead className="text-xs">{isRTL ? 'الإجمالي' : 'Total'}</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {selectedOrder.order_items.map((item) => (
+                                  <TableRow key={item.id}>
+                                    <TableCell className="text-sm font-medium">{item.product_name || 'N/A'}</TableCell>
+                                    <TableCell className="text-sm">{item.quantity}</TableCell>
+                                    <TableCell className="text-sm">{item.unit_price.toLocaleString()} {isRTL ? 'ج.م' : 'EGP'}</TableCell>
+                                    <TableCell className="text-sm font-medium">
+                                      {(item.quantity * item.unit_price).toLocaleString()} {isRTL ? 'ج.م' : 'EGP'}
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                                <TableRow>
+                                  <TableCell colSpan={3} className="text-sm font-bold text-right">
+                                    {isRTL ? 'الإجمالي' : 'Total'}
+                                  </TableCell>
+                                  <TableCell className="text-sm font-bold">
+                                    {selectedOrder.total_amount.toLocaleString()} {isRTL ? 'ج.م' : 'EGP'}
+                                  </TableCell>
+                                </TableRow>
+                              </TableBody>
+                            </Table>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">
+                              {isRTL ? 'لا توجد بيانات منتجات' : 'No product data available'}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Payment & Notes */}
+                        <div className="rounded-lg border border-border p-4 space-y-3">
+                          <h3 className="font-semibold flex items-center gap-2 text-sm">
+                            <FileText className="h-4 w-4" />
+                            {isRTL ? 'الدفع والملاحظات' : 'Payment & Notes'}
+                          </h3>
+                          <div className="space-y-2 text-sm">
+                            {paymentMethod && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-muted-foreground">{isRTL ? 'طريقة الدفع:' : 'Payment:'}</span>
+                                <Badge variant="outline">{paymentMethod}</Badge>
+                              </div>
+                            )}
+                            <div className="flex items-center gap-2">
+                              <span className="text-muted-foreground">{isRTL ? 'الحالة:' : 'Status:'}</span>
+                              <Badge className={`${getStatusColor(selectedOrder.status || 'pending')} flex items-center gap-1`}>
+                                {getStatusIcon(selectedOrder.status || 'pending')}
+                                {selectedOrder.status || 'pending'}
+                              </Badge>
+                            </div>
+                            {cleanNotes && (
+                              <div>
+                                <span className="text-muted-foreground">{isRTL ? 'ملاحظات:' : 'Notes:'}</span>
+                                <p className="mt-1 p-2 bg-muted rounded text-sm">{cleanNotes}</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Receipt */}
+                        {receiptUrl && (
+                          <div className="rounded-lg border border-border p-4 space-y-3">
+                            <h3 className="font-semibold flex items-center gap-2 text-sm">
+                              <Image className="h-4 w-4" />
+                              {isRTL ? 'إيصال الدفع' : 'Payment Receipt'}
+                            </h3>
+                            <div className="rounded-lg overflow-hidden border border-border">
+                              <img 
+                                src={receiptUrl} 
+                                alt="Receipt" 
+                                className="w-full h-auto max-h-[40vh] object-contain bg-muted"
+                              />
+                            </div>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => window.open(receiptUrl, '_blank')}
+                              className="flex items-center gap-2"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                              {isRTL ? 'فتح في تبويب جديد' : 'Open in new tab'}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
         </TabsContent>
