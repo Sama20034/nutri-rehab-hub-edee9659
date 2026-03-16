@@ -707,45 +707,7 @@ const Checkout = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4 sm:space-y-5">
-                    {/* Guest fields - only show if not logged in */}
-                    {!user && (
-                      <>
-                        <div className="space-y-1.5 sm:space-y-2">
-                          <label className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1.5 sm:gap-2">
-                            <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
-                            {isRTL ? 'الاسم الكامل' : 'Full Name'}
-                            <span className="text-destructive">*</span>
-                          </label>
-                          <Input
-                            value={checkoutData.full_name}
-                            onChange={(e) => setCheckoutData(prev => ({ ...prev, full_name: e.target.value }))}
-                            placeholder={isRTL ? 'أدخل اسمك الكامل' : 'Enter your full name'}
-                            className={`h-10 sm:h-11 text-sm sm:text-base ${errors.full_name ? 'border-destructive' : ''}`}
-                          />
-                          {errors.full_name && (
-                            <p className="text-xs sm:text-sm text-destructive">{errors.full_name}</p>
-                          )}
-                        </div>
-
-                        <div className="space-y-1.5 sm:space-y-2">
-                          <label className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1.5 sm:gap-2">
-                            <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
-                            {isRTL ? 'البريد الإلكتروني' : 'Email'}
-                            <span className="text-destructive">*</span>
-                          </label>
-                          <Input
-                            type="email"
-                            value={checkoutData.email}
-                            onChange={(e) => setCheckoutData(prev => ({ ...prev, email: e.target.value }))}
-                            placeholder="example@email.com"
-                            className={`h-10 sm:h-11 text-sm sm:text-base ${errors.email ? 'border-destructive' : ''}`}
-                          />
-                          {errors.email && (
-                            <p className="text-xs sm:text-sm text-destructive">{errors.email}</p>
-                          )}
-                        </div>
-                      </>
-                    )}
+                    {/* All users are now logged in - no guest fields needed */}
 
                     <div className="space-y-1.5 sm:space-y-2">
                       <label className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1.5 sm:gap-2">
