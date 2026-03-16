@@ -101,7 +101,7 @@ export const PixelSection = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Facebook className="h-6 w-6 text-blue-600" />
+              <Facebook className="h-6 w-6 text-primary" />
               <div>
                 <CardTitle className="text-lg">Meta Pixel ID</CardTitle>
                 <CardDescription>
