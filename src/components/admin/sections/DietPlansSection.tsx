@@ -170,7 +170,7 @@ export const DietPlansSection = ({
     }
   };
 
-  const handleEdit = (plan: DietPlan) => {
+  const handleEdit = async (plan: DietPlan) => {
     setFormData({
       name: plan.name,
       goal: plan.goal || 'تخسيس',
@@ -183,8 +183,14 @@ export const DietPlansSection = ({
     setAttachments(plan.attachments || []);
     setVideoUrls(plan.video_urls || []);
     setEditingPlan(plan);
-    setSelectedClients([]);
     setIsDialogOpen(true);
+
+    // Fetch currently assigned clients
+    const { data } = await supabase
+      .from('client_diet_plans')
+      .select('client_id')
+      .eq('diet_plan_id', plan.id);
+    setSelectedClients(data?.map(d => d.client_id) || []);
   };
 
   const handleDelete = async (id: string) => {
