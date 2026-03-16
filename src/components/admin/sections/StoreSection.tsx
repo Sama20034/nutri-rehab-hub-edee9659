@@ -107,6 +107,7 @@ export const StoreSection = ({
   const [statusFilter, setStatusFilter] = useState('all');
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [categories, setCategories] = useState<{ id: string; name: string; name_ar: string | null; parent_id: string | null }[]>([]);
 
   useEffect(() => {
