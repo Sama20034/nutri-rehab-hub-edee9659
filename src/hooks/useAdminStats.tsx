@@ -16,6 +16,14 @@ export interface SalesStats {
   monthlySales: number;
 }
 
+export interface OrderItem {
+  id: string;
+  product_id: string;
+  quantity: number;
+  unit_price: number;
+  product_name?: string;
+}
+
 export interface Order {
   id: string;
   user_id: string;
@@ -26,10 +34,13 @@ export interface Order {
   phone: string | null;
   grants_content_access: boolean;
   notes: string | null;
+  guest_name: string | null;
+  guest_email: string | null;
   profile?: {
     full_name: string | null;
     phone: string | null;
   };
+  order_items?: OrderItem[];
 }
 
 export interface Payment {
@@ -118,9 +129,46 @@ export const useAdminStats = () => {
 
       const profilesMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
 
+      // Fetch order items with product names
+      const orderIds = ordersData?.map(o => o.id) || [];
+      let orderItemsMap = new Map<string, OrderItem[]>();
+      
+      if (orderIds.length > 0) {
+        const { data: orderItemsData } = await supabase
+          .from('order_items')
+          .select('id, order_id, product_id, quantity, unit_price')
+          .in('order_id', orderIds);
+
+        if (orderItemsData) {
+          // Get unique product IDs
+          const productIds = [...new Set(orderItemsData.map(oi => oi.product_id))];
+          const { data: productNames } = await supabase
+            .from('products')
+            .select('id, name')
+            .in('id', productIds);
+          
+          const productNameMap = new Map(productNames?.map(p => [p.id, p.name]) || []);
+          
+          for (const item of orderItemsData) {
+            const orderId = (item as any).order_id;
+            if (!orderItemsMap.has(orderId)) {
+              orderItemsMap.set(orderId, []);
+            }
+            orderItemsMap.get(orderId)!.push({
+              id: item.id,
+              product_id: item.product_id,
+              quantity: item.quantity,
+              unit_price: item.unit_price,
+              product_name: productNameMap.get(item.product_id) || 'Unknown'
+            });
+          }
+        }
+      }
+
       const ordersWithProfiles = ordersData?.map(order => ({
         ...order,
-        profile: profilesMap.get(order.user_id)
+        profile: profilesMap.get(order.user_id),
+        order_items: orderItemsMap.get(order.id) || []
       })) || [];
 
       const paymentsWithProfiles = paymentsData?.map(payment => ({
