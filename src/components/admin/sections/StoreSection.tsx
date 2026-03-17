@@ -872,8 +872,14 @@ const EditProductForm = ({ product, categories, isRTL, onSave, onCancel }: EditP
   const [saving, setSaving] = useState(false);
 
   const handleSubmit = async () => {
+    if (!formData.name && !formData.name_ar) {
+      return;
+    }
     setSaving(true);
-    await onSave(formData);
+    await onSave({
+      ...formData,
+      name: formData.name || formData.name_ar || '',
+    });
     setSaving(false);
   };
 
