@@ -259,7 +259,11 @@ const Checkout = () => {
         grants_content_access: grantsAccess
       };
 
-      orderPayload.user_id = user!.id;
+      if (user) {
+        orderPayload.user_id = user.id;
+      } else {
+        orderPayload.guest_name = checkoutData.full_name || null;
+      }
 
       const orderItems = cartItems.map(item => ({
         product_id: item.product_id,
