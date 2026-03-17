@@ -120,12 +120,12 @@ export const useCart = () => {
     }
   };
 
-  // Save guest cart to localStorage whenever it changes (but only after initialization)
+  // Save guest cart to localStorage whenever it changes (but only after sync check)
   useEffect(() => {
-    if (!user && isInitialized) {
+    if (!user && hasSynced) {
       saveCartToStorage(guestCart);
     }
-  }, [guestCart, user, isInitialized]);
+  }, [guestCart, user, hasSynced]);
 
   // Add to cart (works for both guest and logged-in users)
   const addToCart = useCallback(async (product: Product) => {
