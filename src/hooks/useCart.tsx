@@ -71,7 +71,7 @@ export const useCart = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Load guest cart from localStorage on mount (only once)
+  // Sync guest cart to DB when user logs in
   useEffect(() => {
     if (!user && !isInitialized) {
       const savedCart = getStoredCart();
@@ -79,12 +79,48 @@ export const useCart = () => {
         setGuestCart(savedCart);
       }
       setIsInitialized(true);
-    } else if (user) {
-      // Clear guest cart state when user logs in (they should use DB cart)
-      setGuestCart([]);
-      setIsInitialized(true);
+    } else if (user && !isInitialized) {
+      // User just logged in — sync guest cart to DB then clear localStorage
+      const savedCart = getStoredCart();
+      if (savedCart.length > 0) {
+        syncGuestCartToDb(savedCart, user.id).then(() => {
+          setGuestCart([]);
+          localStorage.removeItem(CART_STORAGE_KEY);
+          queryClient.invalidateQueries({ queryKey: ['cart'] });
+          setIsInitialized(true);
+        });
+      } else {
+        setGuestCart([]);
+        setIsInitialized(true);
+      }
     }
   }, [user, isInitialized]);
+
+  const syncGuestCartToDb = async (cart: GuestCartItem[], userId: string) => {
+    for (const item of cart) {
+      try {
+        const { data: existing } = await supabase
+          .from('cart_items')
+          .select('id, quantity')
+          .eq('user_id', userId)
+          .eq('product_id', item.product_id)
+          .maybeSingle();
+
+        if (existing) {
+          await supabase
+            .from('cart_items')
+            .update({ quantity: existing.quantity + item.quantity })
+            .eq('id', existing.id);
+        } else {
+          await supabase
+            .from('cart_items')
+            .insert({ user_id: userId, product_id: item.product_id, quantity: item.quantity });
+        }
+      } catch (e) {
+        console.error('Failed to sync cart item:', e);
+      }
+    }
+  };
 
   // Save guest cart to localStorage whenever it changes (but only after initialization)
   useEffect(() => {
