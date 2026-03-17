@@ -110,7 +110,35 @@ const STATUS_CONFIG: Record<string, { icon: React.ReactNode; labelAr: string; la
 const ORDER_STEPS = ['pending', 'confirmed', 'shipped', 'delivered'];
 
 export const OrdersSection = ({ isRTL, clientId }: OrdersSectionProps) => {
-  const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null);
+
+  const handleCancelOrder = async (orderId: string) => {
+    setCancellingOrderId(orderId);
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: 'cancelled' })
+        .eq('id', orderId)
+        .eq('user_id', clientId);
+      
+      if (error) throw error;
+      
+      queryClient.invalidateQueries({ queryKey: ['client-orders', clientId] });
+      toast({
+        title: isRTL ? 'تم إلغاء الطلب' : 'Order Cancelled',
+        description: isRTL ? 'تم إلغاء طلبك بنجاح' : 'Your order has been cancelled successfully',
+      });
+    } catch (error: any) {
+      toast({
+        title: isRTL ? 'خطأ' : 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setCancellingOrderId(null);
+    }
+  };
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ['client-orders', clientId],
