@@ -35,26 +35,17 @@ const Auth = () => {
     }
   }, [searchParams]);
 
-  // Redirect if already logged in
-  useEffect(() => {
-    if (!loading && user && role) {
-      const redirectTo = searchParams.get('redirect');
-      if (redirectTo) {
-        navigate(redirectTo);
-        return;
-      }
-      // Check if user is approved
-      if (status === 'approved' || role === 'admin') {
-        const dashboardRoutes: Record<AppRole, string> = {
-          client: '/dashboard/client',
-          admin: '/dashboard/admin'
-        };
-        navigate(dashboardRoutes[role]);
-      } else if (status === 'pending' || status === 'rejected' || status === 'suspended') {
-        navigate('/pending-approval');
-      }
+  const getDashboardPath = () => {
+    if (!role) return '/';
+    if (status === 'approved' || role === 'admin') {
+      const routes: Record<AppRole, string> = { client: '/dashboard/client', admin: '/dashboard/admin' };
+      return routes[role];
     }
-  }, [user, role, status, loading, navigate]);
+    if (status === 'pending' || status === 'rejected' || status === 'suspended') {
+      return '/pending-approval';
+    }
+    return '/';
+  };
 
   // Redirect to Register page for client registration
   const handleClientRegister = () => {
