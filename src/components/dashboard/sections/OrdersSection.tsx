@@ -111,6 +111,7 @@ const ORDER_STEPS = ['pending', 'confirmed', 'shipped', 'delivered'];
 
 export const OrdersSection = ({ isRTL, clientId }: OrdersSectionProps) => {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const handleCancelOrder = async (orderId: string) => {
