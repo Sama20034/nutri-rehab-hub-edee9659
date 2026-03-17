@@ -664,7 +664,7 @@ export const StoreSection = ({
                         <div>
                           <Label>{isRTL ? 'التصنيف' : 'Category'}</Label>
                           <Select
-                            value={newProduct.category}
+                            value={newProduct.category || undefined}
                             onValueChange={(value) => setNewProduct({ ...newProduct, category: value })}
                           >
                             <SelectTrigger>
@@ -917,7 +917,7 @@ const EditProductForm = ({ product, categories, isRTL, onSave, onCancel }: EditP
         <div>
           <Label>{isRTL ? 'التصنيف' : 'Category'}</Label>
           <Select
-            value={formData.category}
+            value={formData.category || undefined}
             onValueChange={(value) => setFormData({ ...formData, category: value })}
           >
             <SelectTrigger>
