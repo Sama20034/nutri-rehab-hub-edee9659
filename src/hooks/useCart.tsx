@@ -56,7 +56,7 @@ const saveCartToStorage = (cart: GuestCartItem[]) => {
 };
 
 export const useCart = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { language } = useLanguage();
   const queryClient = useQueryClient();
   const isRTL = language === 'ar';
@@ -69,32 +69,30 @@ export const useCart = () => {
     return [];
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [hasSynced, setHasSynced] = useState(false);
 
-  // Sync guest cart to DB when user logs in
+  // Sync guest cart to DB when user logs in (only after auth is ready)
   useEffect(() => {
-    if (!user && !isInitialized) {
-      const savedCart = getStoredCart();
-      if (savedCart.length > 0) {
-        setGuestCart(savedCart);
-      }
-      setIsInitialized(true);
-    } else if (user && !isInitialized) {
-      // User just logged in — sync guest cart to DB then clear localStorage
+    if (authLoading || hasSynced) return;
+
+    if (user) {
+      // User is logged in — sync guest cart to DB then clear localStorage
       const savedCart = getStoredCart();
       if (savedCart.length > 0) {
         syncGuestCartToDb(savedCart, user.id).then(() => {
           setGuestCart([]);
           localStorage.removeItem(CART_STORAGE_KEY);
           queryClient.invalidateQueries({ queryKey: ['cart'] });
-          setIsInitialized(true);
+          setHasSynced(true);
         });
       } else {
-        setGuestCart([]);
-        setIsInitialized(true);
+        setHasSynced(true);
       }
+    } else {
+      // No user after auth is ready — guest mode
+      setHasSynced(true);
     }
-  }, [user, isInitialized]);
+  }, [user, authLoading, hasSynced]);
 
   const syncGuestCartToDb = async (cart: GuestCartItem[], userId: string) => {
     for (const item of cart) {
@@ -122,12 +120,12 @@ export const useCart = () => {
     }
   };
 
-  // Save guest cart to localStorage whenever it changes (but only after initialization)
+  // Save guest cart to localStorage whenever it changes (but only after sync check)
   useEffect(() => {
-    if (!user && isInitialized) {
+    if (!user && hasSynced) {
       saveCartToStorage(guestCart);
     }
-  }, [guestCart, user, isInitialized]);
+  }, [guestCart, user, hasSynced]);
 
   // Add to cart (works for both guest and logged-in users)
   const addToCart = useCallback(async (product: Product) => {
