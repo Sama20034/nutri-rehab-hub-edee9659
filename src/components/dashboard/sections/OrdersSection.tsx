@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useQuery, useQueryClient } from '@tantml/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ShoppingBag,
