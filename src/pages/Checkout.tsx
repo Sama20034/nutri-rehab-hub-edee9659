@@ -306,7 +306,7 @@ const Checkout = () => {
               email: checkoutData.email || user?.email || 'customer@example.com',
               phone: checkoutData.phone,
               address: getFullAddress(),
-              city: 'Cairo',
+              city: checkoutData.city || 'Cairo',
               country: 'EG',
             },
           }),
