@@ -142,54 +142,18 @@ const Checkout = () => {
   // Paymob loading state
   const [paymobLoading, setPaymobLoading] = useState(false);
 
-  // Fetch cart items for logged-in users
-  const { data: dbCartItems = [], isLoading: loadingDbCart } = useQuery({
-    queryKey: ['cart', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      const { data, error } = await supabase
-        .from('cart_items')
-        .select('*, product:products(*)')
-        .eq('user_id', user.id);
-      
-      if (error) throw error;
-      return data.map(item => ({
-        ...item,
-        product: item.product as unknown as Product
-      })) as CartItem[];
-    },
-    enabled: !!user
-  });
-
-  // Use database cart for logged-in users, guest cart for guests
-  const cartItems: (CartItem | GuestCartItem)[] = user ? dbCartItems : guestCart;
-  const isLoading = user ? loadingDbCart : false;
-
   const productTotal = cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
   const addonsTotal = monthlyNutritionPlan ? NUTRITION_PLAN_PRICE : 0;
   const cartTotal = productTotal + addonsTotal;
   const grantsAccess = productTotal >= 7500;
 
-  // Track if we've done the initial check
-  const [hasCheckedCart, setHasCheckedCart] = useState(false);
-
-  // No longer redirect unauthenticated users - allow guest checkout
-
-  // Redirect if cart is empty (with delay to allow localStorage to load)
+  // Redirect if cart is empty only after cart is ready
   useEffect(() => {
-    // Give localStorage time to load for guest users
-    const timer = setTimeout(() => {
-      if (!isLoading && cartItems.length === 0 && hasCheckedCart) {
-        toast.error(isRTL ? 'السلة فارغة' : 'Cart is empty');
-        navigate('/store');
-      }
-      if (!hasCheckedCart) {
-        setHasCheckedCart(true);
-      }
-    }, 100);
-    
-    return () => clearTimeout(timer);
-  }, [cartItems, isLoading, navigate, isRTL, hasCheckedCart]);
+    if (isCartReady && cartItems.length === 0) {
+      toast.error(isRTL ? 'السلة فارغة' : 'Cart is empty');
+      navigate('/store');
+    }
+  }, [isCartReady, cartItems.length, navigate, isRTL]);
 
   // Pre-fill user data if logged in
   useEffect(() => {

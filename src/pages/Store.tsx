@@ -178,31 +178,7 @@ const Store = () => {
     return Math.max(...products.map(p => p.price), 50000);
   }, [products]);
 
-  // Fetch cart items from database for logged-in users
-  const { data: dbCartItems = [], isLoading: loadingDbCart } = useQuery({
-    queryKey: ['cart', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      const { data, error } = await supabase
-        .from('cart_items')
-        .select('*, product:products(*)')
-        .eq('user_id', user.id);
-      
-      if (error) throw error;
-      return data.map(item => ({
-        ...item,
-        product: item.product as unknown as Product
-      })) as CartItem[];
-    },
-    enabled: !!user
-  });
-
-  // Use database cart for logged-in users, guest cart for guests
-  const cartItems: (CartItem | GuestCartItem)[] = user ? dbCartItems : guestCart;
-  const loadingCart = user ? loadingDbCart : false;
-
-  const cartTotal = cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
-  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const loadingCart = !isCartReady;
   const grantsAccess = cartTotal >= 7500;
 
   // Filter and sort products
