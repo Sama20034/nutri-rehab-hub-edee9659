@@ -345,7 +345,7 @@ export const StoreSection = ({
                       </TableRow>
                     ) : (
                       filteredOrders.map((order) => {
-                        const customerName = order.profile?.full_name || order.guest_name || (isRTL ? 'زائر' : 'Guest');
+                        const customerName = order.customer_name || order.profile?.full_name || order.guest_name || (isRTL ? 'زائر' : 'Guest');
                         const customerPhone = order.phone || order.profile?.phone;
                         
                         return (
