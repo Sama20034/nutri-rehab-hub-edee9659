@@ -290,7 +290,7 @@ const Navbar = () => {
           {/* Mobile Menu Button */}
           <div className="lg:hidden flex items-center gap-1">
             {/* Cart Button - Mobile */}
-            <Link to="/checkout" className="relative">
+            <Link to="/store?cart=open" className="relative">
               <Button
                 variant="ghost"
                 size="icon"
