@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ShoppingBag,
@@ -12,12 +12,26 @@ import {
   ChevronUp,
   MapPin,
   Phone,
-  FileText
+  FileText,
+  Ban
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 interface OrderItem {
   id: string;
@@ -97,6 +111,35 @@ const ORDER_STEPS = ['pending', 'confirmed', 'shipped', 'delivered'];
 
 export const OrdersSection = ({ isRTL, clientId }: OrdersSectionProps) => {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const handleCancelOrder = async (orderId: string) => {
+    setCancellingOrderId(orderId);
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: 'cancelled' })
+        .eq('id', orderId)
+        .eq('user_id', clientId);
+      
+      if (error) throw error;
+      
+      queryClient.invalidateQueries({ queryKey: ['client-orders', clientId] });
+      toast({
+        title: isRTL ? 'تم إلغاء الطلب' : 'Order Cancelled',
+        description: isRTL ? 'تم إلغاء طلبك بنجاح' : 'Your order has been cancelled successfully',
+      });
+    } catch (error: any) {
+      toast({
+        title: isRTL ? 'خطأ' : 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setCancellingOrderId(null);
+    }
+  };
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ['client-orders', clientId],
@@ -379,6 +422,52 @@ export const OrdersSection = ({ isRTL, clientId }: OrdersSectionProps) => {
                                   </div>
                                 )}
                               </div>
+                            </>
+                          )}
+
+                          {/* Cancel Order Button - only for pending orders */}
+                          {(order.status === 'pending' || order.status === 'pending_payment' || order.status === 'pending_verification') && (
+                            <>
+                              <Separator />
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button 
+                                    variant="destructive" 
+                                    size="sm" 
+                                    className="w-full gap-2"
+                                    disabled={cancellingOrderId === order.id}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <Ban className="h-4 w-4" />
+                                    {cancellingOrderId === order.id 
+                                      ? (isRTL ? 'جاري الإلغاء...' : 'Cancelling...') 
+                                      : (isRTL ? 'إلغاء الطلب' : 'Cancel Order')}
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                      {isRTL ? 'هل أنت متأكد من إلغاء الطلب؟' : 'Cancel this order?'}
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      {isRTL 
+                                        ? 'لا يمكن التراجع عن هذا الإجراء. سيتم إلغاء طلبك نهائياً.' 
+                                        : 'This action cannot be undone. Your order will be permanently cancelled.'}
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>
+                                      {isRTL ? 'تراجع' : 'Go Back'}
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction 
+                                      onClick={() => handleCancelOrder(order.id)}
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                      {isRTL ? 'نعم، إلغاء الطلب' : 'Yes, Cancel Order'}
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                             </>
                           )}
                         </CardContent>
