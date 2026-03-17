@@ -16,6 +16,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [switchingAccount, setSwitchingAccount] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { t, isRTL } = useLanguage();
   const { signIn, signUp, user, role, status, loading } = useAuth();
