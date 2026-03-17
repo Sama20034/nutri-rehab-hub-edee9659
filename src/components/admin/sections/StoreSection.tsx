@@ -449,7 +449,7 @@ export const StoreSection = ({
                               <User className="h-3.5 w-3.5 text-muted-foreground" />
                               <span className="text-muted-foreground">{isRTL ? 'الاسم:' : 'Name:'}</span>
                               <span className="font-medium">
-                                {selectedOrder.profile?.full_name || selectedOrder.guest_name || (isRTL ? 'غير معروف' : 'Unknown')}
+                                {selectedOrder.customer_name || selectedOrder.profile?.full_name || selectedOrder.guest_name || (isRTL ? 'غير معروف' : 'Unknown')}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
