@@ -105,6 +105,13 @@ const Store = () => {
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
+  // Open cart from URL query param
+  useEffect(() => {
+    if (searchParams.get('cart') === 'open') {
+      setShowCart(true);
+    }
+  }, [searchParams]);
+
   // Read category from URL query params and apply filter
   useEffect(() => {
     const categoryParam = searchParams.get('category');
