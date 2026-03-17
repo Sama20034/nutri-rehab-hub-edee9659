@@ -122,7 +122,9 @@ const Checkout = () => {
   const [checkoutData, setCheckoutData] = useState({
     full_name: '',
     email: '',
-    shipping_address: '',
+    governorate: '',
+    city: '',
+    street_address: '',
     phone: '',
     notes: ''
   });
