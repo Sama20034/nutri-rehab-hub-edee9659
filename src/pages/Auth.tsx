@@ -120,6 +120,61 @@ const Auth = () => {
     { value: 'admin', labelAr: 'مدير', labelEn: 'Admin', icon: <FileText className="h-5 w-5" /> },
   ];
 
+  // Show "already logged in" screen
+  if (!loading && user && role && !switchingAccount) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-background">
+        <div className="absolute inset-0 bg-gradient-hero" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-md relative z-10"
+        >
+          <Link to="/" className="flex items-center justify-center gap-3 mb-8">
+            <img src={logo} alt="Alligator Fit" className="h-14 w-auto" />
+            <span className="text-2xl font-bold text-gradient">Alligator Fit</span>
+          </Link>
+          <div className="p-8 rounded-2xl bg-card/50 backdrop-blur-xl border border-border shadow-elevated text-center space-y-6">
+            <User className="h-16 w-16 mx-auto text-primary" />
+            <div>
+              <h2 className="text-xl font-bold mb-2">
+                {isRTL ? 'أنت مسجل دخول بالفعل' : 'You are already logged in'}
+              </h2>
+              <p className="text-muted-foreground text-sm">{user.email}</p>
+            </div>
+            <div className="space-y-3">
+              <Button
+                variant="hero"
+                size="lg"
+                className="w-full"
+                onClick={() => navigate(getDashboardPath())}
+              >
+                {isRTL ? 'متابعة للداشبورد' : 'Continue to Dashboard'}
+                <ArrowRight className={`h-5 w-5 ${isRTL ? 'rotate-180' : ''}`} />
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full"
+                onClick={async () => {
+                  await signOut();
+                  setSwitchingAccount(true);
+                }}
+              >
+                {isRTL ? 'تسجيل دخول بحساب آخر' : 'Sign in with another account'}
+              </Button>
+            </div>
+          </div>
+          <div className="text-center mt-6">
+            <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors text-sm">
+              {isRTL ? '← العودة للرئيسية' : '← Back to Home'}
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
