@@ -39,8 +39,23 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Calculate cart count
-  const cartCount = guestCart.reduce((total, item) => total + item.quantity, 0);
+  // Fetch DB cart count for logged-in users
+  const { data: dbCartCount = 0 } = useQuery({
+    queryKey: ['cart-count', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('cart_items')
+        .select('quantity')
+        .eq('user_id', user!.id);
+      if (error) return 0;
+      return data.reduce((sum, item) => sum + item.quantity, 0);
+    },
+    enabled: !!user,
+  });
+
+  // Calculate cart count - use DB for logged-in, localStorage for guests
+  const guestCartCount = guestCart.reduce((total, item) => total + item.quantity, 0);
+  const cartCount = user ? dbCartCount : guestCartCount;
 
   useEffect(() => {
     fetchCategories();
