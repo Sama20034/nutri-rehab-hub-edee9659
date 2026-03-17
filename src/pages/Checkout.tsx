@@ -164,10 +164,10 @@ const Checkout = () => {
 
   // Track InitiateCheckout when entering checkout page
   useEffect(() => {
-    if (cartItems.length > 0 && hasCheckedCart) {
+    if (cartItems.length > 0 && isCartReady) {
       trackInitiateCheckout(cartTotal, 'EGP');
     }
-  }, [hasCheckedCart, cartItems.length, cartTotal, trackInitiateCheckout]);
+  }, [isCartReady, cartItems.length, cartTotal, trackInitiateCheckout]);
 
   // Combine address fields into a single string
   const getFullAddress = () => {
