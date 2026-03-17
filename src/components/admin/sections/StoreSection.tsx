@@ -168,7 +168,7 @@ export const StoreSection = ({
   };
 
   const filteredOrders = orders.filter(order => {
-    const customerName = order.profile?.full_name || order.guest_name || '';
+     const customerName = order.customer_name || order.profile?.full_name || order.guest_name || '';
     const matchesSearch = customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.guest_email?.toLowerCase().includes(searchTerm.toLowerCase());
