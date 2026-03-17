@@ -721,17 +721,51 @@ const Checkout = () => {
                     <div className="space-y-1.5 sm:space-y-2">
                       <label className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1.5 sm:gap-2">
                         <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
-                        {isRTL ? 'عنوان الشحن' : 'Shipping Address'}
+                        {isRTL ? 'المحافظة' : 'Governorate'}
+                        <span className="text-destructive">*</span>
+                      </label>
+                      <Input
+                        value={checkoutData.governorate}
+                        onChange={(e) => setCheckoutData(prev => ({ ...prev, governorate: e.target.value }))}
+                        placeholder={isRTL ? 'مثال: القاهرة' : 'e.g. Cairo'}
+                        className={`h-10 sm:h-11 text-sm sm:text-base ${errors.governorate ? 'border-destructive' : ''}`}
+                      />
+                      {errors.governorate && (
+                        <p className="text-xs sm:text-sm text-destructive">{errors.governorate}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <label className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1.5 sm:gap-2">
+                        <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+                        {isRTL ? 'المدينة' : 'City'}
+                        <span className="text-destructive">*</span>
+                      </label>
+                      <Input
+                        value={checkoutData.city}
+                        onChange={(e) => setCheckoutData(prev => ({ ...prev, city: e.target.value }))}
+                        placeholder={isRTL ? 'مثال: مدينة نصر' : 'e.g. Nasr City'}
+                        className={`h-10 sm:h-11 text-sm sm:text-base ${errors.city ? 'border-destructive' : ''}`}
+                      />
+                      {errors.city && (
+                        <p className="text-xs sm:text-sm text-destructive">{errors.city}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <label className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1.5 sm:gap-2">
+                        <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+                        {isRTL ? 'اسم المنطقة والشارع وعلامة مميزة' : 'Area, Street & Landmark'}
                         <span className="text-destructive">*</span>
                       </label>
                       <Textarea
-                        value={checkoutData.shipping_address}
-                        onChange={(e) => setCheckoutData(prev => ({ ...prev, shipping_address: e.target.value }))}
-                        placeholder={isRTL ? 'أدخل عنوان الشحن بالتفصيل...' : 'Enter detailed shipping address...'}
-                        className={`min-h-[80px] sm:min-h-[100px] text-sm sm:text-base ${errors.shipping_address ? 'border-destructive' : ''}`}
+                        value={checkoutData.street_address}
+                        onChange={(e) => setCheckoutData(prev => ({ ...prev, street_address: e.target.value }))}
+                        placeholder={isRTL ? 'مثال: شارع مصطفى النحاس، بجوار مسجد الحصري، عمارة 5 شقة 12' : 'e.g. Mostafa El Nahas St., beside Al-Hosary Mosque, Building 5 Apt 12'}
+                        className={`min-h-[80px] sm:min-h-[100px] text-sm sm:text-base ${errors.street_address ? 'border-destructive' : ''}`}
                       />
-                      {errors.shipping_address && (
-                        <p className="text-xs sm:text-sm text-destructive">{errors.shipping_address}</p>
+                      {errors.street_address && (
+                        <p className="text-xs sm:text-sm text-destructive">{errors.street_address}</p>
                       )}
                     </div>
 
