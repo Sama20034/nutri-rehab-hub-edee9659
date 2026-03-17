@@ -6,7 +6,7 @@ import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
-import { useCart, GuestCartItem } from "@/hooks/useCart";
+import { useCart } from "@/hooks/useCart";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -56,12 +56,7 @@ interface Product {
   stock_quantity: number | null;
 }
 
-interface CartItem {
-  id: string;
-  product_id: string;
-  quantity: number;
-  product: Product;
-}
+// CartItem type is now from useCart
 
 const Store = () => {
   const { language } = useLanguage();
@@ -92,7 +87,7 @@ const Store = () => {
     };
   }, [setTheme]);
   
-  const { guestCart, addToCart, updateQuantity, removeFromCart, isLoading: cartLoading } = useCart();
+  const { cartItems, cartCount, cartTotal, addToCart, updateQuantity, removeFromCart, isLoading: cartLoading, isCartReady } = useCart();
   
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showCart, setShowCart] = useState(false);
@@ -183,31 +178,7 @@ const Store = () => {
     return Math.max(...products.map(p => p.price), 50000);
   }, [products]);
 
-  // Fetch cart items from database for logged-in users
-  const { data: dbCartItems = [], isLoading: loadingDbCart } = useQuery({
-    queryKey: ['cart', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      const { data, error } = await supabase
-        .from('cart_items')
-        .select('*, product:products(*)')
-        .eq('user_id', user.id);
-      
-      if (error) throw error;
-      return data.map(item => ({
-        ...item,
-        product: item.product as unknown as Product
-      })) as CartItem[];
-    },
-    enabled: !!user
-  });
-
-  // Use database cart for logged-in users, guest cart for guests
-  const cartItems: (CartItem | GuestCartItem)[] = user ? dbCartItems : guestCart;
-  const loadingCart = user ? loadingDbCart : false;
-
-  const cartTotal = cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
-  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const loadingCart = !isCartReady;
   const grantsAccess = cartTotal >= 7500;
 
   // Filter and sort products
