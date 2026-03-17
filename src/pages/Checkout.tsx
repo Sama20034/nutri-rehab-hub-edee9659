@@ -401,7 +401,7 @@ const Checkout = () => {
   const NextIcon = isRTL ? ChevronLeft : ChevronRight;
   const PrevIcon = isRTL ? ChevronRight : ChevronLeft;
 
-  if (isLoading) {
+  if (!isCartReady || cartLoading) {
     return (
       <Layout>
         <div className="min-h-screen flex items-center justify-center">
