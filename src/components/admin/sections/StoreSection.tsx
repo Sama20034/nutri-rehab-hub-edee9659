@@ -664,7 +664,7 @@ export const StoreSection = ({
                         <div>
                           <Label>{isRTL ? 'التصنيف' : 'Category'}</Label>
                           <Select
-                            value={newProduct.category}
+                            value={newProduct.category || undefined}
                             onValueChange={(value) => setNewProduct({ ...newProduct, category: value })}
                           >
                             <SelectTrigger>
