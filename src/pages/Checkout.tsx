@@ -61,9 +61,11 @@ interface CartItem {
 
 type PaymentMethod = 'cash_on_delivery' | 'vodafone_cash' | 'instapay' | 'paymob';
 
-// Validation schema (no longer needs guest fields since login is required)
+// Validation schema
 const checkoutSchema = z.object({
-  shipping_address: z.string().trim().min(10, 'Address must be at least 10 characters').max(500),
+  governorate: z.string().trim().min(2, 'Governorate is required').max(100),
+  city: z.string().trim().min(2, 'City is required').max(100),
+  street_address: z.string().trim().min(5, 'Street address must be at least 5 characters').max(500),
   phone: z.string().trim().regex(/^01[0125][0-9]{8}$/, 'Invalid Egyptian phone number'),
   notes: z.string().max(500).optional()
 });
@@ -120,7 +122,9 @@ const Checkout = () => {
   const [checkoutData, setCheckoutData] = useState({
     full_name: '',
     email: '',
-    shipping_address: '',
+    governorate: '',
+    city: '',
+    street_address: '',
     phone: '',
     notes: ''
   });
@@ -207,6 +211,11 @@ const Checkout = () => {
     }
   }, [hasCheckedCart, cartItems.length, cartTotal, trackInitiateCheckout]);
 
+  // Combine address fields into a single string
+  const getFullAddress = () => {
+    return `${checkoutData.governorate}, ${checkoutData.city}, ${checkoutData.street_address}`;
+  };
+
   // Validate form
   const validateForm = () => {
     try {
@@ -247,7 +256,7 @@ const Checkout = () => {
 
       const orderPayload: any = {
         total_amount: cartTotal,
-        shipping_address: checkoutData.shipping_address,
+        shipping_address: getFullAddress(),
         phone: checkoutData.phone,
         notes: `${checkoutData.notes || ''}${addOnsText}\n\nPayment Method: Paymob (Online)`,
         status: 'pending_payment',
@@ -296,8 +305,8 @@ const Checkout = () => {
               last_name: lastName,
               email: checkoutData.email || user?.email || 'customer@example.com',
               phone: checkoutData.phone,
-              address: checkoutData.shipping_address,
-              city: 'Cairo',
+              address: getFullAddress(),
+              city: checkoutData.city || 'Cairo',
               country: 'EG',
             },
           }),
@@ -357,7 +366,7 @@ const Checkout = () => {
 
       const orderPayload: any = {
         total_amount: cartTotal,
-        shipping_address: checkoutData.shipping_address,
+        shipping_address: getFullAddress(),
         phone: checkoutData.phone,
         notes: checkoutData.notes 
           ? `${checkoutData.notes}${addOnsText}${receiptText}\n\nPayment Method: ${PAYMENT_METHODS[paymentMethod].name}`
@@ -712,17 +721,51 @@ const Checkout = () => {
                     <div className="space-y-1.5 sm:space-y-2">
                       <label className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1.5 sm:gap-2">
                         <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
-                        {isRTL ? 'عنوان الشحن' : 'Shipping Address'}
+                        {isRTL ? 'المحافظة' : 'Governorate'}
+                        <span className="text-destructive">*</span>
+                      </label>
+                      <Input
+                        value={checkoutData.governorate}
+                        onChange={(e) => setCheckoutData(prev => ({ ...prev, governorate: e.target.value }))}
+                        placeholder={isRTL ? 'مثال: القاهرة' : 'e.g. Cairo'}
+                        className={`h-10 sm:h-11 text-sm sm:text-base ${errors.governorate ? 'border-destructive' : ''}`}
+                      />
+                      {errors.governorate && (
+                        <p className="text-xs sm:text-sm text-destructive">{errors.governorate}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <label className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1.5 sm:gap-2">
+                        <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+                        {isRTL ? 'المدينة' : 'City'}
+                        <span className="text-destructive">*</span>
+                      </label>
+                      <Input
+                        value={checkoutData.city}
+                        onChange={(e) => setCheckoutData(prev => ({ ...prev, city: e.target.value }))}
+                        placeholder={isRTL ? 'مثال: مدينة نصر' : 'e.g. Nasr City'}
+                        className={`h-10 sm:h-11 text-sm sm:text-base ${errors.city ? 'border-destructive' : ''}`}
+                      />
+                      {errors.city && (
+                        <p className="text-xs sm:text-sm text-destructive">{errors.city}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <label className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1.5 sm:gap-2">
+                        <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+                        {isRTL ? 'اسم المنطقة والشارع وعلامة مميزة' : 'Area, Street & Landmark'}
                         <span className="text-destructive">*</span>
                       </label>
                       <Textarea
-                        value={checkoutData.shipping_address}
-                        onChange={(e) => setCheckoutData(prev => ({ ...prev, shipping_address: e.target.value }))}
-                        placeholder={isRTL ? 'أدخل عنوان الشحن بالتفصيل...' : 'Enter detailed shipping address...'}
-                        className={`min-h-[80px] sm:min-h-[100px] text-sm sm:text-base ${errors.shipping_address ? 'border-destructive' : ''}`}
+                        value={checkoutData.street_address}
+                        onChange={(e) => setCheckoutData(prev => ({ ...prev, street_address: e.target.value }))}
+                        placeholder={isRTL ? 'مثال: شارع مصطفى النحاس، بجوار مسجد الحصري، عمارة 5 شقة 12' : 'e.g. Mostafa El Nahas St., beside Al-Hosary Mosque, Building 5 Apt 12'}
+                        className={`min-h-[80px] sm:min-h-[100px] text-sm sm:text-base ${errors.street_address ? 'border-destructive' : ''}`}
                       />
-                      {errors.shipping_address && (
-                        <p className="text-xs sm:text-sm text-destructive">{errors.shipping_address}</p>
+                      {errors.street_address && (
+                        <p className="text-xs sm:text-sm text-destructive">{errors.street_address}</p>
                       )}
                     </div>
 
