@@ -61,7 +61,7 @@ interface Order {
   notes: string | null;
   guest_name: string | null;
   guest_email: string | null;
-  customer_name: string | null;
+  customer_name?: string | null;
   profile?: {
     full_name: string | null;
     phone: string | null;
