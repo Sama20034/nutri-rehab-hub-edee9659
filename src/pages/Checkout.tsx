@@ -211,6 +211,11 @@ const Checkout = () => {
     }
   }, [hasCheckedCart, cartItems.length, cartTotal, trackInitiateCheckout]);
 
+  // Combine address fields into a single string
+  const getFullAddress = () => {
+    return `${checkoutData.governorate}, ${checkoutData.city}, ${checkoutData.street_address}`;
+  };
+
   // Validate form
   const validateForm = () => {
     try {
