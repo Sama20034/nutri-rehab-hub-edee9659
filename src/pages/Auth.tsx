@@ -19,7 +19,7 @@ const Auth = () => {
   const [switchingAccount, setSwitchingAccount] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { t, isRTL } = useLanguage();
-  const { signIn, signUp, user, role, status, loading } = useAuth();
+  const { signIn, signUp, signOut, user, role, status, loading } = useAuth();
 
   // Form state
   const [email, setEmail] = useState('');
