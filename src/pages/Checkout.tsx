@@ -63,6 +63,8 @@ type PaymentMethod = 'cash_on_delivery' | 'vodafone_cash' | 'instapay' | 'paymob
 
 // Validation schema
 const checkoutSchema = z.object({
+  full_name: z.string().trim().min(2, 'Name is required').max(100),
+  email: z.string().trim().email('Invalid email').max(255).or(z.literal('')).optional(),
   governorate: z.string().trim().min(2, 'Governorate is required').max(100),
   city: z.string().trim().min(2, 'City is required').max(100),
   street_address: z.string().trim().min(5, 'Street address must be at least 5 characters').max(500),
