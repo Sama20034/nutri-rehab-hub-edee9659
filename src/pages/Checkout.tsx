@@ -258,6 +258,8 @@ const Checkout = () => {
         total_amount: cartTotal,
         shipping_address: getFullAddress(),
         phone: checkoutData.phone,
+        customer_name: checkoutData.full_name || null,
+        guest_email: checkoutData.email || user?.email || null,
         notes: `${checkoutData.notes || ''}${addOnsText}\n\nPayment Method: Paymob (Online)`,
         status: 'pending_payment',
         grants_content_access: grantsAccess
@@ -368,6 +370,8 @@ const Checkout = () => {
         total_amount: cartTotal,
         shipping_address: getFullAddress(),
         phone: checkoutData.phone,
+        customer_name: checkoutData.full_name || null,
+        guest_email: checkoutData.email || user?.email || null,
         notes: checkoutData.notes 
           ? `${checkoutData.notes}${addOnsText}${receiptText}\n\nPayment Method: ${PAYMENT_METHODS[paymentMethod].name}`
           : `${addOnsText}${receiptText}\n\nPayment Method: ${PAYMENT_METHODS[paymentMethod].name}`,

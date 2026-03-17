@@ -61,6 +61,7 @@ interface Order {
   notes: string | null;
   guest_name: string | null;
   guest_email: string | null;
+  customer_name?: string | null;
   profile?: {
     full_name: string | null;
     phone: string | null;
@@ -167,7 +168,7 @@ export const StoreSection = ({
   };
 
   const filteredOrders = orders.filter(order => {
-    const customerName = order.profile?.full_name || order.guest_name || '';
+     const customerName = order.customer_name || order.profile?.full_name || order.guest_name || '';
     const matchesSearch = customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.guest_email?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -344,7 +345,7 @@ export const StoreSection = ({
                       </TableRow>
                     ) : (
                       filteredOrders.map((order) => {
-                        const customerName = order.profile?.full_name || order.guest_name || (isRTL ? 'زائر' : 'Guest');
+                        const customerName = order.customer_name || order.profile?.full_name || order.guest_name || (isRTL ? 'زائر' : 'Guest');
                         const customerPhone = order.phone || order.profile?.phone;
                         
                         return (
@@ -448,7 +449,7 @@ export const StoreSection = ({
                               <User className="h-3.5 w-3.5 text-muted-foreground" />
                               <span className="text-muted-foreground">{isRTL ? 'الاسم:' : 'Name:'}</span>
                               <span className="font-medium">
-                                {selectedOrder.profile?.full_name || selectedOrder.guest_name || (isRTL ? 'غير معروف' : 'Unknown')}
+                                {selectedOrder.customer_name || selectedOrder.profile?.full_name || selectedOrder.guest_name || (isRTL ? 'غير معروف' : 'Unknown')}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
