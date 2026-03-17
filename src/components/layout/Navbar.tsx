@@ -34,6 +34,8 @@ const Navbar = () => {
   const { language, setLanguage, t, isRTL } = useLanguage();
   const { user, profile, role, signOut } = useAuth();
   const { cartCount } = useCart();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCategories();

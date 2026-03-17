@@ -87,7 +87,7 @@ const Store = () => {
     };
   }, [setTheme]);
   
-  const { guestCart, addToCart, updateQuantity, removeFromCart, isLoading: cartLoading } = useCart();
+  const { cartItems, cartCount, cartTotal, addToCart, updateQuantity, removeFromCart, isLoading: cartLoading, isCartReady } = useCart();
   
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showCart, setShowCart] = useState(false);

@@ -114,7 +114,7 @@ const Checkout = () => {
   const { language } = useLanguage();
   const { user, loading } = useAuth();
   const queryClient = useQueryClient();
-  const { guestCart, clearCart, updateQuantity, removeFromCart, isLoading: cartLoading } = useCart();
+  const { cartItems, cartTotal: baseCartTotal, clearCart, updateQuantity, removeFromCart, isLoading: cartLoading, isCartReady } = useCart();
   const { trackPurchase, trackInitiateCheckout } = useFacebookPixel();
   const isRTL = language === 'ar';
 
