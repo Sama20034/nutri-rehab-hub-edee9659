@@ -145,10 +145,10 @@ export const useAdminStats = () => {
           const productIds = [...new Set(orderItemsData.map(oi => oi.product_id))];
           const { data: productNames } = await supabase
             .from('products')
-            .select('id, name')
+            .select('id, name, name_ar')
             .in('id', productIds);
           
-          const productNameMap = new Map(productNames?.map(p => [p.id, p.name]) || []);
+          const productNameMap = new Map(productNames?.map(p => [p.id, p.name || p.name_ar || '']) || []);
           
           for (const item of orderItemsData) {
             const orderId = (item as any).order_id;
@@ -160,7 +160,7 @@ export const useAdminStats = () => {
               product_id: item.product_id,
               quantity: item.quantity,
               unit_price: item.unit_price,
-              product_name: productNameMap.get(item.product_id) || 'Unknown'
+              product_name: productNameMap.get(item.product_id) || `Product (${item.product_id.slice(0, 8)})`
             });
           }
         }
