@@ -110,8 +110,8 @@ const STATUS_CONFIG: Record<string, { icon: React.ReactNode; labelAr: string; la
 const ORDER_STEPS = ['pending', 'confirmed', 'shipped', 'delivered'];
 
 export const OrdersSection = ({ isRTL, clientId }: OrdersSectionProps) => {
+  const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const queryClient = useQueryClient();
-  const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null);
 
   const handleCancelOrder = async (orderId: string) => {
     setCancellingOrderId(orderId);
