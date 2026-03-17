@@ -40,7 +40,7 @@ import { Label } from '@/components/ui/label';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
-import { useCart, GuestCartItem } from '@/hooks/useCart';
+import { useCart } from '@/hooks/useCart';
 import { useFacebookPixel } from '@/hooks/useFacebookPixel';
 import { supabase } from '@/integrations/supabase/client';
 
