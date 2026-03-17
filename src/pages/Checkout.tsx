@@ -159,10 +159,15 @@ const Checkout = () => {
 
   // Pre-fill user data if logged in
   useEffect(() => {
-    if (user?.email) {
-      setCheckoutData(prev => ({ ...prev, email: user.email || '' }));
+    if (user) {
+      setCheckoutData(prev => ({
+        ...prev,
+        full_name: prev.full_name || profile?.full_name || '',
+        email: prev.email || user.email || '',
+        phone: prev.phone || profile?.phone || '',
+      }));
     }
-  }, [user]);
+  }, [user, profile]);
 
   // Track InitiateCheckout when entering checkout page
   useEffect(() => {
