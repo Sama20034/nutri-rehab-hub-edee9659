@@ -256,7 +256,7 @@ const Checkout = () => {
 
       const orderPayload: any = {
         total_amount: cartTotal,
-        shipping_address: checkoutData.shipping_address,
+        shipping_address: getFullAddress(),
         phone: checkoutData.phone,
         notes: `${checkoutData.notes || ''}${addOnsText}\n\nPayment Method: Paymob (Online)`,
         status: 'pending_payment',
