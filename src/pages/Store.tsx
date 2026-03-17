@@ -6,7 +6,7 @@ import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
-import { useCart, GuestCartItem } from "@/hooks/useCart";
+import { useCart } from "@/hooks/useCart";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
