@@ -63,6 +63,8 @@ type PaymentMethod = 'cash_on_delivery' | 'vodafone_cash' | 'instapay' | 'paymob
 
 // Validation schema
 const checkoutSchema = z.object({
+  full_name: z.string().trim().min(2, 'Name is required').max(100),
+  email: z.string().trim().email('Invalid email').max(255).or(z.literal('')).optional(),
   governorate: z.string().trim().min(2, 'Governorate is required').max(100),
   city: z.string().trim().min(2, 'City is required').max(100),
   street_address: z.string().trim().min(5, 'Street address must be at least 5 characters').max(500),
@@ -112,7 +114,7 @@ const PAYMENT_METHODS = {
 const Checkout = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   const queryClient = useQueryClient();
   const { cartItems, cartTotal: baseCartTotal, clearCart, updateQuantity, removeFromCart, isLoading: cartLoading, isCartReady } = useCart();
   const { trackPurchase, trackInitiateCheckout } = useFacebookPixel();
@@ -157,10 +159,15 @@ const Checkout = () => {
 
   // Pre-fill user data if logged in
   useEffect(() => {
-    if (user?.email) {
-      setCheckoutData(prev => ({ ...prev, email: user.email || '' }));
+    if (user) {
+      setCheckoutData(prev => ({
+        ...prev,
+        full_name: prev.full_name || profile?.full_name || '',
+        email: prev.email || user.email || '',
+        phone: prev.phone || profile?.phone || '',
+      }));
     }
-  }, [user]);
+  }, [user, profile]);
 
   // Track InitiateCheckout when entering checkout page
   useEffect(() => {
@@ -686,7 +693,41 @@ const Checkout = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4 sm:space-y-5">
-                    {/* All users are now logged in - no guest fields needed */}
+                    {/* Name & Email */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5 sm:space-y-2">
+                        <label className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1.5 sm:gap-2">
+                          <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+                          {isRTL ? 'الاسم بالكامل' : 'Full Name'}
+                          <span className="text-destructive">*</span>
+                        </label>
+                        <Input
+                          value={checkoutData.full_name}
+                          onChange={(e) => setCheckoutData(prev => ({ ...prev, full_name: e.target.value }))}
+                          placeholder={isRTL ? 'مثال: محمد أحمد' : 'e.g. Mohamed Ahmed'}
+                          className={`h-10 sm:h-11 text-sm sm:text-base ${errors.full_name ? 'border-destructive' : ''}`}
+                        />
+                        {errors.full_name && (
+                          <p className="text-xs sm:text-sm text-destructive">{isRTL ? 'الاسم مطلوب' : errors.full_name}</p>
+                        )}
+                      </div>
+                      <div className="space-y-1.5 sm:space-y-2">
+                        <label className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1.5 sm:gap-2">
+                          <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+                          {isRTL ? 'البريد الإلكتروني' : 'Email'}
+                        </label>
+                        <Input
+                          type="email"
+                          value={checkoutData.email}
+                          onChange={(e) => setCheckoutData(prev => ({ ...prev, email: e.target.value }))}
+                          placeholder={isRTL ? 'example@email.com' : 'example@email.com'}
+                          className={`h-10 sm:h-11 text-sm sm:text-base ${errors.email ? 'border-destructive' : ''}`}
+                        />
+                        {errors.email && (
+                          <p className="text-xs sm:text-sm text-destructive">{isRTL ? 'بريد إلكتروني غير صحيح' : errors.email}</p>
+                        )}
+                      </div>
+                    </div>
 
                     <div className="space-y-1.5 sm:space-y-2">
                       <label className="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1.5 sm:gap-2">
