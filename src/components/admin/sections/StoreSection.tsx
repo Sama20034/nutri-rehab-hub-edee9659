@@ -182,10 +182,23 @@ export const StoreSection = ({
   );
 
   const handleAddProduct = async () => {
-    // First create the product
+    if (!newProduct.name && !newProduct.name_ar) {
+      toast({
+        title: isRTL ? 'خطأ' : 'Error',
+        description: isRTL ? 'يجب إدخال اسم المنتج (عربي أو إنجليزي)' : 'Product name is required (Arabic or English)',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    const productToInsert = {
+      ...newProduct,
+      name: newProduct.name || newProduct.name_ar || '',
+    };
+
     const { data: productData, error: productError } = await supabase
       .from('products')
-      .insert(newProduct as any)
+      .insert(productToInsert as any)
       .select()
       .single();
     
@@ -859,8 +872,14 @@ const EditProductForm = ({ product, categories, isRTL, onSave, onCancel }: EditP
   const [saving, setSaving] = useState(false);
 
   const handleSubmit = async () => {
+    if (!formData.name && !formData.name_ar) {
+      return;
+    }
     setSaving(true);
-    await onSave(formData);
+    await onSave({
+      ...formData,
+      name: formData.name || formData.name_ar || '',
+    });
     setSaving(false);
   };
 
