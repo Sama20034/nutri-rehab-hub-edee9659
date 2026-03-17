@@ -78,7 +78,9 @@ const App = () => (
       <LanguageProvider>
         <AuthProvider>
           <CartProvider>
+            <TooltipProvider>
             <Toaster />
+            <Sonner />
             <Sonner />
             <HashRouter>
               <RouteDebugger />
