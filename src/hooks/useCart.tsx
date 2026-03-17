@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, createContext, useContext, ReactNode, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
@@ -25,29 +25,43 @@ interface Product {
   stock_quantity: number | null;
 }
 
-export interface GuestCartItem {
+export interface CartItem {
   id: string;
   product_id: string;
   quantity: number;
   product: Product;
 }
 
+type SyncStatus = 'idle' | 'syncing' | 'synced' | 'error';
+
+interface CartContextType {
+  cartItems: CartItem[];
+  cartCount: number;
+  cartTotal: number;
+  isCartReady: boolean;
+  isLoading: boolean;
+  addToCart: (product: Product) => Promise<void>;
+  updateQuantity: (itemId: string, quantity: number) => Promise<void>;
+  removeFromCart: (itemId: string) => Promise<void>;
+  clearCart: () => Promise<void>;
+  refreshCart: () => Promise<void>;
+}
+
+const CartContext = createContext<CartContextType | undefined>(undefined);
+
 const CART_STORAGE_KEY = 'guest_cart';
 
-// Helper functions to work with localStorage directly
-const getStoredCart = (): GuestCartItem[] => {
+const getStoredCart = (): CartItem[] => {
   try {
-    const savedCart = localStorage.getItem(CART_STORAGE_KEY);
-    if (savedCart) {
-      return JSON.parse(savedCart);
-    }
+    const saved = localStorage.getItem(CART_STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [];
   } catch {
     localStorage.removeItem(CART_STORAGE_KEY);
+    return [];
   }
-  return [];
 };
 
-const saveCartToStorage = (cart: GuestCartItem[]) => {
+const saveCartToStorage = (cart: CartItem[]) => {
   if (cart.length > 0) {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
   } else {
@@ -55,47 +69,37 @@ const saveCartToStorage = (cart: GuestCartItem[]) => {
   }
 };
 
-export const useCart = () => {
+export const CartProvider = ({ children }: { children: ReactNode }) => {
   const { user, loading: authLoading } = useAuth();
   const { language } = useLanguage();
   const queryClient = useQueryClient();
   const isRTL = language === 'ar';
-  
-  // Initialize state from localStorage immediately
-  const [guestCart, setGuestCart] = useState<GuestCartItem[]>(() => {
-    if (typeof window !== 'undefined') {
-      return getStoredCart();
-    }
-    return [];
-  });
+
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => getStoredCart());
   const [isLoading, setIsLoading] = useState(false);
-  const [hasSynced, setHasSynced] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>('idle');
+  const syncedForUserRef = useRef<string | null>(null);
 
-  // Sync guest cart to DB when user logs in (only after auth is ready)
-  useEffect(() => {
-    if (authLoading || hasSynced) return;
+  const isCartReady = !authLoading && (syncStatus === 'synced' || syncStatus === 'error');
 
-    if (user) {
-      // User is logged in — sync guest cart to DB then clear localStorage
-      const savedCart = getStoredCart();
-      if (savedCart.length > 0) {
-        syncGuestCartToDb(savedCart, user.id).then(() => {
-          setGuestCart([]);
-          localStorage.removeItem(CART_STORAGE_KEY);
-          queryClient.invalidateQueries({ queryKey: ['cart'] });
-          setHasSynced(true);
-        });
-      } else {
-        setHasSynced(true);
-      }
-    } else {
-      // No user after auth is ready — guest mode
-      setHasSynced(true);
-    }
-  }, [user, authLoading, hasSynced]);
+  // Fetch DB cart for a user
+  const fetchDbCart = async (userId: string): Promise<CartItem[]> => {
+    const { data, error } = await supabase
+      .from('cart_items')
+      .select('*, product:products(*)')
+      .eq('user_id', userId);
+    if (error) throw error;
+    return (data || []).map(item => ({
+      id: item.id,
+      product_id: item.product_id,
+      quantity: item.quantity,
+      product: item.product as unknown as Product,
+    }));
+  };
 
-  const syncGuestCartToDb = async (cart: GuestCartItem[], userId: string) => {
-    for (const item of cart) {
+  // Sync guest cart items to DB, then load full DB cart
+  const syncGuestCartToDb = async (guestItems: CartItem[], userId: string) => {
+    for (const item of guestItems) {
       try {
         const { data: existing } = await supabase
           .from('cart_items')
@@ -116,24 +120,77 @@ export const useCart = () => {
         }
       } catch (e) {
         console.error('Failed to sync cart item:', e);
+        throw e; // propagate so we don't clear localStorage on failure
       }
     }
   };
 
-  // Save guest cart to localStorage whenever it changes (but only after sync check)
+  // Main sync effect — runs when auth state settles or user changes
   useEffect(() => {
-    if (!user && hasSynced) {
-      saveCartToStorage(guestCart);
-    }
-  }, [guestCart, user, hasSynced]);
+    if (authLoading) return;
 
-  // Add to cart (works for both guest and logged-in users)
+    const currentUserId = user?.id || null;
+
+    // Already synced for this user (or guest)
+    if (syncedForUserRef.current === (currentUserId || '__guest__')) {
+      return;
+    }
+
+    const doSync = async () => {
+      setSyncStatus('syncing');
+
+      try {
+        if (currentUserId) {
+          // User logged in — merge guest cart then load DB cart
+          const guestItems = getStoredCart();
+          if (guestItems.length > 0) {
+            await syncGuestCartToDb(guestItems, currentUserId);
+            localStorage.removeItem(CART_STORAGE_KEY);
+          }
+          const dbCart = await fetchDbCart(currentUserId);
+          setCartItems(dbCart);
+          queryClient.invalidateQueries({ queryKey: ['cart'] });
+        } else {
+          // Guest mode — use localStorage
+          setCartItems(getStoredCart());
+        }
+        syncedForUserRef.current = currentUserId || '__guest__';
+        setSyncStatus('synced');
+      } catch (err) {
+        console.error('Cart sync failed:', err);
+        // On failure, keep whatever is in state (guest items preserved)
+        setSyncStatus('error');
+        syncedForUserRef.current = currentUserId || '__guest__';
+        toast.error(isRTL ? 'فشل مزامنة السلة' : 'Failed to sync cart');
+      }
+    };
+
+    doSync();
+  }, [authLoading, user?.id]);
+
+  // Save to localStorage when cart changes (guest only)
+  useEffect(() => {
+    if (!user && syncStatus === 'synced') {
+      saveCartToStorage(cartItems);
+    }
+  }, [cartItems, user, syncStatus]);
+
+  // Refresh cart from DB (for logged-in users)
+  const refreshCart = useCallback(async () => {
+    if (user) {
+      try {
+        const dbCart = await fetchDbCart(user.id);
+        setCartItems(dbCart);
+      } catch (err) {
+        console.error('Failed to refresh cart:', err);
+      }
+    }
+  }, [user]);
+
   const addToCart = useCallback(async (product: Product) => {
     setIsLoading(true);
-    
     try {
       if (user) {
-        // Logged-in user: use database
         const { data: existing } = await supabase
           .from('cart_items')
           .select('id, quantity')
@@ -142,27 +199,24 @@ export const useCart = () => {
           .maybeSingle();
 
         if (existing) {
-          const { error } = await supabase
+          await supabase
             .from('cart_items')
             .update({ quantity: existing.quantity + 1 })
             .eq('id', existing.id);
-          if (error) throw error;
         } else {
-          const { error } = await supabase
+          await supabase
             .from('cart_items')
             .insert({ user_id: user.id, product_id: product.id, quantity: 1 });
-          if (error) throw error;
         }
-        
+        await refreshCart();
         queryClient.invalidateQueries({ queryKey: ['cart'] });
       } else {
-        // Guest user: use localStorage
-        setGuestCart(prev => {
+        setCartItems(prev => {
           const existing = prev.find(item => item.product_id === product.id);
           let newCart;
           if (existing) {
-            newCart = prev.map(item => 
-              item.product_id === product.id 
+            newCart = prev.map(item =>
+              item.product_id === product.id
                 ? { ...item, quantity: item.quantity + 1 }
                 : item
             );
@@ -174,41 +228,36 @@ export const useCart = () => {
               product
             }];
           }
-          // Save immediately to ensure persistence
           saveCartToStorage(newCart);
           return newCart;
         });
       }
-      
       toast.success(isRTL ? 'تمت الإضافة للسلة' : 'Added to cart');
     } catch (error: any) {
       toast.error(error.message || (isRTL ? 'حدث خطأ' : 'An error occurred'));
     } finally {
       setIsLoading(false);
     }
-  }, [user, isRTL, queryClient]);
+  }, [user, isRTL, queryClient, refreshCart]);
 
-  // Update quantity
   const updateQuantity = useCallback(async (itemId: string, quantity: number) => {
     setIsLoading(true);
-    
     try {
       if (user) {
         if (quantity <= 0) {
-          const { error } = await supabase.from('cart_items').delete().eq('id', itemId);
-          if (error) throw error;
+          await supabase.from('cart_items').delete().eq('id', itemId);
         } else {
-          const { error } = await supabase.from('cart_items').update({ quantity }).eq('id', itemId);
-          if (error) throw error;
+          await supabase.from('cart_items').update({ quantity }).eq('id', itemId);
         }
+        await refreshCart();
         queryClient.invalidateQueries({ queryKey: ['cart'] });
       } else {
-        setGuestCart(prev => {
+        setCartItems(prev => {
           let newCart;
           if (quantity <= 0) {
             newCart = prev.filter(item => item.id !== itemId);
           } else {
-            newCart = prev.map(item => 
+            newCart = prev.map(item =>
               item.id === itemId ? { ...item, quantity } : item
             );
           }
@@ -221,64 +270,69 @@ export const useCart = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [user, isRTL, queryClient]);
+  }, [user, isRTL, queryClient, refreshCart]);
 
-  // Remove from cart
   const removeFromCart = useCallback(async (itemId: string) => {
     setIsLoading(true);
-    
     try {
       if (user) {
-        const { error } = await supabase.from('cart_items').delete().eq('id', itemId);
-        if (error) throw error;
+        await supabase.from('cart_items').delete().eq('id', itemId);
+        await refreshCart();
         queryClient.invalidateQueries({ queryKey: ['cart'] });
       } else {
-        setGuestCart(prev => {
+        setCartItems(prev => {
           const newCart = prev.filter(item => item.id !== itemId);
           saveCartToStorage(newCart);
           return newCart;
         });
       }
-      
       toast.success(isRTL ? 'تم الحذف من السلة' : 'Removed from cart');
     } catch (error: any) {
       toast.error(error.message || (isRTL ? 'حدث خطأ' : 'An error occurred'));
     } finally {
       setIsLoading(false);
     }
-  }, [user, isRTL, queryClient]);
+  }, [user, isRTL, queryClient, refreshCart]);
 
-  // Clear cart
   const clearCart = useCallback(async () => {
     try {
       if (user) {
-        const { error } = await supabase
-          .from('cart_items')
-          .delete()
-          .eq('user_id', user.id);
-        if (error) throw error;
+        await supabase.from('cart_items').delete().eq('user_id', user.id);
         queryClient.invalidateQueries({ queryKey: ['cart'] });
       } else {
-        setGuestCart([]);
         localStorage.removeItem(CART_STORAGE_KEY);
       }
+      setCartItems([]);
     } catch (error: any) {
       toast.error(error.message || (isRTL ? 'حدث خطأ' : 'An error occurred'));
     }
   }, [user, isRTL, queryClient]);
 
-  // Get cart items
-  const getCartItems = useCallback(() => {
-    return guestCart;
-  }, [guestCart]);
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const cartTotal = cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
 
-  return {
-    guestCart,
-    isLoading,
-    addToCart,
-    updateQuantity,
-    removeFromCart,
-    clearCart,
-    getCartItems
-  };
+  return (
+    <CartContext.Provider value={{
+      cartItems,
+      cartCount,
+      cartTotal,
+      isCartReady,
+      isLoading,
+      addToCart,
+      updateQuantity,
+      removeFromCart,
+      clearCart,
+      refreshCart,
+    }}>
+      {children}
+    </CartContext.Provider>
+  );
+};
+
+export const useCart = () => {
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error('useCart must be used within a CartProvider');
+  }
+  return context;
 };

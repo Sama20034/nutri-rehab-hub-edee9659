@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route, useLocation } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/hooks/useAuth";
+import { CartProvider } from "@/hooks/useCart";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { useFacebookPixel } from "@/hooks/useFacebookPixel";
 import CookieConsent from "@/components/CookieConsent";
