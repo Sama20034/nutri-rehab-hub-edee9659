@@ -56,12 +56,7 @@ interface Product {
   stock_quantity: number | null;
 }
 
-interface CartItem {
-  id: string;
-  product_id: string;
-  quantity: number;
-  product: Product;
-}
+// CartItem type is now from useCart
 
 const Store = () => {
   const { language } = useLanguage();
