@@ -202,7 +202,7 @@ const Navbar = () => {
           {/* Actions */}
           <div className="hidden lg:flex items-center gap-2">
             {/* Cart Button - Desktop */}
-            <Link to="/checkout" className="relative">
+            <Link to="/store?cart=open" className="relative">
               <Button
                 variant="ghost"
                 size="icon"
