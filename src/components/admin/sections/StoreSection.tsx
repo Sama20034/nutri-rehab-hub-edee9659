@@ -182,10 +182,23 @@ export const StoreSection = ({
   );
 
   const handleAddProduct = async () => {
-    // First create the product
+    if (!newProduct.name && !newProduct.name_ar) {
+      toast({
+        title: isRTL ? 'خطأ' : 'Error',
+        description: isRTL ? 'يجب إدخال اسم المنتج (عربي أو إنجليزي)' : 'Product name is required (Arabic or English)',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    const productToInsert = {
+      ...newProduct,
+      name: newProduct.name || newProduct.name_ar || '',
+    };
+
     const { data: productData, error: productError } = await supabase
       .from('products')
-      .insert(newProduct as any)
+      .insert(productToInsert as any)
       .select()
       .single();
     
