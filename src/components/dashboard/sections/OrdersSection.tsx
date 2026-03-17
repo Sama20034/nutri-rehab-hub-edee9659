@@ -424,6 +424,52 @@ export const OrdersSection = ({ isRTL, clientId }: OrdersSectionProps) => {
                               </div>
                             </>
                           )}
+
+                          {/* Cancel Order Button - only for pending orders */}
+                          {(order.status === 'pending' || order.status === 'pending_payment' || order.status === 'pending_verification') && (
+                            <>
+                              <Separator />
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button 
+                                    variant="destructive" 
+                                    size="sm" 
+                                    className="w-full gap-2"
+                                    disabled={cancellingOrderId === order.id}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <Ban className="h-4 w-4" />
+                                    {cancellingOrderId === order.id 
+                                      ? (isRTL ? 'جاري الإلغاء...' : 'Cancelling...') 
+                                      : (isRTL ? 'إلغاء الطلب' : 'Cancel Order')}
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                      {isRTL ? 'هل أنت متأكد من إلغاء الطلب؟' : 'Cancel this order?'}
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      {isRTL 
+                                        ? 'لا يمكن التراجع عن هذا الإجراء. سيتم إلغاء طلبك نهائياً.' 
+                                        : 'This action cannot be undone. Your order will be permanently cancelled.'}
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>
+                                      {isRTL ? 'تراجع' : 'Go Back'}
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction 
+                                      onClick={() => handleCancelOrder(order.id)}
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                      {isRTL ? 'نعم، إلغاء الطلب' : 'Yes, Cancel Order'}
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </>
+                          )}
                         </CardContent>
                       </motion.div>
                     )}
