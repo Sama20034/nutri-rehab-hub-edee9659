@@ -366,7 +366,7 @@ const Checkout = () => {
 
       const orderPayload: any = {
         total_amount: cartTotal,
-        shipping_address: checkoutData.shipping_address,
+        shipping_address: getFullAddress(),
         phone: checkoutData.phone,
         notes: checkoutData.notes 
           ? `${checkoutData.notes}${addOnsText}${receiptText}\n\nPayment Method: ${PAYMENT_METHODS[paymentMethod].name}`
