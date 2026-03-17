@@ -119,6 +119,7 @@ const App = () => (
               <FloatingCTA />
               <CookieConsent />
             </HashRouter>
+            </TooltipProvider>
           </CartProvider>
         </AuthProvider>
       </LanguageProvider>

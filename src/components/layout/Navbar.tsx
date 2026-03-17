@@ -33,27 +33,7 @@ const Navbar = () => {
   const [dbCategories, setDbCategories] = useState<CategoryData[]>([]);
   const { language, setLanguage, t, isRTL } = useLanguage();
   const { user, profile, role, signOut } = useAuth();
-  const { guestCart } = useCart();
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  // Fetch DB cart count for logged-in users
-  const { data: dbCartCount = 0 } = useQuery({
-    queryKey: ['cart-count', user?.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('cart_items')
-        .select('quantity')
-        .eq('user_id', user!.id);
-      if (error) return 0;
-      return data.reduce((sum, item) => sum + item.quantity, 0);
-    },
-    enabled: !!user,
-  });
-
-  // Calculate cart count - use DB for logged-in, localStorage for guests
-  const guestCartCount = guestCart.reduce((total, item) => total + item.quantity, 0);
-  const cartCount = user ? dbCartCount : guestCartCount;
+  const { cartCount } = useCart();
 
   useEffect(() => {
     fetchCategories();
