@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -15,7 +17,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import logo from '@/assets/alligator-fit-logo.png';
 
@@ -37,8 +38,23 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Calculate cart count
-  const cartCount = guestCart.reduce((total, item) => total + item.quantity, 0);
+  // Fetch DB cart count for logged-in users
+  const { data: dbCartCount = 0 } = useQuery({
+    queryKey: ['cart-count', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('cart_items')
+        .select('quantity')
+        .eq('user_id', user!.id);
+      if (error) return 0;
+      return data.reduce((sum, item) => sum + item.quantity, 0);
+    },
+    enabled: !!user,
+  });
+
+  // Calculate cart count - use DB for logged-in, localStorage for guests
+  const guestCartCount = guestCart.reduce((total, item) => total + item.quantity, 0);
+  const cartCount = user ? dbCartCount : guestCartCount;
 
   useEffect(() => {
     fetchCategories();
@@ -202,7 +218,7 @@ const Navbar = () => {
           {/* Actions */}
           <div className="hidden lg:flex items-center gap-2">
             {/* Cart Button - Desktop */}
-            <Link to="/checkout" className="relative">
+            <Link to="/store?cart=open" className="relative">
               <Button
                 variant="ghost"
                 size="icon"
@@ -290,7 +306,7 @@ const Navbar = () => {
           {/* Mobile Menu Button */}
           <div className="lg:hidden flex items-center gap-1">
             {/* Cart Button - Mobile */}
-            <Link to="/checkout" className="relative">
+            <Link to="/store?cart=open" className="relative">
               <Button
                 variant="ghost"
                 size="icon"
