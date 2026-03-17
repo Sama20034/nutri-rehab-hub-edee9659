@@ -182,6 +182,31 @@ export const OrdersSection = ({ isRTL, clientId }: OrdersSectionProps) => {
     enabled: !!clientId
   });
 
+  // Realtime subscription for order status changes
+  useEffect(() => {
+    if (!clientId) return;
+
+    const channel = supabase
+      .channel('client-orders-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'orders',
+          filter: `user_id=eq.${clientId}`,
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['client-orders', clientId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [clientId, queryClient]);
+
   const getStatusConfig = (status: string) => {
     return STATUS_CONFIG[status] || STATUS_CONFIG.pending;
   };
