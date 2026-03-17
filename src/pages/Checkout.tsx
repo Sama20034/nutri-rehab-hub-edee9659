@@ -305,7 +305,7 @@ const Checkout = () => {
               last_name: lastName,
               email: checkoutData.email || user?.email || 'customer@example.com',
               phone: checkoutData.phone,
-              address: checkoutData.shipping_address,
+              address: getFullAddress(),
               city: 'Cairo',
               country: 'EG',
             },
