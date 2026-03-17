@@ -160,7 +160,7 @@ export const useAdminStats = () => {
               product_id: item.product_id,
               quantity: item.quantity,
               unit_price: item.unit_price,
-              product_name: productNameMap.get(item.product_id) || 'Unknown'
+              product_name: productNameMap.get(item.product_id) || `Product (${item.product_id.slice(0, 8)})`
             });
           }
         }
