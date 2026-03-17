@@ -416,7 +416,7 @@ export const OrdersSection = ({ isRTL, clientId }: OrdersSectionProps) => {
                                   <p className="font-medium text-sm truncate">
                                     {isRTL 
                                       ? (item.product?.name_ar || item.product?.name || 'منتج')
-                                      : (item.product?.name || 'Product')}
+                                      : (item.product?.name || item.product?.name_ar || 'Product')}
                                   </p>
                                   <p className="text-xs text-muted-foreground">
                                     {isRTL ? 'الكمية:' : 'Qty:'} {item.quantity} × {item.unit_price.toLocaleString()} {isRTL ? 'ج.م' : 'EGP'}
