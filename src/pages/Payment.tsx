@@ -734,7 +734,14 @@ const Payment = () => {
                 {/* Back Button */}
                 <Button
                   variant="ghost"
-                  onClick={() => setPaymentType(null)}
+                  onClick={() => {
+                    if (showPayerForm) {
+                      setShowPayerForm(false);
+                      setSelectedElectronicMethod(null);
+                    } else {
+                      setPaymentType(null);
+                    }
+                  }}
                   className="mb-6"
                 >
                   {isRTL ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
@@ -745,65 +752,155 @@ const Payment = () => {
                   {isRTL ? "الدفع الإلكتروني" : "Electronic Payment"}
                 </h2>
 
-                <div className="grid md:grid-cols-2 gap-6">
-                  {electronicPaymentMethods.map((method) => (
-                    <motion.div
-                      key={method.id}
-                      whileHover={{ scale: method.available ? 1.02 : 1 }}
-                      className={`p-6 rounded-xl border transition-all ${
-                        method.available
-                          ? "bg-card border-border hover:border-primary/50 cursor-pointer"
-                          : "bg-muted/30 border-border/50 opacity-70"
-                      }`}
-                      onClick={() => method.available && handleElectronicPayment(method.id)}
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div
-                          className={`w-14 h-14 rounded-xl flex items-center justify-center ${
-                            method.available ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                          }`}
-                        >
-                          {method.icon}
-                        </div>
-                        <span className="text-lg">{method.country}</span>
-                      </div>
-
-                      <h3 className="text-xl font-bold mb-2">{method.name}</h3>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        {isRTL ? method.description : method.descriptionEn}
-                      </p>
-
-                      {!method.available && (
-                        <div className="flex items-center gap-2 text-yellow-600 text-sm">
-                          <Clock className="w-4 h-4" />
-                          {isRTL ? "قريباً..." : "Coming soon..."}
-                        </div>
-                      )}
-
-                      {method.available && (
-                        <Button className="w-full mt-4">
-                          {isRTL ? "ادفع الآن" : "Pay Now"}
-                          <ArrowRight className={`w-4 h-4 ${isRTL ? "rotate-180" : ""}`} />
-                        </Button>
-                      )}
-                    </motion.div>
-                  ))}
-                </div>
-
-                {/* Info Box */}
-                <div className="mt-8 p-6 rounded-xl bg-primary/5 border border-primary/20">
-                  <div className="flex items-start gap-4">
-                    <Shield className="w-8 h-8 text-primary flex-shrink-0" />
-                    <div>
-                      <h4 className="font-bold mb-2">{isRTL ? "دفع آمن ومضمون" : "Secure Payment"}</h4>
+                {/* Payer Info Form */}
+                {showPayerForm && selectedElectronicMethod === "paymob" ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="max-w-lg mx-auto"
+                  >
+                    <div className="p-6 rounded-xl bg-card border border-border space-y-4">
+                      <h3 className="font-bold text-lg">
+                        {isRTL ? "بيانات الدفع" : "Payment Details"}
+                      </h3>
                       <p className="text-sm text-muted-foreground">
                         {isRTL
-                          ? "جميع المعاملات مشفرة ومحمية. يتم تفعيل حسابك تلقائياً بعد الدفع الناجح."
-                          : "All transactions are encrypted and protected. Your account is activated automatically after successful payment."}
+                          ? "أدخل بياناتك للمتابعة إلى بوابة الدفع الآمنة"
+                          : "Enter your details to proceed to the secure payment gateway"}
+                      </p>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">
+                          {isRTL ? "الاسم الكامل" : "Full Name"} *
+                        </label>
+                        <Input
+                          value={payerName}
+                          onChange={(e) => setPayerName(e.target.value)}
+                          placeholder={isRTL ? "أدخل اسمك" : "Enter your name"}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">
+                          {isRTL ? "البريد الإلكتروني" : "Email"} ({isRTL ? "اختياري" : "optional"})
+                        </label>
+                        <Input
+                          type="email"
+                          value={payerEmail}
+                          onChange={(e) => setPayerEmail(e.target.value)}
+                          placeholder={isRTL ? "أدخل بريدك الإلكتروني" : "Enter your email"}
+                          dir="ltr"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">
+                          {isRTL ? "رقم الهاتف" : "Phone Number"} *
+                        </label>
+                        <Input
+                          value={payerPhone}
+                          onChange={(e) => setPayerPhone(e.target.value)}
+                          placeholder={isRTL ? "أدخل رقم هاتفك" : "Enter your phone number"}
+                          dir="ltr"
+                        />
+                      </div>
+
+                      {amount && parseInt(amount) > 0 && (
+                        <div className="p-3 rounded-lg bg-muted/50 text-center">
+                          <span className="text-muted-foreground text-sm">{isRTL ? "المبلغ:" : "Amount:"} </span>
+                          <span className="text-xl font-bold text-primary">{parseInt(amount).toLocaleString()} {isRTL ? "ج.م" : "EGP"}</span>
+                        </div>
+                      )}
+
+                      <Button
+                        variant="hero"
+                        className="w-full py-6 text-lg"
+                        onClick={handlePaymobCheckout}
+                        disabled={isProcessingPayment}
+                      >
+                        {isProcessingPayment ? (
+                          <>
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            {isRTL ? "جاري التجهيز..." : "Processing..."}
+                          </>
+                        ) : (
+                          <>
+                            {isRTL ? "متابعة للدفع الآمن" : "Proceed to Secure Payment"}
+                            <CreditCard className="w-5 h-5" />
+                          </>
+                        )}
+                      </Button>
+
+                      <p className="text-xs text-center text-muted-foreground">
+                        {isRTL
+                          ? "🔒 سيتم تحويلك لبوابة Paymob الآمنة لإتمام الدفع"
+                          : "🔒 You'll be redirected to Paymob's secure gateway to complete payment"}
                       </p>
                     </div>
-                  </div>
-                </div>
+                  </motion.div>
+                ) : (
+                  <>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {electronicPaymentMethods.map((method) => (
+                        <motion.div
+                          key={method.id}
+                          whileHover={{ scale: method.available ? 1.02 : 1 }}
+                          className={`p-6 rounded-xl border transition-all ${
+                            method.available
+                              ? "bg-card border-border hover:border-primary/50 cursor-pointer"
+                              : "bg-muted/30 border-border/50 opacity-70"
+                          }`}
+                          onClick={() => method.available && handleElectronicPayment(method.id)}
+                        >
+                          <div className="flex items-start justify-between mb-4">
+                            <div
+                              className={`w-14 h-14 rounded-xl flex items-center justify-center ${
+                                method.available ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                              }`}
+                            >
+                              {method.icon}
+                            </div>
+                            <span className="text-lg">{method.country}</span>
+                          </div>
+
+                          <h3 className="text-xl font-bold mb-2">{method.name}</h3>
+                          <p className="text-sm text-muted-foreground mb-4">
+                            {isRTL ? method.description : method.descriptionEn}
+                          </p>
+
+                          {!method.available && (
+                            <div className="flex items-center gap-2 text-yellow-600 text-sm">
+                              <Clock className="w-4 h-4" />
+                              {isRTL ? "قريباً..." : "Coming soon..."}
+                            </div>
+                          )}
+
+                          {method.available && (
+                            <Button className="w-full mt-4">
+                              {isRTL ? "ادفع الآن" : "Pay Now"}
+                              <ArrowRight className={`w-4 h-4 ${isRTL ? "rotate-180" : ""}`} />
+                            </Button>
+                          )}
+                        </motion.div>
+                      ))}
+                    </div>
+
+                    {/* Info Box */}
+                    <div className="mt-8 p-6 rounded-xl bg-primary/5 border border-primary/20">
+                      <div className="flex items-start gap-4">
+                        <Shield className="w-8 h-8 text-primary flex-shrink-0" />
+                        <div>
+                          <h4 className="font-bold mb-2">{isRTL ? "دفع آمن ومضمون" : "Secure Payment"}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            {isRTL
+                              ? "جميع المعاملات مشفرة ومحمية. يتم تفعيل حسابك تلقائياً بعد الدفع الناجح."
+                              : "All transactions are encrypted and protected. Your account is activated automatically after successful payment."}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
