@@ -944,9 +944,9 @@ const EditProductForm = ({ product, categories, isRTL, onSave, onCancel }: EditP
               <SelectValue placeholder={isRTL ? 'اختر التصنيف' : 'Select category'} />
             </SelectTrigger>
             <SelectContent>
-              {categories.map(cat => (
-                <SelectItem key={cat.id} value={cat.name}>
-                  {isRTL ? cat.name_ar || cat.name : cat.name}
+              {categories.filter(cat => cat.name || cat.name_ar).map(cat => (
+                <SelectItem key={cat.id} value={cat.name || cat.name_ar || cat.id}>
+                  {isRTL ? cat.name_ar || cat.name : cat.name || cat.name_ar}
                 </SelectItem>
               ))}
             </SelectContent>
