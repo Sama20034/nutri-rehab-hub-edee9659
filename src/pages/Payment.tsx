@@ -90,7 +90,7 @@ const electronicPaymentMethods: ElectronicPaymentMethod[] = [
     countryEn: "Egypt 🇪🇬",
     description: "ادفع بالبطاقة البنكية أو المحفظة الإلكترونية",
     descriptionEn: "Pay with bank card or e-wallet",
-    available: false,
+    available: true,
   },
   {
     id: "tap",
@@ -120,6 +120,14 @@ const Payment = () => {
   const [senderPhone, setSenderPhone] = useState("");
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Electronic payment states
+  const [showPayerForm, setShowPayerForm] = useState(false);
+  const [payerName, setPayerName] = useState(profile?.full_name || "");
+  const [payerEmail, setPayerEmail] = useState(user?.email || "");
+  const [payerPhone, setPayerPhone] = useState(profile?.phone || "");
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [selectedElectronicMethod, setSelectedElectronicMethod] = useState<string | null>(null);
 
   // Get package info from URL params or profile
   const packageId = searchParams.get("package") || profile?.selected_package;
@@ -168,7 +176,6 @@ const Payment = () => {
     setIsSubmitting(true);
 
     try {
-      // Upload receipt to Supabase Storage
       const fileExt = receiptFile.name.split(".").pop();
       const fileName = `${user?.id || "guest"}_${Date.now()}.${fileExt}`;
 
@@ -177,7 +184,6 @@ const Payment = () => {
         .upload(fileName, receiptFile);
 
       if (uploadError) {
-        // If bucket doesn't exist, show message
         if (uploadError.message.includes("Bucket not found")) {
           toast.error(
             isRTL
@@ -190,17 +196,14 @@ const Payment = () => {
         throw uploadError;
       }
 
-      // Get public URL
       const { data: urlData } = supabase.storage.from("receipts").getPublicUrl(fileName);
 
-      // Save payment record (you would create a payments table)
       toast.success(
         isRTL
           ? "تم رفع الإيصال بنجاح! سيتم مراجعته وتفعيل حسابك خلال 24 ساعة"
           : "Receipt uploaded successfully! Your account will be activated within 24 hours"
       );
 
-      // Navigate to pending page
       navigate("/pending-approval");
     } catch (error) {
       console.error("Upload error:", error);
@@ -211,11 +214,89 @@ const Payment = () => {
   };
 
   const handleElectronicPayment = (methodId: string) => {
-    toast.info(
-      isRTL
-        ? "الدفع الإلكتروني قيد التجهيز، يرجى استخدام الدفع اليدوي حالياً"
-        : "Electronic payment is being prepared, please use manual payment for now"
-    );
+    if (methodId === "paymob") {
+      // Auto-fill from profile if available
+      if (profile?.full_name && !payerName) setPayerName(profile.full_name);
+      if (user?.email && !payerEmail) setPayerEmail(user.email);
+      if (profile?.phone && !payerPhone) setPayerPhone(profile.phone);
+      
+      setSelectedElectronicMethod(methodId);
+      setShowPayerForm(true);
+    } else {
+      toast.info(
+        isRTL
+          ? "هذه الطريقة قيد التجهيز، يرجى استخدام Paymob أو الدفع اليدوي"
+          : "This method is being prepared, please use Paymob or manual payment"
+      );
+    }
+  };
+
+  const handlePaymobCheckout = async () => {
+    if (!payerName.trim()) {
+      toast.error(isRTL ? "الرجاء إدخال الاسم" : "Please enter your name");
+      return;
+    }
+    if (!payerPhone.trim()) {
+      toast.error(isRTL ? "الرجاء إدخال رقم الهاتف" : "Please enter your phone number");
+      return;
+    }
+
+    const paymentAmount = parseInt(amount);
+    if (!paymentAmount || paymentAmount <= 0) {
+      toast.error(isRTL ? "مبلغ الدفع غير صحيح" : "Invalid payment amount");
+      return;
+    }
+
+    setIsProcessingPayment(true);
+
+    try {
+      const nameParts = payerName.trim().split(" ");
+      const firstName = nameParts[0] || "N/A";
+      const lastName = nameParts.slice(1).join(" ") || "N/A";
+
+      const { data, error } = await supabase.functions.invoke("create-paymob-intention", {
+        body: {
+          amount: paymentAmount,
+          currency: "EGP",
+          items: [
+            {
+              name: packageId || "Subscription",
+              amount: paymentAmount,
+              description: `Package: ${packageId || "subscription"}`,
+              quantity: 1,
+            },
+          ],
+          billing_data: {
+            first_name: firstName,
+            last_name: lastName,
+            email: payerEmail || "N/A",
+            phone: payerPhone,
+          },
+          extras: {
+            package_id: packageId || "",
+            user_id: user?.id || "",
+          },
+        },
+      });
+
+      if (error) throw error;
+      if (!data?.client_secret) throw new Error("No client_secret returned");
+
+      const publicKey = import.meta.env.VITE_PAYMOB_PUBLIC_KEY;
+      if (!publicKey) throw new Error("Paymob public key not configured");
+
+      const checkoutUrl = `https://accept.paymob.com/unifiedcheckout/?publicKey=${publicKey}&clientSecret=${data.client_secret}`;
+      window.location.href = checkoutUrl;
+    } catch (error: any) {
+      console.error("Paymob payment error:", error);
+      toast.error(
+        isRTL
+          ? "حدث خطأ أثناء تجهيز الدفع، يرجى المحاولة مرة أخرى"
+          : "Payment processing error, please try again"
+      );
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
 
   return (
@@ -653,7 +734,14 @@ const Payment = () => {
                 {/* Back Button */}
                 <Button
                   variant="ghost"
-                  onClick={() => setPaymentType(null)}
+                  onClick={() => {
+                    if (showPayerForm) {
+                      setShowPayerForm(false);
+                      setSelectedElectronicMethod(null);
+                    } else {
+                      setPaymentType(null);
+                    }
+                  }}
                   className="mb-6"
                 >
                   {isRTL ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
@@ -664,65 +752,155 @@ const Payment = () => {
                   {isRTL ? "الدفع الإلكتروني" : "Electronic Payment"}
                 </h2>
 
-                <div className="grid md:grid-cols-2 gap-6">
-                  {electronicPaymentMethods.map((method) => (
-                    <motion.div
-                      key={method.id}
-                      whileHover={{ scale: method.available ? 1.02 : 1 }}
-                      className={`p-6 rounded-xl border transition-all ${
-                        method.available
-                          ? "bg-card border-border hover:border-primary/50 cursor-pointer"
-                          : "bg-muted/30 border-border/50 opacity-70"
-                      }`}
-                      onClick={() => method.available && handleElectronicPayment(method.id)}
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div
-                          className={`w-14 h-14 rounded-xl flex items-center justify-center ${
-                            method.available ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                          }`}
-                        >
-                          {method.icon}
-                        </div>
-                        <span className="text-lg">{method.country}</span>
-                      </div>
-
-                      <h3 className="text-xl font-bold mb-2">{method.name}</h3>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        {isRTL ? method.description : method.descriptionEn}
-                      </p>
-
-                      {!method.available && (
-                        <div className="flex items-center gap-2 text-yellow-600 text-sm">
-                          <Clock className="w-4 h-4" />
-                          {isRTL ? "قريباً..." : "Coming soon..."}
-                        </div>
-                      )}
-
-                      {method.available && (
-                        <Button className="w-full mt-4">
-                          {isRTL ? "ادفع الآن" : "Pay Now"}
-                          <ArrowRight className={`w-4 h-4 ${isRTL ? "rotate-180" : ""}`} />
-                        </Button>
-                      )}
-                    </motion.div>
-                  ))}
-                </div>
-
-                {/* Info Box */}
-                <div className="mt-8 p-6 rounded-xl bg-primary/5 border border-primary/20">
-                  <div className="flex items-start gap-4">
-                    <Shield className="w-8 h-8 text-primary flex-shrink-0" />
-                    <div>
-                      <h4 className="font-bold mb-2">{isRTL ? "دفع آمن ومضمون" : "Secure Payment"}</h4>
+                {/* Payer Info Form */}
+                {showPayerForm && selectedElectronicMethod === "paymob" ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="max-w-lg mx-auto"
+                  >
+                    <div className="p-6 rounded-xl bg-card border border-border space-y-4">
+                      <h3 className="font-bold text-lg">
+                        {isRTL ? "بيانات الدفع" : "Payment Details"}
+                      </h3>
                       <p className="text-sm text-muted-foreground">
                         {isRTL
-                          ? "جميع المعاملات مشفرة ومحمية. يتم تفعيل حسابك تلقائياً بعد الدفع الناجح."
-                          : "All transactions are encrypted and protected. Your account is activated automatically after successful payment."}
+                          ? "أدخل بياناتك للمتابعة إلى بوابة الدفع الآمنة"
+                          : "Enter your details to proceed to the secure payment gateway"}
+                      </p>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">
+                          {isRTL ? "الاسم الكامل" : "Full Name"} *
+                        </label>
+                        <Input
+                          value={payerName}
+                          onChange={(e) => setPayerName(e.target.value)}
+                          placeholder={isRTL ? "أدخل اسمك" : "Enter your name"}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">
+                          {isRTL ? "البريد الإلكتروني" : "Email"} ({isRTL ? "اختياري" : "optional"})
+                        </label>
+                        <Input
+                          type="email"
+                          value={payerEmail}
+                          onChange={(e) => setPayerEmail(e.target.value)}
+                          placeholder={isRTL ? "أدخل بريدك الإلكتروني" : "Enter your email"}
+                          dir="ltr"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">
+                          {isRTL ? "رقم الهاتف" : "Phone Number"} *
+                        </label>
+                        <Input
+                          value={payerPhone}
+                          onChange={(e) => setPayerPhone(e.target.value)}
+                          placeholder={isRTL ? "أدخل رقم هاتفك" : "Enter your phone number"}
+                          dir="ltr"
+                        />
+                      </div>
+
+                      {amount && parseInt(amount) > 0 && (
+                        <div className="p-3 rounded-lg bg-muted/50 text-center">
+                          <span className="text-muted-foreground text-sm">{isRTL ? "المبلغ:" : "Amount:"} </span>
+                          <span className="text-xl font-bold text-primary">{parseInt(amount).toLocaleString()} {isRTL ? "ج.م" : "EGP"}</span>
+                        </div>
+                      )}
+
+                      <Button
+                        variant="hero"
+                        className="w-full py-6 text-lg"
+                        onClick={handlePaymobCheckout}
+                        disabled={isProcessingPayment}
+                      >
+                        {isProcessingPayment ? (
+                          <>
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            {isRTL ? "جاري التجهيز..." : "Processing..."}
+                          </>
+                        ) : (
+                          <>
+                            {isRTL ? "متابعة للدفع الآمن" : "Proceed to Secure Payment"}
+                            <CreditCard className="w-5 h-5" />
+                          </>
+                        )}
+                      </Button>
+
+                      <p className="text-xs text-center text-muted-foreground">
+                        {isRTL
+                          ? "🔒 سيتم تحويلك لبوابة Paymob الآمنة لإتمام الدفع"
+                          : "🔒 You'll be redirected to Paymob's secure gateway to complete payment"}
                       </p>
                     </div>
-                  </div>
-                </div>
+                  </motion.div>
+                ) : (
+                  <>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {electronicPaymentMethods.map((method) => (
+                        <motion.div
+                          key={method.id}
+                          whileHover={{ scale: method.available ? 1.02 : 1 }}
+                          className={`p-6 rounded-xl border transition-all ${
+                            method.available
+                              ? "bg-card border-border hover:border-primary/50 cursor-pointer"
+                              : "bg-muted/30 border-border/50 opacity-70"
+                          }`}
+                          onClick={() => method.available && handleElectronicPayment(method.id)}
+                        >
+                          <div className="flex items-start justify-between mb-4">
+                            <div
+                              className={`w-14 h-14 rounded-xl flex items-center justify-center ${
+                                method.available ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                              }`}
+                            >
+                              {method.icon}
+                            </div>
+                            <span className="text-lg">{method.country}</span>
+                          </div>
+
+                          <h3 className="text-xl font-bold mb-2">{method.name}</h3>
+                          <p className="text-sm text-muted-foreground mb-4">
+                            {isRTL ? method.description : method.descriptionEn}
+                          </p>
+
+                          {!method.available && (
+                            <div className="flex items-center gap-2 text-yellow-600 text-sm">
+                              <Clock className="w-4 h-4" />
+                              {isRTL ? "قريباً..." : "Coming soon..."}
+                            </div>
+                          )}
+
+                          {method.available && (
+                            <Button className="w-full mt-4">
+                              {isRTL ? "ادفع الآن" : "Pay Now"}
+                              <ArrowRight className={`w-4 h-4 ${isRTL ? "rotate-180" : ""}`} />
+                            </Button>
+                          )}
+                        </motion.div>
+                      ))}
+                    </div>
+
+                    {/* Info Box */}
+                    <div className="mt-8 p-6 rounded-xl bg-primary/5 border border-primary/20">
+                      <div className="flex items-start gap-4">
+                        <Shield className="w-8 h-8 text-primary flex-shrink-0" />
+                        <div>
+                          <h4 className="font-bold mb-2">{isRTL ? "دفع آمن ومضمون" : "Secure Payment"}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            {isRTL
+                              ? "جميع المعاملات مشفرة ومحمية. يتم تفعيل حسابك تلقائياً بعد الدفع الناجح."
+                              : "All transactions are encrypted and protected. Your account is activated automatically after successful payment."}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
