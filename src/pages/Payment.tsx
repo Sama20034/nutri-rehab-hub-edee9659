@@ -121,6 +121,14 @@ const Payment = () => {
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Electronic payment states
+  const [showPayerForm, setShowPayerForm] = useState(false);
+  const [payerName, setPayerName] = useState(profile?.full_name || "");
+  const [payerEmail, setPayerEmail] = useState(user?.email || "");
+  const [payerPhone, setPayerPhone] = useState(profile?.phone || "");
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [selectedElectronicMethod, setSelectedElectronicMethod] = useState<string | null>(null);
+
   // Get package info from URL params or profile
   const packageId = searchParams.get("package") || profile?.selected_package;
   const amount = searchParams.get("amount") || "0";
@@ -168,7 +176,6 @@ const Payment = () => {
     setIsSubmitting(true);
 
     try {
-      // Upload receipt to Supabase Storage
       const fileExt = receiptFile.name.split(".").pop();
       const fileName = `${user?.id || "guest"}_${Date.now()}.${fileExt}`;
 
@@ -177,7 +184,6 @@ const Payment = () => {
         .upload(fileName, receiptFile);
 
       if (uploadError) {
-        // If bucket doesn't exist, show message
         if (uploadError.message.includes("Bucket not found")) {
           toast.error(
             isRTL
@@ -190,17 +196,14 @@ const Payment = () => {
         throw uploadError;
       }
 
-      // Get public URL
       const { data: urlData } = supabase.storage.from("receipts").getPublicUrl(fileName);
 
-      // Save payment record (you would create a payments table)
       toast.success(
         isRTL
           ? "تم رفع الإيصال بنجاح! سيتم مراجعته وتفعيل حسابك خلال 24 ساعة"
           : "Receipt uploaded successfully! Your account will be activated within 24 hours"
       );
 
-      // Navigate to pending page
       navigate("/pending-approval");
     } catch (error) {
       console.error("Upload error:", error);
@@ -211,11 +214,89 @@ const Payment = () => {
   };
 
   const handleElectronicPayment = (methodId: string) => {
-    toast.info(
-      isRTL
-        ? "الدفع الإلكتروني قيد التجهيز، يرجى استخدام الدفع اليدوي حالياً"
-        : "Electronic payment is being prepared, please use manual payment for now"
-    );
+    if (methodId === "paymob") {
+      // Auto-fill from profile if available
+      if (profile?.full_name && !payerName) setPayerName(profile.full_name);
+      if (user?.email && !payerEmail) setPayerEmail(user.email);
+      if (profile?.phone && !payerPhone) setPayerPhone(profile.phone);
+      
+      setSelectedElectronicMethod(methodId);
+      setShowPayerForm(true);
+    } else {
+      toast.info(
+        isRTL
+          ? "هذه الطريقة قيد التجهيز، يرجى استخدام Paymob أو الدفع اليدوي"
+          : "This method is being prepared, please use Paymob or manual payment"
+      );
+    }
+  };
+
+  const handlePaymobCheckout = async () => {
+    if (!payerName.trim()) {
+      toast.error(isRTL ? "الرجاء إدخال الاسم" : "Please enter your name");
+      return;
+    }
+    if (!payerPhone.trim()) {
+      toast.error(isRTL ? "الرجاء إدخال رقم الهاتف" : "Please enter your phone number");
+      return;
+    }
+
+    const paymentAmount = parseInt(amount);
+    if (!paymentAmount || paymentAmount <= 0) {
+      toast.error(isRTL ? "مبلغ الدفع غير صحيح" : "Invalid payment amount");
+      return;
+    }
+
+    setIsProcessingPayment(true);
+
+    try {
+      const nameParts = payerName.trim().split(" ");
+      const firstName = nameParts[0] || "N/A";
+      const lastName = nameParts.slice(1).join(" ") || "N/A";
+
+      const { data, error } = await supabase.functions.invoke("create-paymob-intention", {
+        body: {
+          amount: paymentAmount,
+          currency: "EGP",
+          items: [
+            {
+              name: packageId || "Subscription",
+              amount: paymentAmount,
+              description: `Package: ${packageId || "subscription"}`,
+              quantity: 1,
+            },
+          ],
+          billing_data: {
+            first_name: firstName,
+            last_name: lastName,
+            email: payerEmail || "N/A",
+            phone: payerPhone,
+          },
+          extras: {
+            package_id: packageId || "",
+            user_id: user?.id || "",
+          },
+        },
+      });
+
+      if (error) throw error;
+      if (!data?.client_secret) throw new Error("No client_secret returned");
+
+      const publicKey = import.meta.env.VITE_PAYMOB_PUBLIC_KEY;
+      if (!publicKey) throw new Error("Paymob public key not configured");
+
+      const checkoutUrl = `https://accept.paymob.com/unifiedcheckout/?publicKey=${publicKey}&clientSecret=${data.client_secret}`;
+      window.location.href = checkoutUrl;
+    } catch (error: any) {
+      console.error("Paymob payment error:", error);
+      toast.error(
+        isRTL
+          ? "حدث خطأ أثناء تجهيز الدفع، يرجى المحاولة مرة أخرى"
+          : "Payment processing error, please try again"
+      );
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
 
   return (
