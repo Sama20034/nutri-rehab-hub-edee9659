@@ -90,7 +90,7 @@ const electronicPaymentMethods: ElectronicPaymentMethod[] = [
     countryEn: "Egypt 🇪🇬",
     description: "ادفع بالبطاقة البنكية أو المحفظة الإلكترونية",
     descriptionEn: "Pay with bank card or e-wallet",
-    available: false,
+    available: true,
   },
   {
     id: "tap",
