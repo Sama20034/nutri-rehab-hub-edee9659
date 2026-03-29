@@ -122,6 +122,7 @@ export const NutritionSection = ({ isRTL, clientId, packageType = 'basic' }: Nut
   const [loading, setLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState(1);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [recipeFilter, setRecipeFilter] = useState('all');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -299,6 +300,9 @@ export const NutritionSection = ({ isRTL, clientId, packageType = 'basic' }: Nut
   ];
 
   const displayRecipes = recipes.length > 0 ? recipes : demoRecipes;
+  const filteredRecipes = recipeFilter === 'all' 
+    ? displayRecipes 
+    : displayRecipes.filter(r => r.meal_type === recipeFilter || r.category === recipeFilter);
 
   return (
     <motion.div
@@ -619,8 +623,9 @@ export const NutritionSection = ({ isRTL, clientId, packageType = 'basic' }: Nut
             {['all', 'breakfast', 'lunch', 'dinner', 'snack'].map(cat => (
               <Button
                 key={cat}
-                variant={cat === 'all' ? 'default' : 'outline'}
+                variant={recipeFilter === cat ? 'default' : 'outline'}
                 size="sm"
+                onClick={() => setRecipeFilter(cat)}
               >
                 {cat === 'all' 
                   ? (isRTL ? 'الكل' : 'All')
