@@ -53,11 +53,15 @@ const Navbar = () => {
   const getStoreCategories = () => {
     const mainCats = dbCategories.filter(c => !c.parent_id);
     return mainCats.map(main => ({
+      id: main.id,
       name: isRTL ? main.name_ar || main.name : main.name,
       subcategories: dbCategories
         .filter(c => c.parent_id === main.id)
         .sort((a, b) => a.display_order - b.display_order)
-        .map(sub => isRTL ? sub.name_ar || sub.name : sub.name)
+        .map(sub => ({
+          name: isRTL ? sub.name_ar || sub.name : sub.name,
+          catName: sub.name,
+        }))
     }));
   };
 
@@ -95,8 +99,8 @@ const Navbar = () => {
     return user?.email?.charAt(0).toUpperCase() || 'U';
   };
 
-  const handleCategoryClick = (subcategory: string) => {
-    navigate(`/store?category=${encodeURIComponent(subcategory)}`);
+  const handleCategoryClick = (mainCategoryId: string) => {
+    navigate(`/store/category/${mainCategoryId}`);
     setIsOpen(false);
   };
 
