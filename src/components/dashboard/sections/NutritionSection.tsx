@@ -637,7 +637,7 @@ export const NutritionSection = ({ isRTL, clientId, packageType = 'basic' }: Nut
 
           {/* Recipes Grid */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {displayRecipes.map((recipe, index) => (
+            {filteredRecipes.map((recipe, index) => (
               <motion.div
                 key={recipe.id}
                 initial={{ opacity: 0, scale: 0.95 }}
