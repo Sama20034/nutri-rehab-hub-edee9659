@@ -1,62 +1,30 @@
 
 
 ## المشكلة
-لما المستخدم بيدوس على تصنيف في صفحة المتجر، بيتم فلترة المنتجات في نفس الصفحة وبينزل لتحت. لو داس "رجوع" بيروح للصفحة الرئيسية بالكامل (مش المتجر) — فبيخسر العميل.
+صور الوصفات والمرفقات في داشبورد العميل بتتقص بسبب `object-cover` مع ارتفاع ثابت (`h-32`, `h-40`, `h-48`). الصور اللي فيها تفاصيل الوجبة (مكونات، طريقة تحضير، جدول) مش باينة كامل. والعميل مش يقدر يفتح الصورة بحجمها الكامل.
 
 ## الحل
-إنشاء صفحة مستقلة لكل تصنيف (`/store/category/:categoryId`) بحيث:
-- الضغط على تصنيف = navigate لصفحة جديدة
-- زرار "رجوع" = يرجع لصفحة المتجر الأصلية
-- في آخر الصفحة: اقتراحات منتجات من تصنيفات تانية
 
-## الملفات والتغييرات
+### ملف: `src/components/dashboard/sections/NutritionSection.tsx`
 
-### 1. ملف جديد: `src/pages/CategoryProducts.tsx`
-- صفحة مستقلة تستقبل `categoryId` من URL params
-- تجلب بيانات التصنيف الرئيسي + تصنيفاته الفرعية من `store_categories`
-- تجلب المنتجات اللي `category` بتاعتها تطابق أسماء التصنيفات الفرعية (عربي + إنجليزي)
-- تعرض:
-  - Header بالاسم + صورة التصنيف + زرار رجوع للمتجر
-  - شريط بحث + فلترة بالسعر
-  - Grid المنتجات
-  - **قسم "منتجات قد تعجبك"**: يجلب 4-6 منتجات عشوائية من تصنيفات مختلفة
-- نفس theme (light) ونفس `useCart` و `Layout` المستخدمين في Store
+**1. صور المرفقات في تاب "الخطط" (سطر 546-554):**
+- تغيير الصورة من `h-32 object-cover` إلى `object-contain` بدون ارتفاع ثابت
+- لف الصورة في `Dialog` — لما العميل يضغط عليها تفتح بالحجم الكامل في modal
 
-### 2. تعديل: `src/App.tsx`
-- إضافة route جديد: `<Route path="/store/category/:categoryId" element={<CategoryProducts />} />`
+**2. صورة الوصفة في الكارت (سطر 650-670):**
+- إبقاء الكارت كما هو (thumbnail) — مقبول كمعاينة صغيرة
 
-### 3. تعديل: `src/components/store/ShopByCategories.tsx`
-- تغيير `handleShopNow` من استدعاء `onCategorySelect` + scroll → إلى `navigate(`/store/category/${category.id}`)`
-- حذف prop `onCategorySelect` (لم يعد مطلوب)
+**3. صورة الوصفة في الـ Dialog المفتوح (سطر 701-706):**
+- تغيير من `h-48 object-cover` إلى `max-h-[70vh] object-contain w-full` — تعرض الصورة كاملة بدون قص
+- إضافة إمكانية الضغط على الصورة لفتحها في تاب جديد بالحجم الأصلي
 
-### 4. تعديل: `src/pages/Store.tsx`
-- حذف `onCategorySelect` handler من `<ShopByCategories>` (أصبح التنقل داخلي في المكون)
-- إبقاء باقي الصفحة كما هي (كل المنتجات + الفلاتر)
+**4. إضافة "Lightbox" بسيط للمرفقات:**
+- عند الضغط على صورة مرفق → تفتح في Dialog كامل الشاشة (`max-w-[95vw] max-h-[95vh]`) مع `object-contain`
+- بدل ما تفتح في تاب جديد (أفضل لتجربة الموبايل)
 
-### 5. تعديل: `src/components/layout/Navbar.tsx` (اختياري)
-- روابط Mega Menu للتصنيفات تشير لـ `/store/category/:id` بدل query params
-
-## التفاصيل التقنية
-
-```text
-صفحة المتجر (/store)
-  └── كل المنتجات + Shop By Categories cards
-        │
-        ▼ (click category card)
-صفحة التصنيف (/store/category/:id)  ← صفحة جديدة
-  ├── Header + breadcrumb (المتجر > اسم التصنيف)
-  ├── منتجات التصنيف
-  └── اقتراحات من تصنيفات أخرى
-        │
-        ▼ (back button / browser back)
-صفحة المتجر (/store)  ← يرجع هنا مش الرئيسية
-```
-
-### صفحة التصنيف الجديدة ستشمل:
-- `useEffect` لجلب التصنيف + subcategories بالـ ID
-- `useQuery` لجلب المنتجات المفلترة
-- `useQuery` ثاني لجلب منتجات مقترحة من تصنيفات أخرى (limit 6)
-- نفس `ProductGrid` + `addToCart` المستخدمين حالياً
-- Breadcrumb: المتجر › اسم التصنيف
-- زرار "عرض الكل" يرجع لـ `/store`
+### التغييرات التقنية
+- إضافة state: `lightboxImage: string | null`
+- إضافة Dialog جديد في آخر الملف يعرض الصورة المحددة بالحجم الكامل
+- تغيير `<a href={url} target="_blank">` في المرفقات إلى `<button onClick={() => setLightboxImage(url)}>`
+- تغيير `className` للصورة داخل dialog الوصفة من `h-48 object-cover` إلى `w-full object-contain rounded-lg`
 
