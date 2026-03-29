@@ -74,6 +74,22 @@ const mealTypeConfig = {
     label: { ar: 'الإفطار', en: 'Breakfast' },
     defaultTime: '8:00'
   },
+  pre_workout: { 
+    icon: Zap, 
+    color: 'from-blue-500 to-cyan-500',
+    bgColor: 'bg-blue-500/10',
+    borderColor: 'border-blue-500/30',
+    label: { ar: 'قبل التمرين', en: 'Pre-Workout' },
+    defaultTime: '10:00'
+  },
+  post_workout: { 
+    icon: Zap, 
+    color: 'from-teal-500 to-green-500',
+    bgColor: 'bg-teal-500/10',
+    borderColor: 'border-teal-500/30',
+    label: { ar: 'بعد التمرين', en: 'Post-Workout' },
+    defaultTime: '12:00'
+  },
   lunch: { 
     icon: Sun, 
     color: 'from-green-500 to-emerald-500',
@@ -95,7 +111,7 @@ const mealTypeConfig = {
     color: 'from-pink-500 to-rose-500',
     bgColor: 'bg-pink-500/10',
     borderColor: 'border-pink-500/30',
-    label: { ar: 'سناكس', en: 'Snacks' },
+    label: { ar: 'السناكس', en: 'Snacks' },
     defaultTime: '16:00'
   }
 };
