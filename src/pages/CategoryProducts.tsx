@@ -300,6 +300,8 @@ const CategoryProducts = () => {
               isLoading={loadingProducts}
               viewMode="grid"
               onAddToCart={handleAddToCart}
+              isRTL={isRTL}
+              cartLoading={false}
             />
           </div>
 
@@ -335,6 +337,8 @@ const CategoryProducts = () => {
                 isLoading={false}
                 viewMode="grid"
                 onAddToCart={handleAddToCart}
+                isRTL={isRTL}
+                cartLoading={false}
               />
             </motion.div>
           )}
