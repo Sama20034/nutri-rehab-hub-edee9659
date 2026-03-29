@@ -38,6 +38,7 @@ import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { ImageUpload } from '@/components/ui/image-upload';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
@@ -61,11 +62,26 @@ interface CartItem {
 
 type PaymentMethod = 'cash_on_delivery' | 'vodafone_cash' | 'instapay' | 'paymob';
 
+// Egyptian governorates
+const EGYPT_GOVERNORATES = [
+  'القاهرة', 'الجيزة', 'الإسكندرية', 'الدقهلية', 'الشرقية', 'المنوفية',
+  'الغربية', 'كفر الشيخ', 'البحيرة', 'دمياط', 'بورسعيد', 'الإسماعيلية',
+  'السويس', 'شمال سيناء', 'جنوب سيناء', 'البحر الأحمر', 'القليوبية',
+  'الفيوم', 'بني سويف', 'المنيا', 'أسيوط', 'سوهاج', 'قنا',
+  'الأقصر', 'أسوان', 'الوادي الجديد', 'مطروح'
+];
+
+const UPPER_EGYPT_GOVERNORATES = [
+  'أسوان', 'الأقصر', 'قنا', 'سوهاج', 'أسيوط', 'المنيا', 'بني سويف', 'الفيوم', 'الوادي الجديد'
+];
+
+const COD_ALLOWED_GOVERNORATES = ['الأقصر', 'قنا'];
+
 // Validation schema
 const checkoutSchema = z.object({
   full_name: z.string().trim().min(2, 'Name is required').max(100),
   email: z.string().trim().email('Invalid email').max(255).or(z.literal('')).optional(),
-  governorate: z.string().trim().min(2, 'Governorate is required').max(100),
+  governorate: z.string().min(1, 'Governorate is required'),
   city: z.string().trim().min(2, 'City is required').max(100),
   street_address: z.string().trim().min(5, 'Street address must be at least 5 characters').max(500),
   phone: z.string().trim().regex(/^01[0125][0-9]{8}$/, 'Invalid Egyptian phone number'),
