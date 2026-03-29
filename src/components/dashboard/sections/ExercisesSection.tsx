@@ -131,6 +131,24 @@ export const ExercisesSection = ({ isRTL, clientId }: ExercisesSectionProps) => 
     return url.includes('youtube.com') || url.includes('youtu.be');
   };
 
+  const isGoogleDriveUrl = (url: string) => {
+    return url.includes('drive.google.com');
+  };
+
+  const getGoogleDriveEmbedUrl = (url: string) => {
+    // Handle /file/d/FILE_ID/view or /file/d/FILE_ID/preview patterns
+    const fileIdMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (fileIdMatch) {
+      return `https://drive.google.com/file/d/${fileIdMatch[1]}/preview`;
+    }
+    // Handle ?id=FILE_ID pattern
+    const idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (idMatch) {
+      return `https://drive.google.com/file/d/${idMatch[1]}/preview`;
+    }
+    return url;
+  };
+
   const handleWatchVideo = (videoUrl: string | null) => {
     if (videoUrl) {
       setSelectedVideoUrl(videoUrl);
@@ -472,6 +490,13 @@ export const ExercisesSection = ({ isRTL, clientId }: ExercisesSectionProps) => 
                   src={getYouTubeEmbedUrl(selectedVideoUrl) || ''}
                   className="w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : isGoogleDriveUrl(selectedVideoUrl) ? (
+                <iframe
+                  src={getGoogleDriveEmbedUrl(selectedVideoUrl)}
+                  className="w-full h-full"
+                  allow="autoplay; encrypted-media"
                   allowFullScreen
                 />
               ) : (
