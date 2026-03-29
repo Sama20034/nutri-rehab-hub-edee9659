@@ -456,6 +456,8 @@ export const NutritionSection = ({ isRTL, clientId, packageType = 'basic' }: Nut
                     const mealDesc = meal.data?.description || meal.data?.items?.join('، ') || '';
                     const mealCalories = meal.data?.calories || meal.data?.cal || null;
 
+                    const mealImage = meal.data?.image || meal.data?.image_url || null;
+
                     return (
                       <motion.div
                         key={(meal as any).key || meal.type}
@@ -488,6 +490,19 @@ export const NutritionSection = ({ isRTL, clientId, packageType = 'basic' }: Nut
                               </div>
                               {mealDesc && (
                                 <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{mealDesc}</p>
+                              )}
+                              {mealImage && (
+                                <button
+                                  type="button"
+                                  onClick={() => setLightboxImage(mealImage)}
+                                  className="mt-3 w-full cursor-pointer rounded-lg overflow-hidden border border-border hover:opacity-90 transition-opacity"
+                                >
+                                  <img
+                                    src={mealImage}
+                                    alt={mealName}
+                                    className="w-full object-contain max-h-48 bg-muted"
+                                  />
+                                </button>
                               )}
                               {meal.data?.time && (
                                 <div className={`flex items-center gap-1 mt-2 text-xs text-muted-foreground ${isRTL ? 'flex-row-reverse' : ''}`}>
