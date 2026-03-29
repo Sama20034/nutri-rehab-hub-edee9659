@@ -900,17 +900,20 @@ const Checkout = () => {
                       {Object.values(PAYMENT_METHODS).map((method) => {
                         const Icon = method.icon;
                         const isSelected = paymentMethod === method.id;
+                        const isCodDisabled = method.id === 'cash_on_delivery' && !COD_ALLOWED_GOVERNORATES.includes(checkoutData.governorate);
                         return (
                           <div
                             key={method.id}
-                            className={`relative flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                              isSelected 
-                                ? 'border-primary bg-primary/5' 
-                                : 'border-border hover:border-primary/50'
+                            className={`relative flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-xl border-2 transition-all ${
+                              isCodDisabled
+                                ? 'opacity-50 cursor-not-allowed border-border'
+                                : isSelected 
+                                  ? 'border-primary bg-primary/5 cursor-pointer' 
+                                  : 'border-border hover:border-primary/50 cursor-pointer'
                             }`}
-                            onClick={() => setPaymentMethod(method.id as PaymentMethod)}
+                            onClick={() => !isCodDisabled && setPaymentMethod(method.id as PaymentMethod)}
                           >
-                            <RadioGroupItem value={method.id} id={method.id} className="sr-only" />
+                            <RadioGroupItem value={method.id} id={method.id} className="sr-only" disabled={isCodDisabled} />
                             <div className={`p-2 sm:p-3 rounded-full bg-muted ${method.color}`}>
                               <Icon className="h-4 w-4 sm:h-6 sm:w-6" />
                             </div>
@@ -919,10 +922,12 @@ const Checkout = () => {
                                 {isRTL ? method.name_ar : method.name}
                               </Label>
                               <p className="text-xs sm:text-sm text-muted-foreground truncate">
-                                {isRTL ? method.description_ar : method.description}
+                                {isCodDisabled
+                                  ? (isRTL ? 'متاح فقط في الأقصر وقنا' : 'Only available in Luxor & Qena')
+                                  : (isRTL ? method.description_ar : method.description)}
                               </p>
                             </div>
-                            {isSelected && (
+                            {isSelected && !isCodDisabled && (
                               <CheckCircle2 className="h-5 w-5 sm:h-6 sm:w-6 text-primary flex-shrink-0" />
                             )}
                           </div>
