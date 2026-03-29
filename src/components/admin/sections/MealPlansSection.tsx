@@ -253,6 +253,8 @@ export const MealPlansSection = () => {
       package_type: 'basic',
       day_number: 1,
       breakfast: { title: '', calories: 0, time: '8:00', image_url: '' },
+      pre_workout: { title: '', calories: 0, time: '10:00', image_url: '' },
+      post_workout: { title: '', calories: 0, time: '12:00', image_url: '' },
       lunch: { title: '', calories: 0, time: '13:00', image_url: '' },
       dinner: { title: '', calories: 0, time: '19:00', image_url: '' },
       snacks: []
