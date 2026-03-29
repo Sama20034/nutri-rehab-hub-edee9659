@@ -123,6 +123,7 @@ export const NutritionSection = ({ isRTL, clientId, packageType = 'basic' }: Nut
   const [selectedDay, setSelectedDay] = useState(1);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [recipeFilter, setRecipeFilter] = useState('all');
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -545,12 +546,12 @@ export const NutritionSection = ({ isRTL, clientId, packageType = 'basic' }: Nut
                               
                               if (isImage) {
                                 return (
-                                  <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="block group">
+                                  <button key={i} onClick={() => setLightboxImage(url)} className="block group text-start w-full">
                                     <div className="relative rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-colors">
-                                      <img src={url} alt={name || `${isRTL ? 'مرفق' : 'Attachment'} ${i + 1}`} className="w-full h-32 object-cover group-hover:scale-105 transition-transform" />
+                                      <img src={url} alt={name || `${isRTL ? 'مرفق' : 'Attachment'} ${i + 1}`} className="w-full object-contain max-h-60 group-hover:scale-105 transition-transform bg-muted/30" />
                                     </div>
                                     {name && <p className="text-xs text-muted-foreground mt-1 truncate">{name}</p>}
-                                  </a>
+                                  </button>
                                 );
                               }
                               
@@ -702,7 +703,8 @@ export const NutritionSection = ({ isRTL, clientId, packageType = 'basic' }: Nut
                         <img 
                           src={recipe.image_url || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600'} 
                           alt={recipe.name}
-                          className="w-full h-48 object-cover rounded-lg"
+                          className="w-full max-h-[70vh] object-contain rounded-lg bg-muted/30 cursor-pointer"
+                          onClick={() => setLightboxImage(recipe.image_url || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600')}
                         />
                       )}
                       
@@ -809,6 +811,22 @@ export const NutritionSection = ({ isRTL, clientId, packageType = 'basic' }: Nut
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Lightbox Dialog */}
+      <Dialog open={!!lightboxImage} onOpenChange={() => setLightboxImage(null)}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-2 overflow-auto bg-background border-none shadow-2xl">
+          <DialogHeader className="sr-only">
+            <DialogTitle>{isRTL ? 'عرض الصورة' : 'View Image'}</DialogTitle>
+          </DialogHeader>
+          {lightboxImage && (
+            <img 
+              src={lightboxImage} 
+              alt="" 
+              className="w-full h-auto object-contain max-h-[90vh] rounded-lg"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 };
