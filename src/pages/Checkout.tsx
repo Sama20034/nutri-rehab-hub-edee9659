@@ -8,6 +8,7 @@ import {
   ShoppingBag, 
   MapPin, 
   Phone, 
+  Truck,
   FileText, 
   CreditCard, 
   Mail, 
@@ -38,6 +39,7 @@ import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { ImageUpload } from '@/components/ui/image-upload';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
@@ -61,11 +63,26 @@ interface CartItem {
 
 type PaymentMethod = 'cash_on_delivery' | 'vodafone_cash' | 'instapay' | 'paymob';
 
+// Egyptian governorates
+const EGYPT_GOVERNORATES = [
+  'القاهرة', 'الجيزة', 'الإسكندرية', 'الدقهلية', 'الشرقية', 'المنوفية',
+  'الغربية', 'كفر الشيخ', 'البحيرة', 'دمياط', 'بورسعيد', 'الإسماعيلية',
+  'السويس', 'شمال سيناء', 'جنوب سيناء', 'البحر الأحمر', 'القليوبية',
+  'الفيوم', 'بني سويف', 'المنيا', 'أسيوط', 'سوهاج', 'قنا',
+  'الأقصر', 'أسوان', 'الوادي الجديد', 'مطروح'
+];
+
+const UPPER_EGYPT_GOVERNORATES = [
+  'أسوان', 'الأقصر', 'قنا', 'سوهاج', 'أسيوط', 'المنيا', 'بني سويف', 'الفيوم', 'الوادي الجديد'
+];
+
+const COD_ALLOWED_GOVERNORATES = ['الأقصر', 'قنا'];
+
 // Validation schema
 const checkoutSchema = z.object({
   full_name: z.string().trim().min(2, 'Name is required').max(100),
   email: z.string().trim().email('Invalid email').max(255).or(z.literal('')).optional(),
-  governorate: z.string().trim().min(2, 'Governorate is required').max(100),
+  governorate: z.string().min(1, 'Governorate is required'),
   city: z.string().trim().min(2, 'City is required').max(100),
   street_address: z.string().trim().min(5, 'Street address must be at least 5 characters').max(500),
   phone: z.string().trim().regex(/^01[0125][0-9]{8}$/, 'Invalid Egyptian phone number'),
@@ -170,6 +187,14 @@ const Checkout = () => {
   }, [user, profile]);
 
   // Track InitiateCheckout when entering checkout page
+  useEffect(() => {
+    // Reset COD if governorate doesn't support it
+    if (checkoutData.governorate && paymentMethod === 'cash_on_delivery' && !COD_ALLOWED_GOVERNORATES.includes(checkoutData.governorate)) {
+      setPaymentMethod('vodafone_cash');
+    }
+  }, [checkoutData.governorate, paymentMethod]);
+
+  //
   useEffect(() => {
     if (cartItems.length > 0 && isCartReady) {
       trackInitiateCheckout(cartTotal, 'EGP');
@@ -735,14 +760,41 @@ const Checkout = () => {
                         {isRTL ? 'المحافظة' : 'Governorate'}
                         <span className="text-destructive">*</span>
                       </label>
-                      <Input
-                        value={checkoutData.governorate}
-                        onChange={(e) => setCheckoutData(prev => ({ ...prev, governorate: e.target.value }))}
-                        placeholder={isRTL ? 'مثال: القاهرة' : 'e.g. Cairo'}
-                        className={`h-10 sm:h-11 text-sm sm:text-base ${errors.governorate ? 'border-destructive' : ''}`}
-                      />
+                      <Select
+                        value={checkoutData.governorate || undefined}
+                        onValueChange={(value) => setCheckoutData(prev => ({ ...prev, governorate: value }))}
+                      >
+                        <SelectTrigger className={`h-10 sm:h-11 text-sm sm:text-base ${errors.governorate ? 'border-destructive' : ''}`}>
+                          <SelectValue placeholder={isRTL ? 'اختر المحافظة' : 'Select governorate'} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {EGYPT_GOVERNORATES.map((gov) => (
+                            <SelectItem key={gov} value={gov}>{gov}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       {errors.governorate && (
-                        <p className="text-xs sm:text-sm text-destructive">{errors.governorate}</p>
+                        <p className="text-xs sm:text-sm text-destructive">{isRTL ? 'المحافظة مطلوبة' : errors.governorate}</p>
+                      )}
+                      {checkoutData.governorate && (
+                        <div className={`flex items-center gap-2 p-2.5 rounded-lg text-xs sm:text-sm ${
+                          UPPER_EGYPT_GOVERNORATES.includes(checkoutData.governorate)
+                            ? 'bg-green-500/10 text-green-700 dark:text-green-400 border border-green-500/20'
+                            : 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20'
+                        }`}>
+                          <Truck className="h-4 w-4 flex-shrink-0" />
+                          <span>
+                            {UPPER_EGYPT_GOVERNORATES.includes(checkoutData.governorate)
+                              ? (isRTL ? '🚚 التوصيل خلال 48 ساعة' : '🚚 Delivery within 48 hours')
+                              : (isRTL ? '🚚 التوصيل من 3 إلى 4 أيام عمل' : '🚚 Delivery in 3-4 business days')}
+                          </span>
+                        </div>
+                      )}
+                      {checkoutData.governorate && COD_ALLOWED_GOVERNORATES.includes(checkoutData.governorate) && (
+                        <div className="flex items-center gap-2 p-2.5 rounded-lg text-xs sm:text-sm bg-green-500/10 text-green-700 dark:text-green-400 border border-green-500/20">
+                          <Banknote className="h-4 w-4 flex-shrink-0" />
+                          <span>{isRTL ? '✅ الدفع عند الاستلام متاح لمحافظتك' : '✅ Cash on delivery available for your area'}</span>
+                        </div>
                       )}
                     </div>
 
@@ -848,17 +900,20 @@ const Checkout = () => {
                       {Object.values(PAYMENT_METHODS).map((method) => {
                         const Icon = method.icon;
                         const isSelected = paymentMethod === method.id;
+                        const isCodDisabled = method.id === 'cash_on_delivery' && !COD_ALLOWED_GOVERNORATES.includes(checkoutData.governorate);
                         return (
                           <div
                             key={method.id}
-                            className={`relative flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                              isSelected 
-                                ? 'border-primary bg-primary/5' 
-                                : 'border-border hover:border-primary/50'
+                            className={`relative flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-xl border-2 transition-all ${
+                              isCodDisabled
+                                ? 'opacity-50 cursor-not-allowed border-border'
+                                : isSelected 
+                                  ? 'border-primary bg-primary/5 cursor-pointer' 
+                                  : 'border-border hover:border-primary/50 cursor-pointer'
                             }`}
-                            onClick={() => setPaymentMethod(method.id as PaymentMethod)}
+                            onClick={() => !isCodDisabled && setPaymentMethod(method.id as PaymentMethod)}
                           >
-                            <RadioGroupItem value={method.id} id={method.id} className="sr-only" />
+                            <RadioGroupItem value={method.id} id={method.id} className="sr-only" disabled={isCodDisabled} />
                             <div className={`p-2 sm:p-3 rounded-full bg-muted ${method.color}`}>
                               <Icon className="h-4 w-4 sm:h-6 sm:w-6" />
                             </div>
@@ -867,10 +922,12 @@ const Checkout = () => {
                                 {isRTL ? method.name_ar : method.name}
                               </Label>
                               <p className="text-xs sm:text-sm text-muted-foreground truncate">
-                                {isRTL ? method.description_ar : method.description}
+                                {isCodDisabled
+                                  ? (isRTL ? 'متاح فقط في الأقصر وقنا' : 'Only available in Luxor & Qena')
+                                  : (isRTL ? method.description_ar : method.description)}
                               </p>
                             </div>
-                            {isSelected && (
+                            {isSelected && !isCodDisabled && (
                               <CheckCircle2 className="h-5 w-5 sm:h-6 sm:w-6 text-primary flex-shrink-0" />
                             )}
                           </div>
