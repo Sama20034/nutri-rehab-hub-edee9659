@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import ProductImageSlider from "@/components/store/ProductImageSlider";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCart } from "@/hooks/useCart";
@@ -56,6 +57,23 @@ const ProductDetail = () => {
   const { addToCart, isLoading: cartLoading } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [additionalImages, setAdditionalImages] = useState<string[]>([]);
+
+  // Fetch additional product images
+  useEffect(() => {
+    if (!productId) return;
+    const fetchImages = async () => {
+      const { data } = await supabase
+        .from('product_images')
+        .select('image_url')
+        .eq('product_id', productId)
+        .order('display_order');
+      if (data) {
+        setAdditionalImages(data.map(img => img.image_url));
+      }
+    };
+    fetchImages();
+  }, [productId]);
 
   // Fetch product details
   const { data: product, isLoading, error } = useQuery({
@@ -226,25 +244,19 @@ const ProductDetail = () => {
               transition={{ duration: 0.6 }}
               className="space-y-4"
             >
-              {/* Main Image */}
+              {/* Main Image with Slider */}
               <div className="relative rounded-3xl overflow-hidden bg-card border border-border/50 shadow-2xl">
-                {product.image_url ? (
-                  <div className="aspect-square relative group">
-                    <img 
-                      src={product.image_url} 
-                      alt={productName}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/30 to-transparent" />
-                  </div>
-                ) : (
-                  <div className="aspect-square flex items-center justify-center bg-muted">
-                    <Package className="h-24 w-24 text-muted-foreground/30" />
-                  </div>
-                )}
+                <div className="aspect-square">
+                  <ProductImageSlider
+                    images={additionalImages}
+                    mainImage={product.image_url}
+                    productName={productName}
+                    size="featured"
+                  />
+                </div>
 
                 {/* Badges */}
-                <div className="absolute top-4 left-4 right-4 flex justify-between">
+                <div className="absolute top-4 left-4 right-4 flex justify-between z-20">
                   <div className="flex gap-2">
                     {product.video_url && (
                       <Badge className="gap-1.5 bg-background/90 backdrop-blur-sm text-foreground border-0 shadow-lg">
