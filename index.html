@@ -98,26 +98,27 @@
     (function() {
       var STORAGE_KEY = 'alligator_current_route';
       var currentHash = window.location.hash;
-      var savedRoute = localStorage.getItem(STORAGE_KEY);
       
-      // Function to check if hash is empty/home
-      function isEmptyHash(hash) {
-        return !hash || hash === '' || hash === '#' || hash === '#/' || hash === '#';
+      // Function to check if hash is truly empty (no hash at all)
+      function isNoHash(hash) {
+        return !hash || hash === '' || hash === '#';
       }
       
-      // Function to save route
+      // Function to save route - save ALL routes including home (#/)
       function saveRoute(hash) {
-        if (!isEmptyHash(hash)) {
+        if (!isNoHash(hash)) {
           localStorage.setItem(STORAGE_KEY, hash);
         }
       }
       
-      // On page load: restore route if current hash is empty but we have saved route
-      if (isEmptyHash(currentHash) && savedRoute && !isEmptyHash(savedRoute)) {
-        // Use replace to avoid adding to history
-        window.location.replace(window.location.pathname + window.location.search + savedRoute);
-      } else if (!isEmptyHash(currentHash)) {
-        // Save current route if it's valid
+      // On page load: restore route only if there's NO hash at all but we have a saved one
+      if (isNoHash(currentHash)) {
+        var savedRoute = localStorage.getItem(STORAGE_KEY);
+        if (savedRoute && !isNoHash(savedRoute)) {
+          window.location.replace(window.location.pathname + window.location.search + savedRoute);
+        }
+      } else {
+        // Save current route
         saveRoute(currentHash);
       }
       
@@ -126,12 +127,12 @@
         saveRoute(window.location.hash);
       });
       
-      // Also save on beforeunload to catch any last-moment changes
+      // Save on beforeunload
       window.addEventListener('beforeunload', function() {
         saveRoute(window.location.hash);
       });
       
-      // For SPA navigation, also monitor popstate
+      // Monitor popstate for SPA navigation
       window.addEventListener('popstate', function() {
         setTimeout(function() {
           saveRoute(window.location.hash);
