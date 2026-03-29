@@ -760,14 +760,41 @@ const Checkout = () => {
                         {isRTL ? 'المحافظة' : 'Governorate'}
                         <span className="text-destructive">*</span>
                       </label>
-                      <Input
-                        value={checkoutData.governorate}
-                        onChange={(e) => setCheckoutData(prev => ({ ...prev, governorate: e.target.value }))}
-                        placeholder={isRTL ? 'مثال: القاهرة' : 'e.g. Cairo'}
-                        className={`h-10 sm:h-11 text-sm sm:text-base ${errors.governorate ? 'border-destructive' : ''}`}
-                      />
+                      <Select
+                        value={checkoutData.governorate || undefined}
+                        onValueChange={(value) => setCheckoutData(prev => ({ ...prev, governorate: value }))}
+                      >
+                        <SelectTrigger className={`h-10 sm:h-11 text-sm sm:text-base ${errors.governorate ? 'border-destructive' : ''}`}>
+                          <SelectValue placeholder={isRTL ? 'اختر المحافظة' : 'Select governorate'} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {EGYPT_GOVERNORATES.map((gov) => (
+                            <SelectItem key={gov} value={gov}>{gov}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       {errors.governorate && (
-                        <p className="text-xs sm:text-sm text-destructive">{errors.governorate}</p>
+                        <p className="text-xs sm:text-sm text-destructive">{isRTL ? 'المحافظة مطلوبة' : errors.governorate}</p>
+                      )}
+                      {checkoutData.governorate && (
+                        <div className={`flex items-center gap-2 p-2.5 rounded-lg text-xs sm:text-sm ${
+                          UPPER_EGYPT_GOVERNORATES.includes(checkoutData.governorate)
+                            ? 'bg-green-500/10 text-green-700 dark:text-green-400 border border-green-500/20'
+                            : 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20'
+                        }`}>
+                          <Truck className="h-4 w-4 flex-shrink-0" />
+                          <span>
+                            {UPPER_EGYPT_GOVERNORATES.includes(checkoutData.governorate)
+                              ? (isRTL ? '🚚 التوصيل خلال 48 ساعة' : '🚚 Delivery within 48 hours')
+                              : (isRTL ? '🚚 التوصيل من 3 إلى 4 أيام عمل' : '🚚 Delivery in 3-4 business days')}
+                          </span>
+                        </div>
+                      )}
+                      {checkoutData.governorate && COD_ALLOWED_GOVERNORATES.includes(checkoutData.governorate) && (
+                        <div className="flex items-center gap-2 p-2.5 rounded-lg text-xs sm:text-sm bg-green-500/10 text-green-700 dark:text-green-400 border border-green-500/20">
+                          <Banknote className="h-4 w-4 flex-shrink-0" />
+                          <span>{isRTL ? '✅ الدفع عند الاستلام متاح لمحافظتك' : '✅ Cash on delivery available for your area'}</span>
+                        </div>
                       )}
                     </div>
 
