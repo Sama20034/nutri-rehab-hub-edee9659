@@ -694,39 +694,29 @@ export const MealPlansSection = () => {
                     </div>
                   </CardHeader>
                   <CardContent className="p-4">
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                       {/* Breakfast */}
                       {plan.breakfast && (
-                        <MealCard 
-                          type="breakfast" 
-                          meal={plan.breakfast} 
-                          isRTL={isRTL} 
-                        />
+                        <MealCard type="breakfast" meal={plan.breakfast} isRTL={isRTL} />
                       )}
+                      {/* Pre/Post Workout & Snacks from snacks array */}
+                      {plan.snacks && plan.snacks.filter((s: any) => s.type === 'pre_workout').map((s: any, i: number) => (
+                        <MealCard key={`pre_${i}`} type="pre_workout" meal={s} isRTL={isRTL} />
+                      ))}
+                      {plan.snacks && plan.snacks.filter((s: any) => s.type === 'post_workout').map((s: any, i: number) => (
+                        <MealCard key={`post_${i}`} type="post_workout" meal={s} isRTL={isRTL} />
+                      ))}
                       {/* Lunch */}
                       {plan.lunch && (
-                        <MealCard 
-                          type="lunch" 
-                          meal={plan.lunch} 
-                          isRTL={isRTL} 
-                        />
+                        <MealCard type="lunch" meal={plan.lunch} isRTL={isRTL} />
                       )}
                       {/* Dinner */}
                       {plan.dinner && (
-                        <MealCard 
-                          type="dinner" 
-                          meal={plan.dinner} 
-                          isRTL={isRTL} 
-                        />
+                        <MealCard type="dinner" meal={plan.dinner} isRTL={isRTL} />
                       )}
-                      {/* Snacks */}
-                      {plan.snacks && plan.snacks.map((snack, i) => (
-                        <MealCard 
-                          key={i} 
-                          type="snack" 
-                          meal={snack} 
-                          isRTL={isRTL} 
-                        />
+                      {/* Regular Snacks */}
+                      {plan.snacks && plan.snacks.filter((s: any) => !s.type || (s.type !== 'pre_workout' && s.type !== 'post_workout')).map((snack: any, i: number) => (
+                        <MealCard key={`snack_${i}`} type="snack" meal={snack} isRTL={isRTL} />
                       ))}
                     </div>
                   </CardContent>
