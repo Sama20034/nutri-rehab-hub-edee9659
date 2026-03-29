@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Utensils, Clock, Flame, ChefHat, Leaf, Play, Image, 
   Coffee, Sun, Moon, Apple, Check, ChevronRight, 
-  BookOpen, Video, Calendar, Star, Timer, Users
+  BookOpen, Video, Calendar, Star, Timer, Users, Zap
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -84,6 +84,20 @@ const mealTypeConfig = {
     bgColor: 'bg-amber-500/10',
     label: { ar: 'الإفطار', en: 'Breakfast' },
     time: '7:00 - 9:00'
+  },
+  pre_workout: { 
+    icon: Zap, 
+    color: 'from-blue-500 to-cyan-500',
+    bgColor: 'bg-blue-500/10',
+    label: { ar: 'قبل التمرين', en: 'Pre-Workout' },
+    time: '10:00'
+  },
+  post_workout: { 
+    icon: Zap, 
+    color: 'from-teal-500 to-green-500',
+    bgColor: 'bg-teal-500/10',
+    label: { ar: 'بعد التمرين', en: 'Post-Workout' },
+    time: '12:00'
   },
   lunch: { 
     icon: Sun, 
@@ -385,11 +399,27 @@ export const NutritionSection = ({ isRTL, clientId, packageType = 'basic' }: Nut
               return mealJson;
             };
 
+            // Separate pre/post workout from regular snacks
+            const snacksArr = currentDayPlan.snacks || [];
+            const preWorkoutSnacks = snacksArr.filter((s: any) => s.type === 'pre_workout');
+            const postWorkoutSnacks = snacksArr.filter((s: any) => s.type === 'post_workout');
+            const regularSnacks = snacksArr.filter((s: any) => !s.type || (s.type !== 'pre_workout' && s.type !== 'post_workout'));
+
             const meals = [
               { type: 'breakfast' as const, data: getMealData(currentDayPlan.breakfast) },
+              ...preWorkoutSnacks.map((s: any, i: number) => ({ 
+                type: 'pre_workout' as const, 
+                data: getMealData(s),
+                key: `pre_workout-${i}`
+              })),
+              ...postWorkoutSnacks.map((s: any, i: number) => ({ 
+                type: 'post_workout' as const, 
+                data: getMealData(s),
+                key: `post_workout-${i}`
+              })),
               { type: 'lunch' as const, data: getMealData(currentDayPlan.lunch) },
               { type: 'dinner' as const, data: getMealData(currentDayPlan.dinner) },
-              ...(currentDayPlan.snacks || []).map((s: any, i: number) => ({ 
+              ...regularSnacks.map((s: any, i: number) => ({ 
                 type: 'snack' as const, 
                 data: getMealData(s),
                 key: `snack-${i}`

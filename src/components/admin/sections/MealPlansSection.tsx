@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, Edit, Trash2, Calendar, Coffee, Sun, Moon, Apple, 
   Clock, Flame, ChefHat, Save, X, Search, Image, Video,
-  ChevronLeft, ChevronRight, Users, Check, UserPlus
+  ChevronLeft, ChevronRight, Users, Check, UserPlus, Zap
 } from 'lucide-react';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { Button } from '@/components/ui/button';
@@ -74,6 +74,22 @@ const mealTypeConfig = {
     label: { ar: 'الإفطار', en: 'Breakfast' },
     defaultTime: '8:00'
   },
+  pre_workout: { 
+    icon: Zap, 
+    color: 'from-blue-500 to-cyan-500',
+    bgColor: 'bg-blue-500/10',
+    borderColor: 'border-blue-500/30',
+    label: { ar: 'قبل التمرين', en: 'Pre-Workout' },
+    defaultTime: '10:00'
+  },
+  post_workout: { 
+    icon: Zap, 
+    color: 'from-teal-500 to-green-500',
+    bgColor: 'bg-teal-500/10',
+    borderColor: 'border-teal-500/30',
+    label: { ar: 'بعد التمرين', en: 'Post-Workout' },
+    defaultTime: '12:00'
+  },
   lunch: { 
     icon: Sun, 
     color: 'from-green-500 to-emerald-500',
@@ -95,7 +111,7 @@ const mealTypeConfig = {
     color: 'from-pink-500 to-rose-500',
     bgColor: 'bg-pink-500/10',
     borderColor: 'border-pink-500/30',
-    label: { ar: 'سناكس', en: 'Snacks' },
+    label: { ar: 'السناكس', en: 'Snacks' },
     defaultTime: '16:00'
   }
 };
@@ -138,6 +154,8 @@ export const MealPlansSection = () => {
     package_type: 'basic',
     day_number: 1,
     breakfast: { title: '', calories: 0, time: '8:00', image_url: '' } as MealData,
+    pre_workout: { title: '', calories: 0, time: '10:00', image_url: '' } as MealData,
+    post_workout: { title: '', calories: 0, time: '12:00', image_url: '' } as MealData,
     lunch: { title: '', calories: 0, time: '13:00', image_url: '' } as MealData,
     dinner: { title: '', calories: 0, time: '19:00', image_url: '' } as MealData,
     snacks: [] as MealData[]
@@ -235,6 +253,8 @@ export const MealPlansSection = () => {
       package_type: 'basic',
       day_number: 1,
       breakfast: { title: '', calories: 0, time: '8:00', image_url: '' },
+      pre_workout: { title: '', calories: 0, time: '10:00', image_url: '' },
+      post_workout: { title: '', calories: 0, time: '12:00', image_url: '' },
       lunch: { title: '', calories: 0, time: '13:00', image_url: '' },
       dinner: { title: '', calories: 0, time: '19:00', image_url: '' },
       snacks: []
@@ -290,18 +310,28 @@ export const MealPlansSection = () => {
 
     const totalCalories = 
       (planFormData.breakfast?.calories || 0) + 
+      (planFormData.pre_workout?.calories || 0) + 
+      (planFormData.post_workout?.calories || 0) + 
       (planFormData.lunch?.calories || 0) + 
       (planFormData.dinner?.calories || 0) +
       planFormData.snacks.reduce((sum, s) => sum + (s.calories || 0), 0);
 
     // Convert MealData to JSON-compatible format
-    const toJsonMeal = (meal: MealData) => ({
+    const toJsonMeal = (meal: MealData, type?: string) => ({
       recipe_id: meal.recipe_id || null,
       title: meal.title,
       calories: meal.calories,
       time: meal.time,
-      image_url: meal.image_url || null
+      image_url: meal.image_url || null,
+      ...(type ? { type } : {})
     });
+
+    // Build snacks array: regular snacks + pre/post workout stored with type
+    const allSnacks = [
+      ...(planFormData.pre_workout.title ? [toJsonMeal(planFormData.pre_workout, 'pre_workout')] : []),
+      ...(planFormData.post_workout.title ? [toJsonMeal(planFormData.post_workout, 'post_workout')] : []),
+      ...planFormData.snacks.filter(s => s.title).map(s => toJsonMeal(s)),
+    ];
 
     const planData = {
       name: planFormData.name,
@@ -311,7 +341,7 @@ export const MealPlansSection = () => {
       breakfast: planFormData.breakfast.title ? toJsonMeal(planFormData.breakfast) : null,
       lunch: planFormData.lunch.title ? toJsonMeal(planFormData.lunch) : null,
       dinner: planFormData.dinner.title ? toJsonMeal(planFormData.dinner) : null,
-      snacks: planFormData.snacks.filter(s => s.title).map(toJsonMeal),
+      snacks: allSnacks,
       total_calories: totalCalories,
       created_by: user?.id || null
     };
@@ -451,15 +481,23 @@ export const MealPlansSection = () => {
   };
 
   const handleEditPlan = async (plan: MealPlan) => {
+    // Extract pre/post workout from snacks array
+    const snacksArr = plan.snacks || [];
+    const preWorkout = snacksArr.find((s: any) => s.type === 'pre_workout');
+    const postWorkout = snacksArr.find((s: any) => s.type === 'post_workout');
+    const regularSnacks = snacksArr.filter((s: any) => !s.type || (s.type !== 'pre_workout' && s.type !== 'post_workout'));
+
     setPlanFormData({
       name: plan.name,
       description: plan.description || '',
       package_type: plan.package_type || 'basic',
       day_number: plan.day_number || 1,
       breakfast: plan.breakfast || { title: '', calories: 0, time: '8:00', image_url: '' },
+      pre_workout: preWorkout || { title: '', calories: 0, time: '10:00', image_url: '' },
+      post_workout: postWorkout || { title: '', calories: 0, time: '12:00', image_url: '' },
       lunch: plan.lunch || { title: '', calories: 0, time: '13:00', image_url: '' },
       dinner: plan.dinner || { title: '', calories: 0, time: '19:00', image_url: '' },
-      snacks: plan.snacks || []
+      snacks: regularSnacks
     });
     setEditingPlan(plan);
     setIsDialogOpen(true);
@@ -656,39 +694,29 @@ export const MealPlansSection = () => {
                     </div>
                   </CardHeader>
                   <CardContent className="p-4">
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                       {/* Breakfast */}
                       {plan.breakfast && (
-                        <MealCard 
-                          type="breakfast" 
-                          meal={plan.breakfast} 
-                          isRTL={isRTL} 
-                        />
+                        <MealCard type="breakfast" meal={plan.breakfast} isRTL={isRTL} />
                       )}
+                      {/* Pre/Post Workout & Snacks from snacks array */}
+                      {plan.snacks && plan.snacks.filter((s: any) => s.type === 'pre_workout').map((s: any, i: number) => (
+                        <MealCard key={`pre_${i}`} type="pre_workout" meal={s} isRTL={isRTL} />
+                      ))}
+                      {plan.snacks && plan.snacks.filter((s: any) => s.type === 'post_workout').map((s: any, i: number) => (
+                        <MealCard key={`post_${i}`} type="post_workout" meal={s} isRTL={isRTL} />
+                      ))}
                       {/* Lunch */}
                       {plan.lunch && (
-                        <MealCard 
-                          type="lunch" 
-                          meal={plan.lunch} 
-                          isRTL={isRTL} 
-                        />
+                        <MealCard type="lunch" meal={plan.lunch} isRTL={isRTL} />
                       )}
                       {/* Dinner */}
                       {plan.dinner && (
-                        <MealCard 
-                          type="dinner" 
-                          meal={plan.dinner} 
-                          isRTL={isRTL} 
-                        />
+                        <MealCard type="dinner" meal={plan.dinner} isRTL={isRTL} />
                       )}
-                      {/* Snacks */}
-                      {plan.snacks && plan.snacks.map((snack, i) => (
-                        <MealCard 
-                          key={i} 
-                          type="snack" 
-                          meal={snack} 
-                          isRTL={isRTL} 
-                        />
+                      {/* Regular Snacks */}
+                      {plan.snacks && plan.snacks.filter((s: any) => !s.type || (s.type !== 'pre_workout' && s.type !== 'post_workout')).map((snack: any, i: number) => (
+                        <MealCard key={`snack_${i}`} type="snack" meal={snack} isRTL={isRTL} />
                       ))}
                     </div>
                   </CardContent>
@@ -852,6 +880,22 @@ export const MealPlansSection = () => {
                 isRTL={isRTL}
               />
 
+              {/* Pre-Workout */}
+              <MealInputCard
+                type="pre_workout"
+                meal={planFormData.pre_workout}
+                onChange={(meal) => setPlanFormData({ ...planFormData, pre_workout: meal })}
+                isRTL={isRTL}
+              />
+
+              {/* Post-Workout */}
+              <MealInputCard
+                type="post_workout"
+                meal={planFormData.post_workout}
+                onChange={(meal) => setPlanFormData({ ...planFormData, post_workout: meal })}
+                isRTL={isRTL}
+              />
+
               {/* Lunch */}
               <MealInputCard
                 type="lunch"
@@ -869,7 +913,7 @@ export const MealPlansSection = () => {
               />
 
               {/* Snacks */}
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center gap-2">
                     <Apple className="h-4 w-4" />
@@ -881,29 +925,49 @@ export const MealPlansSection = () => {
                   </Button>
                 </div>
                 {planFormData.snacks.map((snack, index) => (
-                  <div key={index} className="flex gap-2 items-start">
-                    <div className="flex-1 grid grid-cols-3 gap-2">
-                      <Input
-                        placeholder={isRTL ? 'الاسم' : 'Name'}
-                        value={snack.title}
-                        onChange={(e) => updateSnack(index, 'title', e.target.value)}
-                      />
-                      <Input
-                        type="number"
-                        placeholder={isRTL ? 'السعرات' : 'Calories'}
-                        value={snack.calories || ''}
-                        onChange={(e) => updateSnack(index, 'calories', parseInt(e.target.value) || 0)}
-                      />
-                      <Input
-                        type="time"
-                        value={snack.time}
-                        onChange={(e) => updateSnack(index, 'time', e.target.value)}
-                      />
-                    </div>
-                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => removeSnack(index)}>
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <Card key={index} className="border-pink-500/30 border-2">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="p-2 rounded-lg bg-pink-500/10">
+                            <Apple className="h-4 w-4" />
+                          </div>
+                          <span className="font-medium">{isRTL ? `سناك ${index + 1}` : `Snack ${index + 1}`}</span>
+                        </div>
+                        <Button variant="ghost" size="icon" className="text-destructive" onClick={() => removeSnack(index)}>
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="col-span-3">
+                          <Input
+                            placeholder={isRTL ? 'الاسم' : 'Name'}
+                            value={snack.title}
+                            onChange={(e) => updateSnack(index, 'title', e.target.value)}
+                          />
+                        </div>
+                        <Input
+                          type="number"
+                          placeholder={isRTL ? 'السعرات' : 'Calories'}
+                          value={snack.calories || ''}
+                          onChange={(e) => updateSnack(index, 'calories', parseInt(e.target.value) || 0)}
+                        />
+                        <Input
+                          type="time"
+                          value={snack.time}
+                          onChange={(e) => updateSnack(index, 'time', e.target.value)}
+                        />
+                        <div className="col-span-3">
+                          <ImageUploadCompact
+                            value={snack.image_url || ''}
+                            onChange={(url) => updateSnack(index, 'image_url', url)}
+                            placeholder={isRTL ? 'رفع صورة' : 'Upload image'}
+                            folder="meals"
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             </div>
