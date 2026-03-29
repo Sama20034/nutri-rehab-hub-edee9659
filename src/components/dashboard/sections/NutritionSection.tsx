@@ -510,7 +510,7 @@ export const NutritionSection = ({ isRTL, clientId, packageType = 'basic' }: Nut
                         </Badge>
                       </div>
                     </CardHeader>
-                    <CardContent className="p-6">
+                    <CardContent className="p-6 space-y-4">
                       {plan.goal && (
                         <p className={`text-muted-foreground ${isRTL ? 'text-right' : ''}`}>
                           <Leaf className="h-4 w-4 inline mr-2" />
@@ -518,9 +518,81 @@ export const NutritionSection = ({ isRTL, clientId, packageType = 'basic' }: Nut
                         </p>
                       )}
                       {plan.description && (
-                        <p className={`mt-4 text-muted-foreground whitespace-pre-line ${isRTL ? 'text-right' : ''}`}>
+                        <p className={`text-muted-foreground whitespace-pre-line ${isRTL ? 'text-right' : ''}`}>
                           {plan.description}
                         </p>
+                      )}
+
+                      {/* Attachments (Images & Files) */}
+                      {plan.attachments && Array.isArray(plan.attachments) && plan.attachments.length > 0 && (
+                        <div className="space-y-3">
+                          <h4 className={`font-semibold text-sm flex items-center gap-2 ${isRTL ? 'flex-row-reverse text-right' : ''}`}>
+                            <Image className="h-4 w-4 text-primary" />
+                            {isRTL ? 'المرفقات' : 'Attachments'}
+                          </h4>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            {plan.attachments.map((att: any, i: number) => {
+                              const url = typeof att === 'string' ? att : att?.url || att?.file_url;
+                              const name = typeof att === 'string' ? '' : att?.name || att?.file_name || '';
+                              if (!url) return null;
+                              
+                              const isImage = /\.(jpg|jpeg|png|gif|webp|svg)($|\?)/i.test(url);
+                              const isPdf = /\.pdf($|\?)/i.test(url);
+                              
+                              if (isImage) {
+                                return (
+                                  <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="block group">
+                                    <div className="relative rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-colors">
+                                      <img src={url} alt={name || `${isRTL ? 'مرفق' : 'Attachment'} ${i + 1}`} className="w-full h-32 object-cover group-hover:scale-105 transition-transform" />
+                                    </div>
+                                    {name && <p className="text-xs text-muted-foreground mt-1 truncate">{name}</p>}
+                                  </a>
+                                );
+                              }
+                              
+                              return (
+                                <a
+                                  key={i}
+                                  href={url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 p-3 rounded-lg border border-border hover:border-primary/50 hover:bg-muted/50 transition-colors"
+                                >
+                                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                    {isPdf ? <BookOpen className="h-5 w-5 text-primary" /> : <Image className="h-5 w-5 text-primary" />}
+                                  </div>
+                                  <span className="text-sm truncate">{name || (isPdf ? 'PDF' : (isRTL ? 'ملف' : 'File'))}</span>
+                                </a>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Videos */}
+                      {plan.video_urls && plan.video_urls.length > 0 && (
+                        <div className="space-y-3">
+                          <h4 className={`font-semibold text-sm flex items-center gap-2 ${isRTL ? 'flex-row-reverse text-right' : ''}`}>
+                            <Play className="h-4 w-4 text-primary" />
+                            {isRTL ? 'فيديوهات الشرح' : 'Explanation Videos'}
+                          </h4>
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            {plan.video_urls.map((videoUrl, i) => {
+                              const videoId = getVideoId(videoUrl);
+                              if (!videoId) return null;
+                              return (
+                                <div key={i} className="aspect-video rounded-lg overflow-hidden border border-border">
+                                  <iframe
+                                    src={`https://www.youtube.com/embed/${videoId}`}
+                                    className="w-full h-full"
+                                    allowFullScreen
+                                    title={`${plan.name} - Video ${i + 1}`}
+                                  />
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
                       )}
                     </CardContent>
                   </Card>
