@@ -8,6 +8,7 @@ import {
   ShoppingBag, 
   MapPin, 
   Phone, 
+  Truck,
   FileText, 
   CreditCard, 
   Mail, 
