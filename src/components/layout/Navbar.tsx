@@ -161,13 +161,13 @@ const Navbar = () => {
                             {/* Subcategories */}
                             <ul className="space-y-0">
                               {category.subcategories.map((sub) => (
-                                <li key={sub} className="border-b border-dashed border-border/50 last:border-b-0">
+                                <li key={sub.name} className="border-b border-dashed border-border/50 last:border-b-0">
                                   <button
-                                    onClick={() => handleCategoryClick(sub)}
+                                    onClick={() => handleCategoryClick(category.id)}
                                     className={`w-full py-2.5 text-sm text-primary hover:text-primary/70 transition-colors flex items-center gap-2 ${isRTL ? 'flex-row-reverse justify-start' : 'justify-start'}`}
                                   >
                                     <span className="text-primary font-medium">{isRTL ? '<' : '>'}</span>
-                                    <span className="whitespace-nowrap">{sub}</span>
+                                    <span className="whitespace-nowrap">{sub.name}</span>
                                   </button>
                                 </li>
                               ))}
@@ -422,17 +422,17 @@ const Navbar = () => {
                                 <div className={`space-y-1 ${isRTL ? 'pr-3' : 'pl-3'}`}>
                                   {category.subcategories.map((sub) => (
                                     <button
-                                      key={sub}
+                                      key={sub.name}
                                       onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
                                         setIsOpen(false);
                                         setExpandedMobileCategory(null);
-                                        navigate(`/store?category=${encodeURIComponent(sub)}`);
+                                        navigate(`/store/category/${category.id}`);
                                       }}
                                       className={`block text-sm text-muted-foreground hover:text-primary py-2 w-full ${isRTL ? 'text-right' : 'text-left'}`}
                                     >
-                                      {sub}
+                                      {sub.name}
                                     </button>
                                   ))}
                                 </div>
