@@ -44,6 +44,8 @@ interface DietPlan {
   goal: string | null;
   duration_weeks: number | null;
   status: string | null;
+  attachments: any[] | null;
+  video_urls: string[] | null;
 }
 
 interface ClientDietPlan {
@@ -134,7 +136,7 @@ export const NutritionSection = ({ isRTL, clientId, packageType = 'basic' }: Nut
           .from('client_diet_plans')
           .select(`
             id, diet_plan_id, start_date, end_date, status,
-            diet_plan:diet_plans(id, name, description, calories_min, calories_max, goal, duration_weeks, status)
+            diet_plan:diet_plans(id, name, description, calories_min, calories_max, goal, duration_weeks, status, attachments, video_urls)
           `)
           .eq('client_id', clientId),
         // Fetch assigned meal plans for this client
