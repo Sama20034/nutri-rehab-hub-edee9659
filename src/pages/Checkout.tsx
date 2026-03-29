@@ -188,6 +188,14 @@ const Checkout = () => {
 
   // Track InitiateCheckout when entering checkout page
   useEffect(() => {
+    // Reset COD if governorate doesn't support it
+    if (checkoutData.governorate && paymentMethod === 'cash_on_delivery' && !COD_ALLOWED_GOVERNORATES.includes(checkoutData.governorate)) {
+      setPaymentMethod('vodafone_cash');
+    }
+  }, [checkoutData.governorate, paymentMethod]);
+
+  //
+  useEffect(() => {
     if (cartItems.length > 0 && isCartReady) {
       trackInitiateCheckout(cartTotal, 'EGP');
     }
