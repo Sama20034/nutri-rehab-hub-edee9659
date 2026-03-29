@@ -76,6 +76,22 @@ export const VideosSection = ({ isRTL, clientId }: VideosSectionProps) => {
     return url.includes('youtube.com') || url.includes('youtu.be');
   };
 
+  const isGoogleDriveUrl = (url: string) => {
+    return url.includes('drive.google.com');
+  };
+
+  const getGoogleDriveEmbedUrl = (url: string) => {
+    const fileIdMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (fileIdMatch) {
+      return `https://drive.google.com/file/d/${fileIdMatch[1]}/preview`;
+    }
+    const idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (idMatch) {
+      return `https://drive.google.com/file/d/${idMatch[1]}/preview`;
+    }
+    return url;
+  };
+
   const handleWatchVideo = async (video: ClientVideo) => {
     setSelectedVideo(video);
     setIsPlayerOpen(true);
@@ -302,6 +318,13 @@ export const VideosSection = ({ isRTL, clientId }: VideosSectionProps) => {
                   src={getYouTubeEmbedUrl(selectedVideo.video.url) || ''}
                   className="w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : isGoogleDriveUrl(selectedVideo.video.url) ? (
+                <iframe
+                  src={getGoogleDriveEmbedUrl(selectedVideo.video.url)}
+                  className="w-full h-full"
+                  allow="autoplay; encrypted-media"
                   allowFullScreen
                 />
               ) : (
