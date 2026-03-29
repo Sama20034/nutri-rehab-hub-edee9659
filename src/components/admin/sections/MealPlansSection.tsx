@@ -310,18 +310,28 @@ export const MealPlansSection = () => {
 
     const totalCalories = 
       (planFormData.breakfast?.calories || 0) + 
+      (planFormData.pre_workout?.calories || 0) + 
+      (planFormData.post_workout?.calories || 0) + 
       (planFormData.lunch?.calories || 0) + 
       (planFormData.dinner?.calories || 0) +
       planFormData.snacks.reduce((sum, s) => sum + (s.calories || 0), 0);
 
     // Convert MealData to JSON-compatible format
-    const toJsonMeal = (meal: MealData) => ({
+    const toJsonMeal = (meal: MealData, type?: string) => ({
       recipe_id: meal.recipe_id || null,
       title: meal.title,
       calories: meal.calories,
       time: meal.time,
-      image_url: meal.image_url || null
+      image_url: meal.image_url || null,
+      ...(type ? { type } : {})
     });
+
+    // Build snacks array: regular snacks + pre/post workout stored with type
+    const allSnacks = [
+      ...(planFormData.pre_workout.title ? [toJsonMeal(planFormData.pre_workout, 'pre_workout')] : []),
+      ...(planFormData.post_workout.title ? [toJsonMeal(planFormData.post_workout, 'post_workout')] : []),
+      ...planFormData.snacks.filter(s => s.title).map(s => toJsonMeal(s)),
+    ];
 
     const planData = {
       name: planFormData.name,
@@ -331,7 +341,7 @@ export const MealPlansSection = () => {
       breakfast: planFormData.breakfast.title ? toJsonMeal(planFormData.breakfast) : null,
       lunch: planFormData.lunch.title ? toJsonMeal(planFormData.lunch) : null,
       dinner: planFormData.dinner.title ? toJsonMeal(planFormData.dinner) : null,
-      snacks: planFormData.snacks.filter(s => s.title).map(toJsonMeal),
+      snacks: allSnacks,
       total_calories: totalCalories,
       created_by: user?.id || null
     };
@@ -471,15 +481,23 @@ export const MealPlansSection = () => {
   };
 
   const handleEditPlan = async (plan: MealPlan) => {
+    // Extract pre/post workout from snacks array
+    const snacksArr = plan.snacks || [];
+    const preWorkout = snacksArr.find((s: any) => s.type === 'pre_workout');
+    const postWorkout = snacksArr.find((s: any) => s.type === 'post_workout');
+    const regularSnacks = snacksArr.filter((s: any) => !s.type || (s.type !== 'pre_workout' && s.type !== 'post_workout'));
+
     setPlanFormData({
       name: plan.name,
       description: plan.description || '',
       package_type: plan.package_type || 'basic',
       day_number: plan.day_number || 1,
       breakfast: plan.breakfast || { title: '', calories: 0, time: '8:00', image_url: '' },
+      pre_workout: preWorkout || { title: '', calories: 0, time: '10:00', image_url: '' },
+      post_workout: postWorkout || { title: '', calories: 0, time: '12:00', image_url: '' },
       lunch: plan.lunch || { title: '', calories: 0, time: '13:00', image_url: '' },
       dinner: plan.dinner || { title: '', calories: 0, time: '19:00', image_url: '' },
-      snacks: plan.snacks || []
+      snacks: regularSnacks
     });
     setEditingPlan(plan);
     setIsDialogOpen(true);
