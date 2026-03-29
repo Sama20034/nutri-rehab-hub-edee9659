@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, Edit, Trash2, Calendar, Coffee, Sun, Moon, Apple, 
   Clock, Flame, ChefHat, Save, X, Search, Image, Video,
-  ChevronLeft, ChevronRight, Users, Check, UserPlus
+  ChevronLeft, ChevronRight, Users, Check, UserPlus, Zap
 } from 'lucide-react';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { Button } from '@/components/ui/button';
