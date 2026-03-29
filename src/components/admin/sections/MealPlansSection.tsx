@@ -154,6 +154,8 @@ export const MealPlansSection = () => {
     package_type: 'basic',
     day_number: 1,
     breakfast: { title: '', calories: 0, time: '8:00', image_url: '' } as MealData,
+    pre_workout: { title: '', calories: 0, time: '10:00', image_url: '' } as MealData,
+    post_workout: { title: '', calories: 0, time: '12:00', image_url: '' } as MealData,
     lunch: { title: '', calories: 0, time: '13:00', image_url: '' } as MealData,
     dinner: { title: '', calories: 0, time: '19:00', image_url: '' } as MealData,
     snacks: [] as MealData[]
