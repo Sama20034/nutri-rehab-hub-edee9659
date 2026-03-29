@@ -890,6 +890,22 @@ export const MealPlansSection = () => {
                 isRTL={isRTL}
               />
 
+              {/* Pre-Workout */}
+              <MealInputCard
+                type="pre_workout"
+                meal={planFormData.pre_workout}
+                onChange={(meal) => setPlanFormData({ ...planFormData, pre_workout: meal })}
+                isRTL={isRTL}
+              />
+
+              {/* Post-Workout */}
+              <MealInputCard
+                type="post_workout"
+                meal={planFormData.post_workout}
+                onChange={(meal) => setPlanFormData({ ...planFormData, post_workout: meal })}
+                isRTL={isRTL}
+              />
+
               {/* Lunch */}
               <MealInputCard
                 type="lunch"
@@ -907,7 +923,7 @@ export const MealPlansSection = () => {
               />
 
               {/* Snacks */}
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center gap-2">
                     <Apple className="h-4 w-4" />
@@ -919,29 +935,49 @@ export const MealPlansSection = () => {
                   </Button>
                 </div>
                 {planFormData.snacks.map((snack, index) => (
-                  <div key={index} className="flex gap-2 items-start">
-                    <div className="flex-1 grid grid-cols-3 gap-2">
-                      <Input
-                        placeholder={isRTL ? 'الاسم' : 'Name'}
-                        value={snack.title}
-                        onChange={(e) => updateSnack(index, 'title', e.target.value)}
-                      />
-                      <Input
-                        type="number"
-                        placeholder={isRTL ? 'السعرات' : 'Calories'}
-                        value={snack.calories || ''}
-                        onChange={(e) => updateSnack(index, 'calories', parseInt(e.target.value) || 0)}
-                      />
-                      <Input
-                        type="time"
-                        value={snack.time}
-                        onChange={(e) => updateSnack(index, 'time', e.target.value)}
-                      />
-                    </div>
-                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => removeSnack(index)}>
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <Card key={index} className="border-pink-500/30 border-2">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="p-2 rounded-lg bg-pink-500/10">
+                            <Apple className="h-4 w-4" />
+                          </div>
+                          <span className="font-medium">{isRTL ? `سناك ${index + 1}` : `Snack ${index + 1}`}</span>
+                        </div>
+                        <Button variant="ghost" size="icon" className="text-destructive" onClick={() => removeSnack(index)}>
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="col-span-3">
+                          <Input
+                            placeholder={isRTL ? 'الاسم' : 'Name'}
+                            value={snack.title}
+                            onChange={(e) => updateSnack(index, 'title', e.target.value)}
+                          />
+                        </div>
+                        <Input
+                          type="number"
+                          placeholder={isRTL ? 'السعرات' : 'Calories'}
+                          value={snack.calories || ''}
+                          onChange={(e) => updateSnack(index, 'calories', parseInt(e.target.value) || 0)}
+                        />
+                        <Input
+                          type="time"
+                          value={snack.time}
+                          onChange={(e) => updateSnack(index, 'time', e.target.value)}
+                        />
+                        <div className="col-span-3">
+                          <ImageUploadCompact
+                            value={snack.image_url || ''}
+                            onChange={(url) => updateSnack(index, 'image_url', url)}
+                            placeholder={isRTL ? 'رفع صورة' : 'Upload image'}
+                            folder="meals"
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             </div>
