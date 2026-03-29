@@ -352,37 +352,7 @@ const Store = () => {
         <PromoBannerSlider isRTL={isRTL} position="bottom" />
 
         {/* Shop By Categories */}
-        <ShopByCategories 
-          isRTL={isRTL} 
-          onCategorySelect={async (categoryId) => {
-            // Fetch subcategories of this main category with both names
-            const { data: subcategories } = await supabase
-              .from('store_categories')
-              .select('name, name_ar')
-              .eq('parent_id', categoryId)
-              .eq('is_active', true);
-            
-            if (subcategories && subcategories.length > 0) {
-              // Use both EN and AR names for filtering (to match any stored category format)
-              const subNames = subcategories.flatMap(sub => [
-                sub.name,
-                sub.name_ar
-              ].filter(Boolean) as string[]);
-              setSelectedCategories(subNames);
-            } else {
-              // If no subcategories, use main category name
-              const { data: mainCat } = await supabase
-                .from('store_categories')
-                .select('name, name_ar')
-                .eq('id', categoryId)
-                .single();
-              
-              if (mainCat) {
-                setSelectedCategories([mainCat.name, mainCat.name_ar].filter(Boolean) as string[]);
-              }
-            }
-          }} 
-        />
+        <ShopByCategories isRTL={isRTL} />
 
         {/* Main Content */}
         <div id="products-section" className="container mx-auto px-4 py-6 sm:py-8 relative z-10">

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,10 +16,10 @@ interface Category {
 
 interface ShopByCategoriesProps {
   isRTL: boolean;
-  onCategorySelect: (categoryName: string) => void;
 }
 
-const ShopByCategories = ({ isRTL, onCategorySelect }: ShopByCategoriesProps) => {
+const ShopByCategories = ({ isRTL }: ShopByCategoriesProps) => {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -41,16 +42,7 @@ const ShopByCategories = ({ isRTL, onCategorySelect }: ShopByCategoriesProps) =>
   }, []);
 
   const handleShopNow = (category: Category) => {
-    // Pass the category ID so we can fetch subcategories and filter properly
-    onCategorySelect(category.id);
-    
-    // Scroll to products grid (after a small delay to allow filtering)
-    setTimeout(() => {
-      const productsGrid = document.getElementById('products-grid');
-      if (productsGrid) {
-        productsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 100);
+    navigate(`/store/category/${category.id}`);
   };
 
   if (isLoading) {
