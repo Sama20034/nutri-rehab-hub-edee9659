@@ -421,8 +421,7 @@ const Checkout = () => {
     onSuccess: (order) => {
       trackPurchase(cartTotal, 'EGP', order?.id);
       queryClient.invalidateQueries({ queryKey: ['cart'] });
-      toast.success(isRTL ? 'تم إرسال طلبك بنجاح! سنتواصل معك قريباً' : 'Order placed successfully! We will contact you soon');
-      navigate('/store');
+      navigate('/order-success', { state: { orderId: order?.id, governorate: checkoutData.governorate } });
     },
     onError: (error: Error) => {
       toast.error(error.message);

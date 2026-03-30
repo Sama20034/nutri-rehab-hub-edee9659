@@ -31,6 +31,7 @@ import Store from "./pages/Store";
 import ProductDetail from "./pages/ProductDetail";
 import Checkout from "./pages/Checkout";
 import CategoryProducts from "./pages/CategoryProducts";
+import OrderSuccess from "./pages/OrderSuccess";
 
 const queryClient = new QueryClient();
 
