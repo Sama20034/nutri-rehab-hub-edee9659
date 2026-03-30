@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { HashRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/hooks/useAuth";
 import { CartProvider } from "@/hooks/useCart";
@@ -48,31 +48,6 @@ const FacebookPixelTracker = () => {
   return null;
 };
 
-// Debug component to track routing
-const RouteDebugger = () => {
-  const location = useLocation();
-  
-  useEffect(() => {
-    console.log("🔍 [ROUTE DEBUG] Current location:", {
-      pathname: location.pathname,
-      hash: location.hash,
-      search: location.search,
-      fullURL: window.location.href,
-      hashFromWindow: window.location.hash
-    });
-  }, [location]);
-  
-  useEffect(() => {
-    console.log("🚀 [ROUTE DEBUG] App mounted. Initial state:", {
-      fullURL: window.location.href,
-      pathname: window.location.pathname,
-      hash: window.location.hash,
-      search: window.location.search
-    });
-  }, []);
-  
-  return null;
-};
 
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
@@ -84,8 +59,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <Sonner />
-            <HashRouter>
-              <RouteDebugger />
+            <BrowserRouter>
               <FacebookPixelTracker />
               <ScrollToTop />
               <Routes>
@@ -122,7 +96,7 @@ const App = () => (
               </Routes>
               <FloatingCTA />
               <CookieConsent />
-            </HashRouter>
+            </BrowserRouter>
             </TooltipProvider>
           </CartProvider>
         </AuthProvider>

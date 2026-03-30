@@ -41,7 +41,7 @@ export const useFacebookPixel = () => {
       return;
     }
 
-    const currentPath = path || window.location.pathname + window.location.hash;
+    const currentPath = path || window.location.pathname;
     
     // Prevent duplicate PageView for the same path
     if (lastPageView.current === currentPath) {
