@@ -93,53 +93,6 @@
   </script>
   <!-- End Dynamic Meta Pixel -->
   
-  <!-- Route persistence for mobile refresh -->
-  <script>
-    (function() {
-      var STORAGE_KEY = 'alligator_current_route';
-      var currentHash = window.location.hash;
-      
-      // Function to check if hash is truly empty (no hash at all)
-      function isNoHash(hash) {
-        return !hash || hash === '' || hash === '#';
-      }
-      
-      // Function to save route - save ALL routes including home (#/)
-      function saveRoute(hash) {
-        if (!isNoHash(hash)) {
-          localStorage.setItem(STORAGE_KEY, hash);
-        }
-      }
-      
-      // On page load: restore route only if there's NO hash at all but we have a saved one
-      if (isNoHash(currentHash)) {
-        var savedRoute = localStorage.getItem(STORAGE_KEY);
-        if (savedRoute && !isNoHash(savedRoute)) {
-          window.location.replace(window.location.pathname + window.location.search + savedRoute);
-        }
-      } else {
-        // Save current route
-        saveRoute(currentHash);
-      }
-      
-      // Listen for hash changes and save them
-      window.addEventListener('hashchange', function() {
-        saveRoute(window.location.hash);
-      });
-      
-      // Save on beforeunload
-      window.addEventListener('beforeunload', function() {
-        saveRoute(window.location.hash);
-      });
-      
-      // Monitor popstate for SPA navigation
-      window.addEventListener('popstate', function() {
-        setTimeout(function() {
-          saveRoute(window.location.hash);
-        }, 100);
-      });
-    })();
-  </script>
 </head>
 
   <body>

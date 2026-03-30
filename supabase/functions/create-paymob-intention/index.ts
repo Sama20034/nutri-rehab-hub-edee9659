@@ -124,7 +124,7 @@ serve(async (req) => {
       },
       special_reference: orderId || undefined,
       notification_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/paymob-webhook`,
-      redirection_url: `${req.headers.get('origin') || 'https://nutri-rehab-hub.lovable.app'}/#/store?payment_status=success`,
+      redirection_url: `${req.headers.get('origin') || 'https://nutri-rehab-hub.lovable.app'}/order-success`,
     };
 
     console.log('Creating Paymob intention...');
