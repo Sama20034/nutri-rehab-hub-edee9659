@@ -1255,6 +1255,7 @@ const SupplementsPreview = () => {
   const {
     isRTL
   } = useLanguage();
+  const navigate = useNavigate();
   const [products, setProducts] = useState<any[]>([]);
   
   useEffect(() => {
