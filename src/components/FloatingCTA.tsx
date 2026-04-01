@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 
 const FloatingCTA = () => {
   const { isRTL } = useLanguage();
+  const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
   const whatsappNumber = '201016111733';
