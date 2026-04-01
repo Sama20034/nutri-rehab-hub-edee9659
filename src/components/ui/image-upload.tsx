@@ -24,7 +24,8 @@ export const ImageUpload = ({
   className,
   disabled = false,
   bucket = 'uploads',
-  folder = 'images'
+  folder = 'images',
+  useEdgeFunction = false
 }: ImageUploadProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
