@@ -51,26 +51,42 @@ export const ImageUpload = ({
     setIsUploading(true);
 
     try {
-      // Generate unique filename
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      let publicUrl: string;
 
-      // Upload to Supabase Storage
-      const { data, error } = await supabase.storage
-        .from(bucket)
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false
+      if (useEdgeFunction) {
+        // Upload via Edge Function (bypasses RLS for guests)
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://evfoljpyhcfwjgwljhyg.supabase.co';
+        const response = await fetch(`${supabaseUrl}/functions/v1/upload-receipt`, {
+          method: 'POST',
+          body: formData,
         });
 
-      if (error) throw error;
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Upload failed');
+        publicUrl = result.url;
+      } else {
+        // Direct upload to Supabase Storage
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(data.path);
+        const { data, error } = await supabase.storage
+          .from(bucket)
+          .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
 
-      const publicUrl = urlData.publicUrl;
+        if (error) throw error;
+
+        const { data: urlData } = supabase.storage
+          .from(bucket)
+          .getPublicUrl(data.path);
+
+        publicUrl = urlData.publicUrl;
+      }
       
       setPreview(publicUrl);
       onChange(publicUrl);
