@@ -1,34 +1,47 @@
 
 
 ## المشكلة
-لما بتشارك لينك المتجر (`Alligatorfit.com/#/store`) على واتساب أو فيسبوك أو أي منصة، بعض المنصات بتشيل الـ `#` من الرابط فالشخص اللي بيفتح اللينك بيروح للصفحة الرئيسية مش المتجر.
+رفع صورة الإيصال بيفشل بسبب سياسات الحماية (RLS) في Supabase Storage. السياسة الحالية تسمح فقط للمستخدمين **المسجلين** بالرفع على bucket الـ `uploads`. لكن الـ Checkout بيسمح بالشراء كـ **زائر (Guest)** — والزائر مش مسجّل دخول، فبيظهر خطأ "new row violates row-level security".
 
-السبب: الموقع بيستخدم `HashRouter` اللي بيحط `#` في كل الروابط. الحل هو التحويل لـ `BrowserRouter` اللي بيخلي الروابط نظيفة (`Alligatorfit.com/store`).
+**نتيجة المشكلة:**
+1. صورة الإيصال مش بتترفع ← الـ `receiptUrl` فاضي
+2. زر "تأكيد الطلب" معطّل (disabled) لأن الكود بيشترط وجود إيصال للدفع اليدوي
+3. الزر يبان كأنه مش button لأنه disabled ومش بيستجيب
 
-**ملاحظة**: الـ `.htaccess` على Hostinger جاهز بالفعل لدعم `BrowserRouter` (بيوجه كل المسارات لـ `index.html`).
+## الحل
 
-## الحل — تحويل من HashRouter إلى BrowserRouter
+### 1. إنشاء Edge Function لرفع الإيصالات server-side
+**ملف جديد: `supabase/functions/upload-receipt/index.ts`**
+- تستقبل الصورة كـ FormData
+- ترفعها على bucket `uploads` باستخدام `SERVICE_ROLE_KEY` (يتجاوز RLS)
+- ترجع الـ public URL
+- بكده أي حد (زائر أو مسجّل) يقدر يرفع إيصال
 
-### 1. ملف `src/App.tsx`
-- تغيير `HashRouter` → `BrowserRouter`
-- تحديث الـ import
-- حذف `RouteDebugger` (كان لتتبع الـ hash)
+### 2. تعديل `src/components/ui/image-upload.tsx`
+- إضافة prop جديد `useEdgeFunction?: boolean`
+- لما يكون `true`، بدل ما يرفع مباشرة لـ Supabase Storage، يبعت الصورة لـ Edge Function `/upload-receipt`
+- الباقي يفضل زي ما هو (preview، validation، إلخ)
 
-### 2. ملف `index.html`
-- حذف سكريبت route persistence بالكامل (مش محتاجينه مع BrowserRouter لأن المسار بيتحفظ في الـ URL نفسه)
-- حذف event listeners بتاعت `hashchange` و `popstate`
+### 3. تعديل `src/pages/Checkout.tsx`
+- تمرير `useEdgeFunction={true}` لـ `ImageUpload` component بتاع الإيصال
+- كده الرفع هيشتغل سواء المستخدم مسجّل أو زائر
 
-### 3. ملف `src/hooks/useFacebookPixel.tsx`
-- تعديل `currentPath` من `window.location.pathname + window.location.hash` إلى `window.location.pathname` فقط
+### التفاصيل التقنية
 
-### 4. ملف `supabase/functions/create-paymob-intention/index.ts`
-- تعديل `redirection_url` من `/#/order-success` إلى `/order-success`
-
-### النتيجة
+**Edge Function (`upload-receipt`):**
 ```text
-قبل: Alligatorfit.com/#/store     ← الـ # بيتشال لما بتشارك اللينك
-بعد:  Alligatorfit.com/store      ← لينك نظيف يشتغل في كل مكان
+POST /upload-receipt
+Content-Type: multipart/form-data
+Body: file (image)
+
+→ يرفع الصورة على bucket "uploads" بمسار "receipts/timestamp-random.ext"
+→ يرجع { url: "https://...publicUrl" }
 ```
 
-كل الروابط هتفضل شغالة زي ما هي بالظبط — بس بدون `#`.
+**تعديل ImageUpload:**
+- لو `useEdgeFunction` مفعّل → يبعت FormData لـ Edge Function
+- لو مش مفعّل → يستخدم الطريقة الحالية (supabase.storage مباشرة)
+
+**النتيجة:**
+- الزائر يقدر يرفع إيصال ← الـ receiptUrl يتملى ← زر تأكيد الطلب يتفعّل ويشتغل
 
