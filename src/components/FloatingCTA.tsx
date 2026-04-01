@@ -31,15 +31,15 @@ const FloatingCTA = () => {
                 exit={{ opacity: 0, y: 20, scale: 0.8 }}
                 transition={{ duration: 0.2, delay: 0.1 }}
               >
-                <Link
-                  to="/packages"
+                <button
+                  onClick={() => window.location.href = '/packages'}
                   className="flex items-center gap-3 bg-accent text-accent-foreground px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                 >
                   <Calendar className="h-5 w-5" />
                   <span className="font-semibold text-sm whitespace-nowrap">
                     {isRTL ? 'استشارة مجانية' : 'Free Consultation'}
                   </span>
-                </Link>
+                </button>
               </motion.div>
 
               {/* Call Button */}
