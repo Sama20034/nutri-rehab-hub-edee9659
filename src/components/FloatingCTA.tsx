@@ -120,10 +120,8 @@ const FloatingCTA = () => {
         {/* Direct WhatsApp Link (shown when menu is open) */}
         <AnimatePresence>
           {isOpen && (
-            <motion.a
-              href={whatsappLink}
-              target="_blank"
-              rel="noopener noreferrer"
+            <motion.button
+              onClick={() => window.open(whatsappLink, '_blank')}
               initial={{ opacity: 0, y: 20, scale: 0.8 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.8 }}
@@ -134,7 +132,7 @@ const FloatingCTA = () => {
               <span className="font-semibold text-sm whitespace-nowrap">
                 {isRTL ? 'راسلنا واتساب' : 'Chat on WhatsApp'}
               </span>
-            </motion.a>
+            </motion.button>
           )}
         </AnimatePresence>
       </div>
