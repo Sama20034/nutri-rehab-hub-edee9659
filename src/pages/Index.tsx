@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, MessageCircle, Phone, Star, Check, ChevronLeft, ChevronRight, ShoppingBag, Target, Users, Award, Zap, Clock, Shield, Instagram, Facebook, Twitter, Youtube, Dumbbell, Heart, Crown, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';

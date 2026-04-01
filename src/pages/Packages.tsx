@@ -288,6 +288,7 @@ const Packages = () => {
   const { language } = useLanguage();
   const isRTL = language === "ar";
   const { setTheme, theme } = useTheme();
+  const navigate = useNavigate();
 
   // Force dark theme for Packages page — suppress transitions to prevent flash
   useEffect(() => {
