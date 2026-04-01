@@ -33,7 +33,7 @@ const FloatingCTA = () => {
                 transition={{ duration: 0.2, delay: 0.1 }}
               >
                 <button
-                  onClick={() => window.location.href = '/packages'}
+                  onClick={() => navigate('/packages')}
                   className="flex items-center gap-3 bg-accent text-accent-foreground px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                 >
                   <Calendar className="h-5 w-5" />
