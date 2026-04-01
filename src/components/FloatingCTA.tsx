@@ -49,15 +49,15 @@ const FloatingCTA = () => {
                 exit={{ opacity: 0, y: 20, scale: 0.8 }}
                 transition={{ duration: 0.2 }}
               >
-                <a
-                  href="tel:+201016111733"
+                <button
+                  onClick={() => window.open('tel:+201016111733')}
                   className="flex items-center gap-3 bg-secondary text-secondary-foreground px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                 >
                   <Phone className="h-5 w-5" />
                   <span className="font-semibold text-sm whitespace-nowrap" dir="ltr">
                     01016111733
                   </span>
-                </a>
+                </button>
               </motion.div>
             </>
           )}
