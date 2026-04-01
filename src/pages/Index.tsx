@@ -1436,6 +1436,7 @@ const FinalCTA = () => {
   const {
     isRTL
   } = useLanguage();
+  const navigate = useNavigate();
   return <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-primary/10 via-background to-accent/10 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0">
