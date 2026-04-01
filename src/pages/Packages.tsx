@@ -288,6 +288,7 @@ const Packages = () => {
   const { language } = useLanguage();
   const isRTL = language === "ar";
   const { setTheme, theme } = useTheme();
+  const navigate = useNavigate();
 
   // Force dark theme for Packages page — suppress transitions to prevent flash
   useEffect(() => {
@@ -415,25 +416,23 @@ const Packages = () => {
                   : "Contact us now and get a free consultation"}
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href="https://wa.me/201016111733" target="_blank" rel="noopener noreferrer">
                   <Button
                     size="lg"
                     className="bg-white text-primary hover:bg-white/90 px-8 py-6 text-lg font-bold gap-2"
+                    onClick={() => window.open('https://wa.me/201016111733', '_blank')}
                   >
                     <MessageCircle className="w-5 h-5" />
                     {isRTL ? "ادفع عن طريق الواتساب" : "Pay via WhatsApp"}
                   </Button>
-                </a>
-                <Link to="/payment">
                   <Button
                     size="lg"
                     variant="outline"
                     className="border-2 border-white text-white hover:bg-white/10 px-8 py-6 text-lg font-bold gap-2"
+                    onClick={() => navigate('/payment')}
                   >
                     {isRTL ? "اشترك الان عبر الدفع الالكتروني" : "Subscribe via Electronic Payment"}
                     <ArrowRight className={`w-5 h-5 ${isRTL ? "rotate-180" : ""}`} />
                   </Button>
-                </Link>
               </div>
             </motion.div>
           </div>

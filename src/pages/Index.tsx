@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, MessageCircle, Phone, Star, Check, ChevronLeft, ChevronRight, ShoppingBag, Target, Users, Award, Zap, Clock, Shield, Instagram, Facebook, Twitter, Youtube, Dumbbell, Heart, Crown, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -1255,6 +1255,7 @@ const SupplementsPreview = () => {
   const {
     isRTL
   } = useLanguage();
+  const navigate = useNavigate();
   const [products, setProducts] = useState<any[]>([]);
   
   useEffect(() => {
@@ -1310,12 +1311,10 @@ const SupplementsPreview = () => {
             <p className="text-base sm:text-lg text-muted-foreground/90 mb-4 sm:mb-6">
               {isRTL ? 'نختار لك أفضل المكملات المناسبة لأهدافك مع إرشادات طبية ورياضية متخصصة لضمان أفضل النتائج بأمان.' : 'We select the best supplements suited to your goals with specialized medical and sports guidance to ensure the best results safely.'}
             </p>
-            <Link to="/store">
-              <Button className="gap-2 text-sm sm:text-base">
+            <Button className="gap-2 text-sm sm:text-base" onClick={() => navigate('/store')}>
                 <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5" />
                 {isRTL ? 'تصفح المتجر' : 'Browse Store'}
               </Button>
-            </Link>
           </motion.div>
 
           <motion.div initial={{
@@ -1437,6 +1436,7 @@ const FinalCTA = () => {
   const {
     isRTL
   } = useLanguage();
+  const navigate = useNavigate();
   return <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-primary/10 via-background to-accent/10 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0">
@@ -1472,18 +1472,14 @@ const FinalCTA = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-            <a href="https://wa.me/201016111733" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full sm:w-auto gap-2 text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 bg-[#25D366] hover:bg-[#20BD5A]">
+              <Button size="lg" className="w-full sm:w-auto gap-2 text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 bg-[#25D366] hover:bg-[#20BD5A]" onClick={() => window.open('https://wa.me/201016111733', '_blank')}>
                 <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                 {isRTL ? 'ادفع عن طريق الواتساب' : 'Pay via WhatsApp'}
               </Button>
-            </a>
-            <Link to="/payment" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2 text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 border-2 border-primary/50">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2 text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 border-2 border-primary/50" onClick={() => navigate('/payment')}>
                 {isRTL ? 'اشترك الان عبر الدفع الالكتروني' : 'Subscribe via Electronic Payment'}
                 <ArrowRight className={`h-4 w-4 sm:h-5 sm:w-5 ${isRTL ? 'rotate-180' : ''}`} />
               </Button>
-            </Link>
           </div>
 
           {/* Trust Badges */}

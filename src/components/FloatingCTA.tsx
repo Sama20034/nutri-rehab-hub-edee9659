@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Phone, Calendar } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const FloatingCTA = () => {
   const { isRTL } = useLanguage();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
   const whatsappNumber = '201016111733';
@@ -31,15 +32,15 @@ const FloatingCTA = () => {
                 exit={{ opacity: 0, y: 20, scale: 0.8 }}
                 transition={{ duration: 0.2, delay: 0.1 }}
               >
-                <Link
-                  to="/packages"
+                <button
+                  onClick={() => navigate('/packages')}
                   className="flex items-center gap-3 bg-accent text-accent-foreground px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                 >
                   <Calendar className="h-5 w-5" />
                   <span className="font-semibold text-sm whitespace-nowrap">
                     {isRTL ? 'استشارة مجانية' : 'Free Consultation'}
                   </span>
-                </Link>
+                </button>
               </motion.div>
 
               {/* Call Button */}
@@ -49,15 +50,15 @@ const FloatingCTA = () => {
                 exit={{ opacity: 0, y: 20, scale: 0.8 }}
                 transition={{ duration: 0.2 }}
               >
-                <a
-                  href="tel:+201016111733"
+                <button
+                  onClick={() => window.open('tel:+201016111733')}
                   className="flex items-center gap-3 bg-secondary text-secondary-foreground px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                 >
                   <Phone className="h-5 w-5" />
                   <span className="font-semibold text-sm whitespace-nowrap" dir="ltr">
                     01016111733
                   </span>
-                </a>
+                </button>
               </motion.div>
             </>
           )}
@@ -120,10 +121,8 @@ const FloatingCTA = () => {
         {/* Direct WhatsApp Link (shown when menu is open) */}
         <AnimatePresence>
           {isOpen && (
-            <motion.a
-              href={whatsappLink}
-              target="_blank"
-              rel="noopener noreferrer"
+            <motion.button
+              onClick={() => window.open(whatsappLink, '_blank')}
               initial={{ opacity: 0, y: 20, scale: 0.8 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.8 }}
@@ -134,7 +133,7 @@ const FloatingCTA = () => {
               <span className="font-semibold text-sm whitespace-nowrap">
                 {isRTL ? 'راسلنا واتساب' : 'Chat on WhatsApp'}
               </span>
-            </motion.a>
+            </motion.button>
           )}
         </AnimatePresence>
       </div>
