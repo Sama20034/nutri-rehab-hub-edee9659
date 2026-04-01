@@ -986,6 +986,7 @@ const Checkout = () => {
                                   placeholder={isRTL ? '📸 اضغط لرفع صورة الإيصال' : '📸 Click to upload receipt'}
                                   bucket="uploads"
                                   folder="receipts"
+                                  useEdgeFunction={true}
                                   className="mb-3 w-full"
                                 />
                               </div>
