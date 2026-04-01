@@ -14,6 +14,7 @@ interface ImageUploadProps {
   disabled?: boolean;
   bucket?: string;
   folder?: string;
+  useEdgeFunction?: boolean;
 }
 
 export const ImageUpload = ({
