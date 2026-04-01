@@ -8,7 +8,6 @@ const FloatingCTA = () => {
   const { isRTL } = useLanguage();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
 
   const whatsappNumber = '201016111733';
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
