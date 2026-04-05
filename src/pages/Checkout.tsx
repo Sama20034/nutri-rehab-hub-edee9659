@@ -154,6 +154,7 @@ const Checkout = () => {
   const [freeUsagePlan, setFreeUsagePlan] = useState(false);
   const [monthlyNutritionPlan, setMonthlyNutritionPlan] = useState(false);
   const NUTRITION_PLAN_PRICE = 100;
+  const SHIPPING_FEE = 130;
   
   // Receipt screenshot
   const [receiptUrl, setReceiptUrl] = useState('');
@@ -163,7 +164,7 @@ const Checkout = () => {
 
   const productTotal = cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
   const addonsTotal = monthlyNutritionPlan ? NUTRITION_PLAN_PRICE : 0;
-  const cartTotal = productTotal + addonsTotal;
+  const cartTotal = productTotal + addonsTotal + SHIPPING_FEE;
   const grantsAccess = productTotal >= 7500;
 
   // Redirect if cart is empty only after cart is ready
