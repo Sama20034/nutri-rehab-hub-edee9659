@@ -1,32 +1,24 @@
 
 
 ## المشكلة
-جدول `store_categories` في قاعدة البيانات **مفيهوش عمود وصف** (`description` / `description_ar`). لذلك:
-1. مفيش مكان لكتابة وصف متعدد الفقرات
-2. حتى لو كتبت وصف، مفيش مكان يتخزن فيه ولا يتعرض
+
+صفحة المتجر (`Store.tsx`) وصفحة التصنيفات (`CategoryProducts.tsx`) تستخدم `ProductGrid` لعرض المنتجات. لكن `ProductGrid` **لا يستخدم** `ProductImageSlider` ولا يجلب الصور الإضافية من جدول `product_images` — بيعرض فقط `product.image_url` (الصورة الرئيسية).
+
+الكومبوننت `ProductCard` اللي فيه `ProductImageSlider` **مش مستخدم في أي مكان** في المشروع حالياً.
 
 ## الحل
 
-### 1. إضافة أعمدة الوصف لقاعدة البيانات (Migration)
-```sql
-ALTER TABLE store_categories 
-ADD COLUMN description TEXT DEFAULT NULL,
-ADD COLUMN description_ar TEXT DEFAULT NULL;
-```
+### تعديل `src/components/store/ProductGrid.tsx`
 
-### 2. تعديل فورم الأدمن (`CategoriesSection.tsx`)
-- إضافة `description` و `description_ar` للـ `formData`
-- إضافة حقل `<Textarea>` لكل وصف (إنجليزي + عربي) في فورم الإضافة/التعديل
-- الـ Textarea يدعم كتابة فقرات متعددة (multi-line)
-- تحديث `saveCategory` و `updateCategory` ليرسلوا الوصف لقاعدة البيانات
+استبدال عرض الصورة الثابتة (`<img>`) في كل كارت منتج بـ:
+1. **جلب الصور الإضافية** من `product_images` لكل منتج
+2. **استخدام `ProductImageSlider`** بدل الـ `<img>` العادية
 
-### 3. عرض الوصف في المتجر
-- **`ShopByCategories.tsx`**: عرض وصف مختصر تحت اسم التصنيف على الكارت
-- **`CategoryProducts.tsx`**: عرض الوصف الكامل في هيدر صفحة التصنيف تحت الاسم
-- الوصف يتعرض بـ `whitespace-pre-line` عشان الفقرات المتعددة تظهر صح
+**التعديل المحدد:**
+- إضافة state + useEffect لجلب كل الصور الإضافية للمنتجات المعروضة (batch query واحد بدل query لكل منتج)
+- استبدال الـ `<motion.img>` الحالي (سطر 112-118) بـ `<ProductImageSlider images={additionalImages} mainImage={product.image_url} productName={product.name} />`
 
-### التفاصيل التقنية
-- الوصف يُخزن كـ `TEXT` (بدون حد أقصى) عشان يدعم فقرات متعددة
-- `whitespace-pre-line` في CSS بيحافظ على الأسطر الجديدة اللي المستخدم كتبها
-- كل الأماكن اللي بتعرض التصنيفات هتجيب الوصف من الداتابيز وتعرضه
+### النتيجة
+- الصور الإضافية هتظهر في كارت المنتج مع أسهم تنقل ونقاط (dots)
+- نفس السلوك الموجود حالياً في صفحة تفاصيل المنتج (`ProductDetail`)
 

@@ -46,8 +46,6 @@ interface CategoryInfo {
   name: string;
   name_ar: string | null;
   image_url: string | null;
-  description: string | null;
-  description_ar: string | null;
 }
 
 const CategoryProducts = () => {
@@ -86,7 +84,7 @@ const CategoryProducts = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('store_categories')
-        .select('id, name, name_ar, image_url, description, description_ar')
+        .select('id, name, name_ar, image_url')
         .eq('id', categoryId!)
         .single();
       if (error) throw error;
@@ -270,14 +268,7 @@ const CategoryProducts = () => {
                 >
                   {isRTL ? <ArrowRight className="h-5 w-5" /> : <ArrowLeft className="h-5 w-5" />}
                 </Button>
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold">{categoryName}</h1>
-                  {(isRTL ? category.description_ar : category.description) && (
-                    <p className={`text-sm mt-1 whitespace-pre-line ${category.image_url ? 'text-white/80' : 'text-muted-foreground'}`}>
-                      {isRTL ? category.description_ar || category.description : category.description}
-                    </p>
-                  )}
-                </div>
+                <h1 className="text-2xl sm:text-3xl font-bold">{categoryName}</h1>
               </div>
             </div>
           </div>
