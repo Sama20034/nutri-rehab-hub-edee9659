@@ -84,7 +84,7 @@ const CategoryProducts = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('store_categories')
-        .select('id, name, name_ar, image_url')
+        .select('id, name, name_ar, image_url, description, description_ar')
         .eq('id', categoryId!)
         .single();
       if (error) throw error;
