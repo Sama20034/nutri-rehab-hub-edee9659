@@ -40,6 +40,28 @@ const ProductGrid = ({
   cartLoading
 }: ProductGridProps) => {
   const navigate = useNavigate();
+  const [productImages, setProductImages] = useState<Record<string, string[]>>({});
+
+  // Fetch additional images for all products in one batch query
+  useEffect(() => {
+    if (products.length === 0) return;
+    const productIds = products.map(p => p.id);
+    supabase
+      .from('product_images')
+      .select('product_id, image_url, display_order')
+      .in('product_id', productIds)
+      .order('display_order', { ascending: true })
+      .then(({ data }) => {
+        if (data) {
+          const grouped: Record<string, string[]> = {};
+          data.forEach(img => {
+            if (!grouped[img.product_id]) grouped[img.product_id] = [];
+            grouped[img.product_id].push(img.image_url);
+          });
+          setProductImages(grouped);
+        }
+      });
+  }, [products]);
 
   if (isLoading) {
     return (
