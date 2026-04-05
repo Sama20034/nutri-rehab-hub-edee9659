@@ -46,6 +46,8 @@ interface CategoryInfo {
   name: string;
   name_ar: string | null;
   image_url: string | null;
+  description: string | null;
+  description_ar: string | null;
 }
 
 const CategoryProducts = () => {
