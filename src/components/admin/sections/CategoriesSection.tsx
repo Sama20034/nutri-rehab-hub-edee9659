@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ImageUpload } from '@/components/ui/image-upload';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -72,6 +73,8 @@ export const CategoriesSection = () => {
   const [formData, setFormData] = useState({
     name: '',
     name_ar: '',
+    description: '',
+    description_ar: '',
     parent_id: '',
     display_order: 0,
     is_active: true,
@@ -139,6 +142,8 @@ export const CategoriesSection = () => {
     setFormData({
       name: '',
       name_ar: '',
+      description: '',
+      description_ar: '',
       parent_id: '',
       display_order: 0,
       is_active: true,
@@ -152,6 +157,8 @@ export const CategoriesSection = () => {
     setFormData({
       name: category.name,
       name_ar: category.name_ar || '',
+      description: (category as any).description || '',
+      description_ar: (category as any).description_ar || '',
       parent_id: category.parent_id || '',
       display_order: category.display_order,
       is_active: category.is_active,
@@ -171,6 +178,8 @@ export const CategoriesSection = () => {
       .insert({
         name: formData.name,
         name_ar: formData.name_ar || null,
+        description: formData.description || null,
+        description_ar: formData.description_ar || null,
         parent_id: formData.parent_id || null,
         display_order: formData.display_order,
         is_active: formData.is_active,
@@ -201,6 +210,8 @@ export const CategoriesSection = () => {
       .update({
         name: formData.name,
         name_ar: formData.name_ar || null,
+        description: formData.description || null,
+        description_ar: formData.description_ar || null,
         parent_id: formData.parent_id || null,
         display_order: formData.display_order,
         is_active: formData.is_active,
@@ -398,6 +409,28 @@ export const CategoriesSection = () => {
             type="number"
             value={formData.display_order}
             onChange={(e) => setFormData({ ...formData, display_order: Number(e.target.value) })}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label>{isRTL ? 'الوصف (إنجليزي)' : 'Description (English)'}</Label>
+          <Textarea
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            placeholder="Category description (supports multiple paragraphs)"
+            rows={4}
+          />
+        </div>
+        <div>
+          <Label>{isRTL ? 'الوصف (عربي)' : 'Description (Arabic)'}</Label>
+          <Textarea
+            value={formData.description_ar}
+            onChange={(e) => setFormData({ ...formData, description_ar: e.target.value })}
+            placeholder="وصف التصنيف (يدعم فقرات متعددة)"
+            dir="rtl"
+            rows={4}
           />
         </div>
       </div>
