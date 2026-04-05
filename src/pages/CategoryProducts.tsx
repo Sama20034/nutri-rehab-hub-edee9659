@@ -270,7 +270,14 @@ const CategoryProducts = () => {
                 >
                   {isRTL ? <ArrowRight className="h-5 w-5" /> : <ArrowLeft className="h-5 w-5" />}
                 </Button>
-                <h1 className="text-2xl sm:text-3xl font-bold">{categoryName}</h1>
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-bold">{categoryName}</h1>
+                  {(isRTL ? category.description_ar : category.description) && (
+                    <p className={`text-sm mt-1 whitespace-pre-line ${category.image_url ? 'text-white/80' : 'text-muted-foreground'}`}>
+                      {isRTL ? category.description_ar || category.description : category.description}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>

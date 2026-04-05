@@ -115,9 +115,14 @@ const ShopByCategories = ({ isRTL }: ShopByCategoriesProps) => {
 
             {/* Content */}
             <div className="absolute bottom-0 left-0 right-0 p-6 text-center">
-              <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
                 {isRTL ? category.name_ar || category.name : category.name}
               </h3>
+              {(category as any).description && (
+                <p className="text-white/80 text-sm mb-3 line-clamp-2 whitespace-pre-line max-w-lg mx-auto">
+                  {isRTL ? (category as any).description_ar || (category as any).description : (category as any).description}
+                </p>
+              )}
               
               <Button 
                 className="px-8 py-3 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all duration-300 group-hover:scale-105 shadow-lg shadow-primary/30"

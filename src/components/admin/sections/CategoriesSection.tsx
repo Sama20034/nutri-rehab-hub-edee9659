@@ -413,6 +413,28 @@ export const CategoriesSection = () => {
         </div>
       </div>
 
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label>{isRTL ? 'الوصف (إنجليزي)' : 'Description (English)'}</Label>
+          <Textarea
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            placeholder="Category description (supports multiple paragraphs)"
+            rows={4}
+          />
+        </div>
+        <div>
+          <Label>{isRTL ? 'الوصف (عربي)' : 'Description (Arabic)'}</Label>
+          <Textarea
+            value={formData.description_ar}
+            onChange={(e) => setFormData({ ...formData, description_ar: e.target.value })}
+            placeholder="وصف التصنيف (يدعم فقرات متعددة)"
+            dir="rtl"
+            rows={4}
+          />
+        </div>
+      </div>
+
       {!formData.parent_id && (
         <div>
           <Label className="flex items-center gap-2 mb-2">
