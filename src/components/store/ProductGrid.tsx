@@ -1,9 +1,12 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Package, Sparkles, Zap, Play, Stethoscope, Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import ProductImageSlider from "./ProductImageSlider";
 
 interface Product {
   id: string;
