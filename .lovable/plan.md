@@ -1,47 +1,24 @@
 
 
 ## المشكلة
-رفع صورة الإيصال بيفشل بسبب سياسات الحماية (RLS) في Supabase Storage. السياسة الحالية تسمح فقط للمستخدمين **المسجلين** بالرفع على bucket الـ `uploads`. لكن الـ Checkout بيسمح بالشراء كـ **زائر (Guest)** — والزائر مش مسجّل دخول، فبيظهر خطأ "new row violates row-level security".
 
-**نتيجة المشكلة:**
-1. صورة الإيصال مش بتترفع ← الـ `receiptUrl` فاضي
-2. زر "تأكيد الطلب" معطّل (disabled) لأن الكود بيشترط وجود إيصال للدفع اليدوي
-3. الزر يبان كأنه مش button لأنه disabled ومش بيستجيب
+صفحة المتجر (`Store.tsx`) وصفحة التصنيفات (`CategoryProducts.tsx`) تستخدم `ProductGrid` لعرض المنتجات. لكن `ProductGrid` **لا يستخدم** `ProductImageSlider` ولا يجلب الصور الإضافية من جدول `product_images` — بيعرض فقط `product.image_url` (الصورة الرئيسية).
+
+الكومبوننت `ProductCard` اللي فيه `ProductImageSlider` **مش مستخدم في أي مكان** في المشروع حالياً.
 
 ## الحل
 
-### 1. إنشاء Edge Function لرفع الإيصالات server-side
-**ملف جديد: `supabase/functions/upload-receipt/index.ts`**
-- تستقبل الصورة كـ FormData
-- ترفعها على bucket `uploads` باستخدام `SERVICE_ROLE_KEY` (يتجاوز RLS)
-- ترجع الـ public URL
-- بكده أي حد (زائر أو مسجّل) يقدر يرفع إيصال
+### تعديل `src/components/store/ProductGrid.tsx`
 
-### 2. تعديل `src/components/ui/image-upload.tsx`
-- إضافة prop جديد `useEdgeFunction?: boolean`
-- لما يكون `true`، بدل ما يرفع مباشرة لـ Supabase Storage، يبعت الصورة لـ Edge Function `/upload-receipt`
-- الباقي يفضل زي ما هو (preview، validation، إلخ)
+استبدال عرض الصورة الثابتة (`<img>`) في كل كارت منتج بـ:
+1. **جلب الصور الإضافية** من `product_images` لكل منتج
+2. **استخدام `ProductImageSlider`** بدل الـ `<img>` العادية
 
-### 3. تعديل `src/pages/Checkout.tsx`
-- تمرير `useEdgeFunction={true}` لـ `ImageUpload` component بتاع الإيصال
-- كده الرفع هيشتغل سواء المستخدم مسجّل أو زائر
+**التعديل المحدد:**
+- إضافة state + useEffect لجلب كل الصور الإضافية للمنتجات المعروضة (batch query واحد بدل query لكل منتج)
+- استبدال الـ `<motion.img>` الحالي (سطر 112-118) بـ `<ProductImageSlider images={additionalImages} mainImage={product.image_url} productName={product.name} />`
 
-### التفاصيل التقنية
-
-**Edge Function (`upload-receipt`):**
-```text
-POST /upload-receipt
-Content-Type: multipart/form-data
-Body: file (image)
-
-→ يرفع الصورة على bucket "uploads" بمسار "receipts/timestamp-random.ext"
-→ يرجع { url: "https://...publicUrl" }
-```
-
-**تعديل ImageUpload:**
-- لو `useEdgeFunction` مفعّل → يبعت FormData لـ Edge Function
-- لو مش مفعّل → يستخدم الطريقة الحالية (supabase.storage مباشرة)
-
-**النتيجة:**
-- الزائر يقدر يرفع إيصال ← الـ receiptUrl يتملى ← زر تأكيد الطلب يتفعّل ويشتغل
+### النتيجة
+- الصور الإضافية هتظهر في كارت المنتج مع أسهم تنقل ونقاط (dots)
+- نفس السلوك الموجود حالياً في صفحة تفاصيل المنتج (`ProductDetail`)
 
