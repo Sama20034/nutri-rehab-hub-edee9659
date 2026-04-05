@@ -1,9 +1,12 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Package, Sparkles, Zap, Play, Stethoscope, Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import ProductImageSlider from "./ProductImageSlider";
 
 interface Product {
   id: string;
@@ -37,6 +40,28 @@ const ProductGrid = ({
   cartLoading
 }: ProductGridProps) => {
   const navigate = useNavigate();
+  const [productImages, setProductImages] = useState<Record<string, string[]>>({});
+
+  // Fetch additional images for all products in one batch query
+  useEffect(() => {
+    if (products.length === 0) return;
+    const productIds = products.map(p => p.id);
+    supabase
+      .from('product_images')
+      .select('product_id, image_url, display_order')
+      .in('product_id', productIds)
+      .order('display_order', { ascending: true })
+      .then(({ data }) => {
+        if (data) {
+          const grouped: Record<string, string[]> = {};
+          data.forEach(img => {
+            if (!grouped[img.product_id]) grouped[img.product_id] = [];
+            grouped[img.product_id].push(img.image_url);
+          });
+          setProductImages(grouped);
+        }
+      });
+  }, [products]);
 
   if (isLoading) {
     return (
@@ -108,19 +133,13 @@ const ProductGrid = ({
             <div className={`relative overflow-hidden ${
               viewMode === 'list' ? 'w-40 sm:w-48 flex-shrink-0' : 'aspect-[4/3]'
             }`}>
-              {product.image_url ? (
-                <motion.img 
-                  src={product.image_url} 
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                  whileHover={{ scale: 1.08 }}
-                  transition={{ duration: 0.5 }}
-                />
-              ) : (
-                <div className="w-full h-full min-h-[160px] flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-                  <Package className="h-12 w-12 text-muted-foreground/20" />
-                </div>
-              )}
+              <ProductImageSlider
+                images={productImages[product.id] || []}
+                mainImage={product.image_url}
+                productName={isRTL ? product.name_ar || product.name : product.name}
+                size="small"
+                className="w-full h-full"
+              />
               
               {/* Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
