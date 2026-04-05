@@ -142,6 +142,8 @@ export const CategoriesSection = () => {
     setFormData({
       name: '',
       name_ar: '',
+      description: '',
+      description_ar: '',
       parent_id: '',
       display_order: 0,
       is_active: true,
