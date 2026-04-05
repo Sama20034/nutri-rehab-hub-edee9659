@@ -210,6 +210,8 @@ export const CategoriesSection = () => {
       .update({
         name: formData.name,
         name_ar: formData.name_ar || null,
+        description: formData.description || null,
+        description_ar: formData.description_ar || null,
         parent_id: formData.parent_id || null,
         display_order: formData.display_order,
         is_active: formData.is_active,
