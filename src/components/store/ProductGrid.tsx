@@ -133,19 +133,13 @@ const ProductGrid = ({
             <div className={`relative overflow-hidden ${
               viewMode === 'list' ? 'w-40 sm:w-48 flex-shrink-0' : 'aspect-[4/3]'
             }`}>
-              {product.image_url ? (
-                <motion.img 
-                  src={product.image_url} 
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                  whileHover={{ scale: 1.08 }}
-                  transition={{ duration: 0.5 }}
-                />
-              ) : (
-                <div className="w-full h-full min-h-[160px] flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-                  <Package className="h-12 w-12 text-muted-foreground/20" />
-                </div>
-              )}
+              <ProductImageSlider
+                images={productImages[product.id] || []}
+                mainImage={product.image_url}
+                productName={isRTL ? product.name_ar || product.name : product.name}
+                size="small"
+                className="w-full h-full"
+              />
               
               {/* Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
