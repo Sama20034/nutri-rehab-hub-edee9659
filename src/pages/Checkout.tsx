@@ -661,6 +661,13 @@ const Checkout = () => {
                     <span>{isRTL ? 'المنتجات:' : 'Products:'}</span>
                     <span>{productTotal.toLocaleString()} {isRTL ? 'ج.م' : 'EGP'}</span>
                   </div>
+                  <div className="flex justify-between items-center text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Truck className="h-3.5 w-3.5" />
+                      {isRTL ? 'الشحن:' : 'Shipping:'}
+                    </span>
+                    <span>{SHIPPING_FEE} {isRTL ? 'ج.م' : 'EGP'}</span>
+                  </div>
                   {monthlyNutritionPlan && (
                     <div className="flex justify-between items-center text-sm text-secondary">
                       <span>{isRTL ? 'خطة التغذية الشهرية:' : 'Monthly Nutrition Plan:'}</span>
