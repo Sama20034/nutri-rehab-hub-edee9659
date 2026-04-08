@@ -1530,6 +1530,58 @@ const FooterSection = () => {
   return null;
 };
 
+// Homepage Video Section
+const HomepageVideo = () => {
+  const { isRTL } = useLanguage();
+  const { data: videoUrl } = useQuery({
+    queryKey: ['homepage-video'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'homepage_video_url')
+        .single();
+      return data?.value || '';
+    }
+  });
+
+  const getEmbedUrl = (url: string): string | null => {
+    if (!url) return null;
+    const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/);
+    if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+    const driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (driveMatch) return `https://drive.google.com/file/d/${driveMatch[1]}/preview`;
+    if (url.includes('embed') || url.includes('/preview')) return url;
+    return null;
+  };
+
+  const embedUrl = videoUrl ? getEmbedUrl(videoUrl) : null;
+  if (!embedUrl) return null;
+
+  return (
+    <section className="py-16 px-4 bg-background">
+      <div className="max-w-4xl mx-auto">
+        <h2 className="text-3xl font-bold text-center mb-8 text-foreground">
+          {isRTL ? 'شاهد الفيديو' : 'Watch Video'}
+        </h2>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="aspect-video rounded-2xl overflow-hidden shadow-2xl border border-border"
+        >
+          <iframe
+            src={embedUrl}
+            className="w-full h-full"
+            allowFullScreen
+            allow="autoplay; encrypted-media"
+          />
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
 // Main Index Component
 const Index = () => {
   const { setTheme } = useTheme();
