@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useTheme } from 'next-themes';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, MessageCircle, Phone, Star, Check, ChevronLeft, ChevronRight, ShoppingBag, Target, Users, Award, Zap, Clock, Shield, Instagram, Facebook, Twitter, Youtube, Dumbbell, Heart, Crown, Sparkles } from 'lucide-react';
@@ -1531,6 +1532,21 @@ const FooterSection = () => {
 
 // Main Index Component
 const Index = () => {
+  const { setTheme } = useTheme();
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme-switching', '');
+    setTheme('dark');
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.documentElement.removeAttribute('data-theme-switching');
+      });
+    });
+    return () => {
+      cancelAnimationFrame(raf);
+    };
+  }, [setTheme]);
+
   return <Layout>
       <HeroSection />
       <CountdownTimer />
