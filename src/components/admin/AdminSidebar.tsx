@@ -37,6 +37,7 @@ const sidebarItems = [
   { id: 'videos', labelAr: 'الفيديوهات', labelEn: 'Videos', icon: Video },
   { id: 'transformations', labelAr: 'قصص النجاح', labelEn: 'Success Stories', icon: Star },
   { id: 'articles', labelAr: 'المقالات', labelEn: 'Articles', icon: FileText },
+  { id: 'mission-images', labelAr: 'صور رسالتنا', labelEn: 'Mission Images', icon: Image },
   { id: 'homepage-video', labelAr: 'فيديو الرئيسية', labelEn: 'Homepage Video', icon: Video },
   { id: 'pixel', labelAr: 'Facebook Pixel', labelEn: 'Facebook Pixel', icon: Facebook },
 ];
