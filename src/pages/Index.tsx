@@ -1556,7 +1556,8 @@ const HomepageVideo = () => {
   };
 
   const embedUrl = videoUrl ? getEmbedUrl(videoUrl) : null;
-  if (!embedUrl) return null;
+  const isDirect = videoUrl ? (videoUrl.match(/\.(mp4|webm|ogg)(\?|$)/i) !== null || videoUrl.includes('supabase.co/storage')) : false;
+  if (!embedUrl && !isDirect) return null;
 
   return (
     <section className="py-16 px-4 bg-background">
@@ -1570,12 +1571,16 @@ const HomepageVideo = () => {
           viewport={{ once: true }}
           className="aspect-video rounded-2xl overflow-hidden shadow-2xl border border-border"
         >
-          <iframe
-            src={embedUrl}
-            className="w-full h-full"
-            allowFullScreen
-            allow="autoplay; encrypted-media"
-          />
+          {isDirect ? (
+            <video src={videoUrl!} className="w-full h-full" controls />
+          ) : (
+            <iframe
+              src={embedUrl!}
+              className="w-full h-full"
+              allowFullScreen
+              allow="autoplay; encrypted-media"
+            />
+          )}
         </motion.div>
       </div>
     </section>
