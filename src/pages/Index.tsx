@@ -962,9 +962,35 @@ const TransformationsCarousel = () => {
 
 // Mission Section Component
 const MissionSection = () => {
-  const {
-    isRTL
-  } = useLanguage();
+  const { isRTL } = useLanguage();
+  const [missionImages, setMissionImages] = useState<string[]>([]);
+  const [currentImg, setCurrentImg] = useState(0);
+
+  useEffect(() => {
+    const fetchMissionImages = async () => {
+      const { data } = await supabase
+        .from('mission_images')
+        .select('image_url')
+        .eq('is_active', true)
+        .order('display_order');
+      if (data && data.length > 0) {
+        setMissionImages(data.map(d => d.image_url));
+      }
+    };
+    fetchMissionImages();
+  }, []);
+
+  // Auto-rotate
+  useEffect(() => {
+    if (missionImages.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentImg(prev => (prev + 1) % missionImages.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [missionImages.length]);
+
+  const imagesToShow = missionImages.length > 0 ? missionImages : [drMahmoud2];
+
   const features = [{
     icon: Target,
     title: isRTL ? 'نتائج مضمونه بإذن الله' : 'Guaranteed Results',
@@ -986,18 +1012,54 @@ const MissionSection = () => {
     title: isRTL ? 'شهادات معتمدة' : 'Certified Credentials',
     desc: isRTL ? 'اكتر من 20 شهاده و ميدالية رياضية' : 'More than 20 certificates and sports medals'
   }];
+
+  const ImageCarousel = ({ className, imgClassName }: { className?: string; imgClassName?: string }) => (
+    <div className={`relative rounded-2xl overflow-hidden ${className || ''}`}>
+      <AnimatePresence mode="wait">
+        <motion.img
+          key={currentImg}
+          src={imagesToShow[currentImg]}
+          alt="Dr. Mahmoud Al-Reaky"
+          className={`w-full object-cover object-top ${imgClassName || ''}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+        />
+      </AnimatePresence>
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+      {imagesToShow.length > 1 && (
+        <>
+          <button
+            onClick={() => setCurrentImg(prev => (prev - 1 + imagesToShow.length) % imagesToShow.length)}
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-background/60 backdrop-blur-sm flex items-center justify-center text-foreground hover:bg-background/80 transition-colors"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setCurrentImg(prev => (prev + 1) % imagesToShow.length)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-background/60 backdrop-blur-sm flex items-center justify-center text-foreground hover:bg-background/80 transition-colors"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+            {imagesToShow.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentImg(i)}
+                className={`w-2 h-2 rounded-full transition-all ${i === currentImg ? 'bg-primary w-4' : 'bg-foreground/40'}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+
   return <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-center">
-          <motion.div initial={{
-          opacity: 0,
-          x: -50
-        }} whileInView={{
-          opacity: 1,
-          x: 0
-        }} viewport={{
-          once: true
-        }}>
+          <motion.div initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
             <Badge className="mb-3 sm:mb-4 bg-primary/20 text-primary border-primary/30 text-xs sm:text-sm">
               {isRTL ? '🎯 رسالتنا' : '🎯 Our Mission'}
             </Badge>
@@ -1008,34 +1070,13 @@ const MissionSection = () => {
               {isRTL ? 'نؤمن بأن كل شخص يستحق جسماً صحياً وفورمة مثالية. هدفنا هو تقديم برامج مخصصة تناسب احتياجاتك مع متابعة مستمرة لضمان تحقيق أهدافك.' : 'We believe everyone deserves a healthy body and ideal physique. Our goal is to provide customized programs that suit your needs with continuous follow-up to ensure you achieve your goals.'}
             </p>
 
-            {/* Doctor Image - Mobile/Tablet Only */}
-            <motion.div initial={{
-            opacity: 0,
-            y: 20
-          }} whileInView={{
-            opacity: 1,
-            y: 0
-          }} viewport={{
-            once: true
-          }} className="lg:hidden mb-6">
-              <div className="relative rounded-2xl overflow-hidden">
-                <img src={drMahmoud2} alt="Dr. Mahmoud Al-Reaky" className="w-full h-[350px] sm:h-[400px] object-cover object-top" />
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
-              </div>
+            {/* Image Carousel - Mobile/Tablet Only */}
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="lg:hidden mb-6">
+              <ImageCarousel imgClassName="h-[350px] sm:h-[400px]" />
             </motion.div>
 
             <div className="grid sm:grid-cols-2 gap-4">
-              {features.map((feature, index) => <motion.div key={index} initial={{
-              opacity: 0,
-              y: 20
-            }} whileInView={{
-              opacity: 1,
-              y: 0
-            }} viewport={{
-              once: true
-            }} transition={{
-              delay: index * 0.1
-            }} className="flex items-start gap-3 p-4 bg-card rounded-xl border border-border">
+              {features.map((feature, index) => <motion.div key={index} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className="flex items-start gap-3 p-4 bg-card rounded-xl border border-border">
                   <div className="w-10 h-10 rounded-lg bg-secondary/20 flex items-center justify-center flex-shrink-0">
                     <feature.icon className="h-5 w-5 text-secondary" />
                   </div>
@@ -1047,32 +1088,12 @@ const MissionSection = () => {
             </div>
           </motion.div>
 
-          {/* Desktop Only - Doctor Image */}
-          <motion.div initial={{
-          opacity: 0,
-          x: 50
-        }} whileInView={{
-          opacity: 1,
-          x: 0
-        }} viewport={{
-          once: true
-        }} className="relative hidden lg:block">
-            <div className="relative rounded-2xl overflow-hidden">
-              <img src={drMahmoud2} alt="Dr. Mahmoud Regy - Alligator Fit" className="w-full h-[500px] object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
-              
-            </div>
+          {/* Desktop Only - Image Carousel */}
+          <motion.div initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="relative hidden lg:block">
+            <ImageCarousel imgClassName="h-[500px]" />
 
             {/* Floating Card */}
-            <motion.div initial={{
-            opacity: 0,
-            y: 20
-          }} whileInView={{
-            opacity: 1,
-            y: 0
-          }} viewport={{
-            once: true
-          }} className="absolute -bottom-6 -left-6 md:left-auto md:-right-6 bg-card p-4 rounded-xl border border-border shadow-xl">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="absolute -bottom-6 -left-6 md:left-auto md:-right-6 bg-card p-4 rounded-xl border border-border shadow-xl">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
                   <Check className="h-6 w-6 text-primary" />
