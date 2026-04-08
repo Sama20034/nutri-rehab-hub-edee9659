@@ -1531,6 +1531,21 @@ const FooterSection = () => {
 
 // Main Index Component
 const Index = () => {
+  const { setTheme } = useTheme();
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme-switching', '');
+    setTheme('dark');
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.documentElement.removeAttribute('data-theme-switching');
+      });
+    });
+    return () => {
+      cancelAnimationFrame(raf);
+    };
+  }, [setTheme]);
+
   return <Layout>
       <HeroSection />
       <CountdownTimer />
