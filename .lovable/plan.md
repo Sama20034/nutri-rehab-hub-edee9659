@@ -1,24 +1,52 @@
 
 
-## المشكلة
+## المطلوب
 
-صفحة المتجر (`Store.tsx`) وصفحة التصنيفات (`CategoryProducts.tsx`) تستخدم `ProductGrid` لعرض المنتجات. لكن `ProductGrid` **لا يستخدم** `ProductImageSlider` ولا يجلب الصور الإضافية من جدول `product_images` — بيعرض فقط `product.image_url` (الصورة الرئيسية).
+1. إضافة سكشن فيديو في الصفحة الرئيسية بين **أسعار الباقات** و**قصص النجاح**
+2. التحكم في رابط الفيديو من الداشبورد
+3. إصلاح أخطاء البناء (build errors) في ملفين
 
-الكومبوننت `ProductCard` اللي فيه `ProductImageSlider` **مش مستخدم في أي مكان** في المشروع حالياً.
+---
 
-## الحل
+## الخطة
 
-### تعديل `src/components/store/ProductGrid.tsx`
+### 1. إصلاح أخطاء البناء (Build Errors)
 
-استبدال عرض الصورة الثابتة (`<img>`) في كل كارت منتج بـ:
-1. **جلب الصور الإضافية** من `product_images` لكل منتج
-2. **استخدام `ProductImageSlider`** بدل الـ `<img>` العادية
+**ملف `src/hooks/useAdminExercisesData.tsx`** (سطر 146):
+- تغيير `Record<string, unknown>` إلى النوع الصحيح من Supabase types
 
-**التعديل المحدد:**
-- إضافة state + useEffect لجلب كل الصور الإضافية للمنتجات المعروضة (batch query واحد بدل query لكل منتج)
-- استبدال الـ `<motion.img>` الحالي (سطر 112-118) بـ `<ProductImageSlider images={additionalImages} mainImage={product.image_url} productName={product.name} />`
+**ملف `src/hooks/useAuth.tsx`** (سطر 158):
+- نفس التعديل — استبدال `Record<string, unknown>` بالنوع المحدد
+
+### 2. إضافة سكشن الفيديو في الصفحة الرئيسية
+
+**ملف `src/pages/Index.tsx`:**
+- إنشاء كومبوننت `HomepageVideo` جديد
+- يجلب رابط الفيديو من جدول `site_settings` (المفتاح: `homepage_video_url`)
+- يدعم يوتيوب وجوجل درايف (نفس منطق باقي الموقع)
+- لو مفيش فيديو محفوظ → السكشن مش هيظهر خالص
+- يتحط بين `<SubscriptionPlans />` و `<TransformationsCarousel />`
+
+### 3. إضافة إدارة الفيديو في الداشبورد
+
+**ملف `src/components/admin/sections/HomepageVideoSection.tsx`** (ملف جديد):
+- واجهة بسيطة: حقل إدخال لرابط الفيديو + زر حفظ + زر حذف
+- يستخدم جدول `site_settings` بمفتاح `homepage_video_url` (نفس طريقة الـ Pixel)
+- معاينة للفيديو بعد الحفظ
+
+**ملف `src/pages/dashboard/AdminDashboard.tsx`:**
+- إضافة case `'homepage-video'` في `renderSection`
+
+**ملف `src/components/admin/AdminSidebar.tsx`:**
+- إضافة عنصر جديد "فيديو الصفحة الرئيسية" في القائمة الجانبية
 
 ### النتيجة
-- الصور الإضافية هتظهر في كارت المنتج مع أسهم تنقل ونقاط (dots)
-- نفس السلوك الموجود حالياً في صفحة تفاصيل المنتج (`ProductDetail`)
+
+```text
+الصفحة الرئيسية:
+  Hero → Countdown → Mission → اسعار الباقات → [فيديو] → قصص النجاح → ...
+
+الداشبورد:
+  قائمة جانبية → "فيديو الرئيسية" → حقل رابط + حفظ/حذف + معاينة
+```
 
