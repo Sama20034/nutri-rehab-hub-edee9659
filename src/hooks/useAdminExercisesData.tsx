@@ -152,7 +152,7 @@ export const useAdminExercisesData = () => {
         duration_weeks?: number | null;
         status?: string | null;
         created_by?: string | null;
-        attachments?: unknown;
+        attachments?: Json | null;
         video_urls?: string[] | null;
       } = {};
       if (updates.name !== undefined) dbUpdates.name = updates.name;
