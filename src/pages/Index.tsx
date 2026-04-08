@@ -1552,6 +1552,7 @@ const Index = () => {
       <CountdownTimer />
       <MissionSection />
       <SubscriptionPlans />
+      <HomepageVideo />
       <TransformationsCarousel />
       <SupplementsPreview />
       <FAQPreview />
