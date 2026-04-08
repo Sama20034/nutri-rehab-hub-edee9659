@@ -155,7 +155,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       // Update profile with additional data
       // Admin and Doctor accounts are auto-approved, clients need approval
-      const profileUpdate: Record<string, unknown> = {
+      const profileUpdate: {
+        status: string;
+        phone?: string;
+        selected_package?: string;
+        payment_method?: string;
+        medical_followup?: boolean;
+      } = {
         status: role === 'admin' || role === 'doctor' ? 'approved' : 'pending',
       };
       

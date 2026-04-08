@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import type { Json } from '@/integrations/supabase/types';
 
 export interface Exercise {
   id: string;
@@ -143,7 +144,18 @@ export const useAdminExercisesData = () => {
 
   const updateDietPlan = async (id: string, updates: Partial<DietPlan>) => {
     try {
-      const dbUpdates: Record<string, unknown> = {};
+      const dbUpdates: {
+        name?: string;
+        description?: string | null;
+        goal?: string | null;
+        calories_min?: number | null;
+        calories_max?: number | null;
+        duration_weeks?: number | null;
+        status?: string | null;
+        created_by?: string | null;
+        attachments?: Json | null;
+        video_urls?: string[] | null;
+      } = {};
       if (updates.name !== undefined) dbUpdates.name = updates.name;
       if (updates.description !== undefined) dbUpdates.description = updates.description;
       if (updates.goal !== undefined) dbUpdates.goal = updates.goal;
