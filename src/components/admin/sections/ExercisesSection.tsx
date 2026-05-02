@@ -138,7 +138,8 @@ export const ExercisesSection = ({
       name: exerciseForm.name,
       description: exerciseForm.description || null,
       video_url: exerciseForm.video_url || null,
-      image_url: exerciseForm.image_url || null,
+      image_url: exerciseForm.image_urls[0] || exerciseForm.image_url || null,
+      image_urls: exerciseForm.image_urls,
       category: exerciseForm.category || null,
       difficulty: exerciseForm.difficulty || null,
       duration_minutes: exerciseForm.duration_minutes ? parseInt(exerciseForm.duration_minutes) : null
