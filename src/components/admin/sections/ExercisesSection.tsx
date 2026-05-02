@@ -370,21 +370,50 @@ export const ExercisesSection = ({
                 onChange={(e) => setExerciseForm({ ...exerciseForm, duration_minutes: e.target.value })}
               />
             </div>
-            <div>
-              <Label>{isRTL ? 'رابط الفيديو' : 'Video URL'}</Label>
+            {/* Video Section - separate from images */}
+            <div className="border-t pt-4">
+              <Label className="text-base font-semibold">
+                {isRTL ? '🎬 فيديو الشرح' : '🎬 Explanation Video'}
+              </Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                {isRTL ? 'رابط فيديو يوتيوب أو جوجل درايف لشرح التمرين' : 'YouTube or Google Drive link to explain the exercise'}
+              </p>
               <Input
                 value={exerciseForm.video_url}
                 onChange={(e) => setExerciseForm({ ...exerciseForm, video_url: e.target.value })}
+                placeholder="https://youtu.be/..."
               />
             </div>
-            <div>
-              <Label>{isRTL ? 'صورة التمرين' : 'Exercise Image'}</Label>
-              <ImageUpload
-                value={exerciseForm.image_url}
-                onChange={(url) => setExerciseForm({ ...exerciseForm, image_url: url })}
-                placeholder={isRTL ? 'اختر صورة التمرين' : 'Choose exercise image'}
-                folder="exercises"
-              />
+
+            {/* Images Section - separate from video, up to 4 */}
+            <div className="border-t pt-4">
+              <Label className="text-base font-semibold">
+                {isRTL ? '🖼️ صور ملخص التمرين (حتى 4)' : '🖼️ Exercise Summary Images (up to 4)'}
+              </Label>
+              <p className="text-xs text-muted-foreground mb-3">
+                {isRTL ? 'صور توضح ملخص التمرين، تظهر منفصلة عن الفيديو' : 'Images showing the exercise summary, displayed separately from the video'}
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                {[0, 1, 2, 3].map((idx) => (
+                  <ImageUpload
+                    key={idx}
+                    value={exerciseForm.image_urls[idx] || ''}
+                    onChange={(url) => {
+                      const next = [...exerciseForm.image_urls];
+                      if (url) {
+                        next[idx] = url;
+                      } else {
+                        next.splice(idx, 1);
+                      }
+                      // remove empty trailing slots
+                      const cleaned = next.filter(Boolean);
+                      setExerciseForm({ ...exerciseForm, image_urls: cleaned, image_url: cleaned[0] || '' });
+                    }}
+                    placeholder={isRTL ? `صورة ${idx + 1}` : `Image ${idx + 1}`}
+                    folder="exercises"
+                  />
+                ))}
+              </div>
             </div>
             <div>
               <Label>{isRTL ? 'الوصف' : 'Description'}</Label>
