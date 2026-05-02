@@ -72,6 +72,7 @@ export const ExercisesSection = ({
     description: '',
     video_url: '',
     image_url: '',
+    image_urls: [] as string[],
     category: '',
     difficulty: 'beginner',
     duration_minutes: ''
@@ -111,6 +112,7 @@ export const ExercisesSection = ({
       description: '',
       video_url: '',
       image_url: '',
+      image_urls: [],
       category: '',
       difficulty: 'beginner',
       duration_minutes: ''
