@@ -206,11 +206,15 @@ export const ExercisesSection = ({
   };
 
   const handleEditExercise = async (exercise: Exercise) => {
+    const existingImages = exercise.image_urls && exercise.image_urls.length > 0
+      ? exercise.image_urls
+      : (exercise.image_url ? [exercise.image_url] : []);
     setExerciseForm({
       name: exercise.name,
       description: exercise.description || '',
       video_url: exercise.video_url || '',
       image_url: exercise.image_url || '',
+      image_urls: existingImages,
       category: exercise.category || '',
       difficulty: exercise.difficulty || 'beginner',
       duration_minutes: exercise.duration_minutes?.toString() || ''
