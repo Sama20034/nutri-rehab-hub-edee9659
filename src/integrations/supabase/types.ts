@@ -589,6 +589,7 @@ export type Database = {
           duration_minutes: number | null
           id: string
           image_url: string | null
+          image_urls: string[]
           name: string
           video_url: string | null
         }
@@ -601,6 +602,7 @@ export type Database = {
           duration_minutes?: number | null
           id?: string
           image_url?: string | null
+          image_urls?: string[]
           name: string
           video_url?: string | null
         }
@@ -613,6 +615,7 @@ export type Database = {
           duration_minutes?: number | null
           id?: string
           image_url?: string | null
+          image_urls?: string[]
           name?: string
           video_url?: string | null
         }

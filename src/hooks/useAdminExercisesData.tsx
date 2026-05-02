@@ -8,6 +8,7 @@ export interface Exercise {
   description: string | null;
   video_url: string | null;
   image_url: string | null;
+  image_urls: string[] | null;
   category: string | null;
   difficulty: string | null;
   duration_minutes: number | null;

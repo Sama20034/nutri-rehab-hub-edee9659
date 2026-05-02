@@ -72,6 +72,7 @@ export const ExercisesSection = ({
     description: '',
     video_url: '',
     image_url: '',
+    image_urls: [] as string[],
     category: '',
     difficulty: 'beginner',
     duration_minutes: ''
@@ -111,6 +112,7 @@ export const ExercisesSection = ({
       description: '',
       video_url: '',
       image_url: '',
+      image_urls: [],
       category: '',
       difficulty: 'beginner',
       duration_minutes: ''
@@ -136,7 +138,8 @@ export const ExercisesSection = ({
       name: exerciseForm.name,
       description: exerciseForm.description || null,
       video_url: exerciseForm.video_url || null,
-      image_url: exerciseForm.image_url || null,
+      image_url: exerciseForm.image_urls[0] || exerciseForm.image_url || null,
+      image_urls: exerciseForm.image_urls,
       category: exerciseForm.category || null,
       difficulty: exerciseForm.difficulty || null,
       duration_minutes: exerciseForm.duration_minutes ? parseInt(exerciseForm.duration_minutes) : null
@@ -203,11 +206,15 @@ export const ExercisesSection = ({
   };
 
   const handleEditExercise = async (exercise: Exercise) => {
+    const existingImages = exercise.image_urls && exercise.image_urls.length > 0
+      ? exercise.image_urls
+      : (exercise.image_url ? [exercise.image_url] : []);
     setExerciseForm({
       name: exercise.name,
       description: exercise.description || '',
       video_url: exercise.video_url || '',
       image_url: exercise.image_url || '',
+      image_urls: existingImages,
       category: exercise.category || '',
       difficulty: exercise.difficulty || 'beginner',
       duration_minutes: exercise.duration_minutes?.toString() || ''
@@ -315,7 +322,7 @@ export const ExercisesSection = ({
 
       {/* Add/Edit Exercise Dialog */}
       <Dialog open={isExerciseDialogOpen} onOpenChange={(open) => { setIsExerciseDialogOpen(open); if (!open) resetExerciseForm(); }}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingExercise ? (isRTL ? 'تعديل التمرين' : 'Edit Exercise') : (isRTL ? 'إضافة تمرين جديد' : 'Add New Exercise')}
@@ -363,21 +370,50 @@ export const ExercisesSection = ({
                 onChange={(e) => setExerciseForm({ ...exerciseForm, duration_minutes: e.target.value })}
               />
             </div>
-            <div>
-              <Label>{isRTL ? 'رابط الفيديو' : 'Video URL'}</Label>
+            {/* Video Section - separate from images */}
+            <div className="border-t pt-4">
+              <Label className="text-base font-semibold">
+                {isRTL ? '🎬 فيديو الشرح' : '🎬 Explanation Video'}
+              </Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                {isRTL ? 'رابط فيديو يوتيوب أو جوجل درايف لشرح التمرين' : 'YouTube or Google Drive link to explain the exercise'}
+              </p>
               <Input
                 value={exerciseForm.video_url}
                 onChange={(e) => setExerciseForm({ ...exerciseForm, video_url: e.target.value })}
+                placeholder="https://youtu.be/..."
               />
             </div>
-            <div>
-              <Label>{isRTL ? 'صورة التمرين' : 'Exercise Image'}</Label>
-              <ImageUpload
-                value={exerciseForm.image_url}
-                onChange={(url) => setExerciseForm({ ...exerciseForm, image_url: url })}
-                placeholder={isRTL ? 'اختر صورة التمرين' : 'Choose exercise image'}
-                folder="exercises"
-              />
+
+            {/* Images Section - separate from video, up to 4 */}
+            <div className="border-t pt-4">
+              <Label className="text-base font-semibold">
+                {isRTL ? '🖼️ صور ملخص التمرين (حتى 4)' : '🖼️ Exercise Summary Images (up to 4)'}
+              </Label>
+              <p className="text-xs text-muted-foreground mb-3">
+                {isRTL ? 'صور توضح ملخص التمرين، تظهر منفصلة عن الفيديو' : 'Images showing the exercise summary, displayed separately from the video'}
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                {[0, 1, 2, 3].map((idx) => (
+                  <ImageUpload
+                    key={idx}
+                    value={exerciseForm.image_urls[idx] || ''}
+                    onChange={(url) => {
+                      const next = [...exerciseForm.image_urls];
+                      if (url) {
+                        next[idx] = url;
+                      } else {
+                        next.splice(idx, 1);
+                      }
+                      // remove empty trailing slots
+                      const cleaned = next.filter(Boolean);
+                      setExerciseForm({ ...exerciseForm, image_urls: cleaned, image_url: cleaned[0] || '' });
+                    }}
+                    placeholder={isRTL ? `صورة ${idx + 1}` : `Image ${idx + 1}`}
+                    folder="exercises"
+                  />
+                ))}
+              </div>
             </div>
             <div>
               <Label>{isRTL ? 'الوصف' : 'Description'}</Label>

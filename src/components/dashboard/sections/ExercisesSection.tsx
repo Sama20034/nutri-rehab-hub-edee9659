@@ -31,6 +31,7 @@ interface Exercise {
   category: string | null;
   difficulty: string | null;
   image_url: string | null;
+  image_urls: string[] | null;
 }
 
 interface ClientExercise {
@@ -77,7 +78,7 @@ export const ExercisesSection = ({ isRTL, clientId }: ExercisesSectionProps) => 
           completed,
           completed_at,
           created_at,
-          exercise:exercises(id, name, description, video_url, duration_minutes, category, difficulty, image_url)
+          exercise:exercises(id, name, description, video_url, duration_minutes, category, difficulty, image_url, image_urls)
         `)
         .eq('client_id', clientId)
         .order('created_at', { ascending: false });
@@ -528,26 +529,49 @@ export const ExercisesSection = ({ isRTL, clientId }: ExercisesSectionProps) => 
                 <h2 className="text-2xl font-bold">{selectedExercise.exercise?.name}</h2>
               </div>
 
-              {/* Video/Image */}
-              {(selectedExercise.exercise?.video_url || selectedExercise.exercise?.image_url) && (
-                <div className="relative aspect-video rounded-xl overflow-hidden bg-muted">
-                  {selectedExercise.exercise?.image_url && !isPlayerOpen && (
-                    <img 
-                      src={selectedExercise.exercise.image_url} 
-                      alt={selectedExercise.exercise.name}
-                      className="w-full h-full object-cover"
-                    />
-                  )}
-                  {selectedExercise.exercise?.video_url && (
-                    <button
-                      onClick={() => handleWatchVideo(selectedExercise.exercise?.video_url || null)}
-                      className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/50 transition-colors"
-                    >
-                      <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
-                        <Play className="h-8 w-8 text-primary-foreground ml-1" />
-                      </div>
-                    </button>
-                  )}
+              {/* Images Gallery — separate from video */}
+              {(() => {
+                const imgs = (selectedExercise.exercise?.image_urls && selectedExercise.exercise.image_urls.length > 0)
+                  ? selectedExercise.exercise.image_urls
+                  : (selectedExercise.exercise?.image_url ? [selectedExercise.exercise.image_url] : []);
+                if (imgs.length === 0) return null;
+                return (
+                  <div>
+                    <h3 className="font-semibold mb-2 text-sm text-muted-foreground">
+                      {isRTL ? '🖼️ ملخص التمرين بالصور' : '🖼️ Exercise summary in images'}
+                    </h3>
+                    <div className={`grid gap-2 ${imgs.length === 1 ? 'grid-cols-1' : imgs.length === 2 ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-2'}`}>
+                      {imgs.map((src, i) => (
+                        <div key={i} className="aspect-square rounded-xl overflow-hidden bg-muted">
+                          <img
+                            src={src}
+                            alt={`${selectedExercise.exercise?.name} - ${i + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Video — separate explanation block */}
+              {selectedExercise.exercise?.video_url && (
+                <div>
+                  <h3 className="font-semibold mb-2 text-sm text-muted-foreground">
+                    {isRTL ? '🎬 شرح التمرين بالفيديو' : '🎬 Exercise explanation video'}
+                  </h3>
+                  <button
+                    onClick={() => handleWatchVideo(selectedExercise.exercise?.video_url || null)}
+                    className="relative w-full aspect-video rounded-xl overflow-hidden bg-muted flex items-center justify-center group hover:bg-muted/80 transition-colors"
+                  >
+                    <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Play className="h-8 w-8 text-primary-foreground ml-1" />
+                    </div>
+                    <span className="absolute bottom-3 text-sm text-foreground/80">
+                      {isRTL ? 'اضغط لمشاهدة الفيديو' : 'Click to watch video'}
+                    </span>
+                  </button>
                 </div>
               )}
 
