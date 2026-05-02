@@ -78,7 +78,7 @@ export const ExercisesSection = ({ isRTL, clientId }: ExercisesSectionProps) => 
           completed,
           completed_at,
           created_at,
-          exercise:exercises(id, name, description, video_url, duration_minutes, category, difficulty, image_url)
+          exercise:exercises(id, name, description, video_url, duration_minutes, category, difficulty, image_url, image_urls)
         `)
         .eq('client_id', clientId)
         .order('created_at', { ascending: false });
