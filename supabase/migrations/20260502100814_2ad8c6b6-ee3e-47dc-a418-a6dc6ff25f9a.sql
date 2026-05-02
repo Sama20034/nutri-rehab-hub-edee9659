@@ -1,0 +1,2 @@
+ALTER TABLE public.exercises
+ADD COLUMN IF NOT EXISTS image_urls text[] NOT NULL DEFAULT '{}'::text[];
